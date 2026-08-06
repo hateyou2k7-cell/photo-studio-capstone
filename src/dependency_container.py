@@ -10,5 +10,5 @@ class Container(containers.DeclarativeContainer):
     # Define your providers here
     # some_repository = providers.Factory(SomeRepository)
     # some_service = providers.Factory(SomeService, repository=some_repository)
-
-    pass  # This file is intentionally left blank for now.
+    database = providers.Factory()
+   
