@@ -17,6 +17,9 @@ class RoomService:
     def get_room(self, room_id: int) -> Optional[Room]:
         return self.repository.get_by_id(room_id)
 
+    def get_by_name(self, name: str, exclude_id: Optional[int] = None) -> Optional[Room]:
+        return self.repository.find_by_name(name, exclude_id)
+
     def list_rooms(self) -> List[Room]:
         return self.repository.list()
 

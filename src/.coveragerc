@@ -1,0 +1,11 @@
+[run]
+source =
+    services.space_service
+    infrastructure.repositories.space_repository
+    api.controllers.space_controller
+    api.schemas.space
+
+[report]
+show_missing = True
+skip_covered = False
+fail_under = 60

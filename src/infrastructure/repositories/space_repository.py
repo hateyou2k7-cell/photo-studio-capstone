@@ -1,5 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from domain.models.ispace_repository import ISpaceRepository
 from domain.models.space import Space
 from infrastructure.models.film_space_model import Space as SpaceModel, SpaceType
@@ -44,6 +45,31 @@ class SpaceRepository(ISpaceRepository):
 
     def list(self) -> List[SpaceModel]:
         return self.session.query(SpaceModel).all()
+
+    def search(self, filters: dict) -> List[SpaceModel]:
+        query = self.session.query(SpaceModel)
+        q = filters.get('q')
+        if q:
+            query = query.filter(or_(
+                SpaceModel.name.ilike(f'%{q}%'),
+                SpaceModel.description.ilike(f'%{q}%'),
+                SpaceModel.address.ilike(f'%{q}%'),
+            ))
+        space_type = filters.get('space_type')
+        if space_type:
+            query = query.filter(SpaceModel.type == SpaceType(space_type))
+        min_price = filters.get('min_price')
+        if min_price is not None:
+            query = query.filter(SpaceModel.base_price_per_hour >= min_price)
+        max_price = filters.get('max_price')
+        if max_price is not None:
+            query = query.filter(SpaceModel.base_price_per_hour <= max_price)
+        min_capacity = filters.get('min_capacity')
+        if min_capacity is not None:
+            query = query.filter(SpaceModel.max_capacity >= min_capacity)
+        if filters.get('available') is not None:
+            query = query.filter(SpaceModel.status == filters['available'])
+        return query.all()
 
     def update(self, space: Space) -> SpaceModel:
         try:

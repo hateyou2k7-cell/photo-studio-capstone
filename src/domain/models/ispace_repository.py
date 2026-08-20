@@ -16,6 +16,10 @@ class ISpaceRepository(ABC):
         pass
 
     @abstractmethod
+    def search(self, filters: dict) -> List[Space]:
+        pass
+
+    @abstractmethod
     def update(self, space: Space) -> Space:
         pass
 

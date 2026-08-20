@@ -27,6 +27,73 @@ def list_spaces():
     return jsonify(response_schema.dump(spaces, many=True)), 200
 
 
+@bp.route('/search', methods=['GET'])
+def search_spaces():
+    """
+    Search spaces (rooms) with filters
+    ---
+    get:
+      summary: Search spaces with filters (q, space_type, min_price, max_price, min_capacity, available)
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Text search on name, description, address
+        - name: space_type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: min_price
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: min_capacity
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: available
+          in: query
+          required: false
+          schema:
+            type: boolean
+      tags:
+        - Spaces
+      responses:
+        200:
+          description: List of matching spaces
+        400:
+          description: Invalid filter
+    """
+    filters = {}
+    if request.args.get('q'):
+        filters['q'] = request.args['q']
+    if request.args.get('space_type'):
+        filters['space_type'] = request.args['space_type']
+    if request.args.get('min_price') is not None:
+        filters['min_price'] = float(request.args['min_price'])
+    if request.args.get('max_price') is not None:
+        filters['max_price'] = float(request.args['max_price'])
+    if request.args.get('min_capacity') is not None:
+        filters['min_capacity'] = int(request.args['min_capacity'])
+    if request.args.get('available') is not None:
+        filters['available'] = request.args['available'].lower() in ('1', 'true', 'yes')
+    try:
+        spaces = space_service.search(filters)
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    return jsonify(response_schema.dump(spaces, many=True)), 200
+
+
 @bp.route('/<int:space_id>', methods=['GET'])
 def get_space(space_id):
     """

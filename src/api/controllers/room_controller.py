@@ -105,21 +105,30 @@ def create_room():
                   error:
                     type: string
     """
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({'message': 'Invalid or missing JSON body'}), 400
     errors = request_schema.validate(data)
     if errors:
-        return jsonify(errors), 400
+        return jsonify({'message': 'Validation error', 'errors': errors}), 400
+    if room_service.get_by_name(data['name']):
+        return jsonify({'message': 'A room with this name already exists'}), 409
     now = datetime.utcnow()
-    room = room_service.create_room(
-        name=data['name'],
-        description=data.get('description'),
-        room_type=data.get('room_type', 'standard'),
-        capacity=data.get('capacity', 1),
-        price_per_hour=data.get('price_per_hour', 0),
-        status=data.get('status', 'available'),
-        created_at=now,
-        updated_at=now
-    )
+    try:
+        room = room_service.create_room(
+            name=data['name'],
+            description=data.get('description'),
+            room_type=data['room_type'],
+            capacity=data['capacity'],
+            price_per_hour=data['price_per_hour'],
+            status=data['status'],
+            created_at=now,
+            updated_at=now
+        )
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception:
+        return jsonify({'message': 'Internal server error'}), 500
     return jsonify(response_schema.dump(room)), 201
 
 
@@ -174,21 +183,30 @@ def update_room(room_id):
     existing = room_service.get_room(room_id)
     if not existing:
         return jsonify({'message': 'Room not found'}), 404
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({'message': 'Invalid or missing JSON body'}), 400
     errors = request_schema.validate(data)
     if errors:
-        return jsonify(errors), 400
-    room = room_service.update_room(
-        room_id=room_id,
-        name=data['name'],
-        description=data.get('description'),
-        room_type=data.get('room_type', 'standard'),
-        capacity=data.get('capacity', 1),
-        price_per_hour=data.get('price_per_hour', 0),
-        status=data.get('status', 'available'),
-        created_at=existing.created_at,
-        updated_at=datetime.utcnow()
-    )
+        return jsonify({'message': 'Validation error', 'errors': errors}), 400
+    if room_service.get_by_name(data['name'], exclude_id=room_id):
+        return jsonify({'message': 'A room with this name already exists'}), 409
+    try:
+        room = room_service.update_room(
+            room_id=room_id,
+            name=data['name'],
+            description=data.get('description'),
+            room_type=data['room_type'],
+            capacity=data['capacity'],
+            price_per_hour=data['price_per_hour'],
+            status=data['status'],
+            created_at=existing.created_at,
+            updated_at=datetime.utcnow()
+        )
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception:
+        return jsonify({'message': 'Internal server error'}), 500
     return jsonify(response_schema.dump(room)), 200
 
 
@@ -224,5 +242,10 @@ def delete_room(room_id):
     existing = room_service.get_room(room_id)
     if not existing:
         return jsonify({'message': 'Room not found'}), 404
-    room_service.delete_room(room_id)
+    try:
+        room_service.delete_room(room_id)
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    except Exception:
+        return jsonify({'message': 'Internal server error'}), 500
     return '', 204

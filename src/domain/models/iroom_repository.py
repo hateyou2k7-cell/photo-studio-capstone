@@ -12,6 +12,10 @@ class IRoomRepository(ABC):
         pass
 
     @abstractmethod
+    def find_by_name(self, name: str, exclude_id: Optional[int] = None) -> Optional[Room]:
+        pass
+
+    @abstractmethod
     def list(self) -> List[Room]:
         pass
 

@@ -25,6 +25,16 @@ class SpaceService:
     def list(self) -> List[Space]:
         return self.repository.list()
 
+    def search(self, filters: dict) -> List[Space]:
+        space_type = filters.get('space_type')
+        if space_type and space_type not in SPACE_TYPES:
+            raise ValueError("space_type must be 'darkroom' or 'studio'")
+        min_price = filters.get('min_price')
+        max_price = filters.get('max_price')
+        if min_price is not None and max_price is not None and min_price > max_price:
+            raise ValueError('min_price cannot be greater than max_price')
+        return self.repository.search(filters)
+
     def update(self, space_id: int, provider_id: int, name: str, space_type: str,
                description=None, address=None, max_capacity=None,
                base_price_per_hour=0, status=True, **optional) -> Space:

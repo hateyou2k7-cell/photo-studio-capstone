@@ -35,6 +35,12 @@ class RoomRepository(IRoomRepository):
     def get_by_id(self, room_id: int) -> Optional[RoomModel]:
         return self.session.query(RoomModel).filter_by(id=room_id).first()
 
+    def find_by_name(self, name: str, exclude_id: Optional[int] = None) -> Optional[RoomModel]:
+        query = self.session.query(RoomModel).filter(RoomModel.name == name)
+        if exclude_id is not None:
+            query = query.filter(RoomModel.id != exclude_id)
+        return query.first()
+
     def list(self) -> List[RoomModel]:
         return self.session.query(RoomModel).all()
 
