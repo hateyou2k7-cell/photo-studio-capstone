@@ -4,6 +4,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 class FactoryConfig:
     """Factory to get configuration based on environment."""
     @staticmethod
@@ -24,6 +26,8 @@ class Config:
     TESTING = os.environ.get('TESTING', 'False').lower() in ['true', '1']
     DATABASE_URI = os.environ.get('DATABASE_URI') or 'mssql+pymssql://sa:Aa%40123456@127.0.0.1:1433/DemoFlaskApi'
     CORS_HEADERS = 'Content-Type'
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+    MAX_CONTENT_LENGTH = 20 * 1024 * 1024
 
 class DevelopmentConfig(Config):
     """Development configuration."""

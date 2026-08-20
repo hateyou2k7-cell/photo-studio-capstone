@@ -1,0 +1,176 @@
+from flask import Blueprint, request, jsonify
+from services.space_service import SpaceService
+from infrastructure.repositories.space_repository import SpaceRepository
+from api.schemas.space import SpaceRequestSchema, SpaceResponseSchema
+
+bp = Blueprint('space', __name__, url_prefix='/spaces')
+
+space_service = SpaceService(SpaceRepository())
+request_schema = SpaceRequestSchema()
+response_schema = SpaceResponseSchema()
+
+
+@bp.route('/', methods=['GET'])
+def list_spaces():
+    """
+    Get all spaces (rooms)
+    ---
+    get:
+      summary: Get all spaces (rooms)
+      tags:
+        - Spaces
+      responses:
+        200:
+          description: List of spaces
+    """
+    spaces = space_service.list()
+    return jsonify(response_schema.dump(spaces, many=True)), 200
+
+
+@bp.route('/<int:space_id>', methods=['GET'])
+def get_space(space_id):
+    """
+    Get a space by id
+    ---
+    get:
+      summary: Get a space (room) by id
+      parameters:
+        - name: space_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      tags:
+        - Spaces
+      responses:
+        200:
+          description: object of space
+        404:
+          description: Space not found
+    """
+    space = space_service.get(space_id)
+    if not space:
+        return jsonify({'message': 'Space not found'}), 404
+    return jsonify(response_schema.dump(space)), 200
+
+
+@bp.route('/', methods=['POST'])
+def create_space():
+    """
+    Create a new space (room)
+    ---
+    post:
+      summary: Create a new space (room) for a provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpaceRequest'
+      tags:
+        - Spaces
+      responses:
+        201:
+          description: Space created successfully
+        400:
+          description: Invalid input
+    """
+    data = request.get_json()
+    errors = request_schema.validate(data)
+    if errors:
+        return jsonify(errors), 400
+    try:
+        space = space_service.create(
+            provider_id=data['provider_id'],
+            name=data['name'],
+            space_type=data['space_type'],
+            description=data.get('description'),
+            address=data.get('address'),
+            max_capacity=data.get('max_capacity'),
+            base_price_per_hour=data.get('base_price_per_hour', 0),
+            status=data.get('status', True)
+        )
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    return jsonify(response_schema.dump(space)), 201
+
+
+@bp.route('/<int:space_id>', methods=['PUT'])
+def update_space(space_id):
+    """
+    Update a space by id
+    ---
+    put:
+      summary: Update a space (room) by id
+      parameters:
+        - name: space_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpaceRequest'
+      tags:
+        - Spaces
+      responses:
+        200:
+          description: Space updated successfully
+        400:
+          description: Invalid input
+        404:
+          description: Space not found
+    """
+    existing = space_service.get(space_id)
+    if not existing:
+        return jsonify({'message': 'Space not found'}), 404
+    data = request.get_json()
+    errors = request_schema.validate(data)
+    if errors:
+        return jsonify(errors), 400
+    try:
+        space = space_service.update(
+            space_id=space_id,
+            provider_id=data['provider_id'],
+            name=data['name'],
+            space_type=data['space_type'],
+            description=data.get('description'),
+            address=data.get('address'),
+            max_capacity=data.get('max_capacity'),
+            base_price_per_hour=data.get('base_price_per_hour', 0),
+            status=data.get('status', True)
+        )
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+    return jsonify(response_schema.dump(space)), 200
+
+
+@bp.route('/<int:space_id>', methods=['DELETE'])
+def delete_space(space_id):
+    """
+    Delete a space by id
+    ---
+    delete:
+      summary: Delete a space (room) by id
+      parameters:
+        - name: space_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      tags:
+        - Spaces
+      responses:
+        204:
+          description: Space deleted successfully
+        404:
+          description: Space not found
+    """
+    existing = space_service.get(space_id)
+    if not existing:
+        return jsonify({'message': 'Space not found'}), 404
+    space_service.delete(space_id)
+    return '', 204

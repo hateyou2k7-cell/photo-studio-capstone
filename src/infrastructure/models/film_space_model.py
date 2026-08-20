@@ -47,6 +47,8 @@ class Space(Base):
 
     provider = relationship('ProviderProfile', back_populates='spaces')
     resources = relationship('SpaceResource', back_populates='space')
+    images = relationship('SpaceImage', back_populates='space', cascade='all, delete-orphan')
+    schedule = relationship('SpaceSchedule', back_populates='space', cascade='all, delete-orphan')
 
 
 class Resource(Base):

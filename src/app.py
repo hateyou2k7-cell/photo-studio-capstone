@@ -1,9 +1,13 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
+import os
 # from api.routes import register_routes
 from api.swagger import spec
 from api.controllers.todo_controller import bp as todo_bp
 from api.controllers.auth_controller import auth_bp as auth_bp
 from api.controllers.room_controller import bp as room_bp
+from api.controllers.space_image_controller import bp as space_image_bp
+from api.controllers.space_schedule_controller import bp as space_schedule_bp
+from api.controllers.space_controller import bp as space_bp
 from api.middleware import middleware
 from api.responses import success_response
 from infrastructure.databases import init_db
@@ -20,6 +24,9 @@ def create_app():
     app.register_blueprint(todo_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(room_bp)
+    app.register_blueprint(space_image_bp)
+    app.register_blueprint(space_schedule_bp)
+    app.register_blueprint(space_bp)
     # register_routes(app)
      # Thêm Swagger UI blueprint
     SWAGGER_URL = '/docs'
@@ -43,7 +50,7 @@ def create_app():
     with app.test_request_context():
         for rule in app.url_map.iter_rules():
             # Thêm các endpoint khác nếu cần
-            if rule.endpoint.startswith(('todo.', 'course.', 'user.', 'auth.', 'room.')):
+            if rule.endpoint.startswith(('todo.', 'course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.')):
                 view_func = app.view_functions[rule.endpoint]
                 print(f"Adding path: {rule.rule} -> {view_func}")
                 spec.path(view=view_func)
@@ -51,6 +58,13 @@ def create_app():
     @app.route("/swagger.json")
     def swagger_json():
         return jsonify(spec.to_dict())
+
+    upload_folder = Config.UPLOAD_FOLDER
+    os.makedirs(upload_folder, exist_ok=True)
+
+    @app.route("/uploads/<path:filename>")
+    def uploaded_file(filename):
+        return send_from_directory(upload_folder, filename)
 
     return app
 # Run the application
