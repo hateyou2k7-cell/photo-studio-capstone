@@ -3,6 +3,7 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from api.schemas.auth import LoginUserRequestSchema, LoginUserResponseSchema, RigisterUserRequestSchema, RigisterUserResponseSchema
 from api.schemas.todo import TodoRequestSchema, TodoResponseSchema
+from api.schemas.room import RoomRequestSchema, RoomResponseSchema
 
 spec = APISpec(
     title="Todo API",
@@ -18,3 +19,5 @@ spec.components.schema("LoginUserRequest", schema= LoginUserRequestSchema)
 spec.components.schema("LoginUserResponse", schema= LoginUserResponseSchema)
 spec.components.schema("RigisterUserRequest", schema= RigisterUserRequestSchema)
 spec.components.schema("RigisterUserResponse", schema= RigisterUserResponseSchema)
+spec.components.schema("RoomRequest", schema=RoomRequestSchema)
+spec.components.schema("RoomResponse", schema=RoomResponseSchema)
