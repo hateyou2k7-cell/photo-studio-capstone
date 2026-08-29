@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from api.pagination import paginate_list
 from services.space_service import SpaceService
 from infrastructure.repositories.space_repository import SpaceRepository
 from api.schemas.space import SpaceRequestSchema, SpaceResponseSchema
@@ -24,7 +25,7 @@ def list_spaces():
           description: List of spaces
     """
     spaces = space_service.list()
-    return jsonify(response_schema.dump(spaces, many=True)), 200
+    return jsonify(paginate_list(spaces, response_schema)), 200
 
 
 @bp.route('/search', methods=['GET'])
@@ -91,7 +92,7 @@ def search_spaces():
         spaces = space_service.search(filters)
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
-    return jsonify(response_schema.dump(spaces, many=True)), 200
+    return jsonify(paginate_list(spaces, response_schema)), 200
 
 
 @bp.route('/<int:space_id>', methods=['GET'])

@@ -13,6 +13,7 @@ from infrastructure.databases.mssql import session
 from sqlalchemy.orm import Session
 from infrastructure.models.auth.auth_user_model import AuthUserModel
 from infrastructure.models.user_model import UserModel
+from werkzeug.security import check_password_hash
 load_dotenv()
 
 
@@ -23,15 +24,12 @@ class AuthRepository(IAuthRepository):
         self.session = db_factory.get_database('POSTGREE').session
     
     def login(self, auth: Auth) -> Auth:
-        # Implement login logic here
-        # For demonstration, we will just return the auth object
-        selfed_user = self.session.query(AuthUserModel).filter_by(
-            username=auth.username,
-            password_hash=auth.password
-        ).first()
-        if not selfed_user:
+        user = self.session.query(AuthUserModel).filter_by(username=auth.username).first()
+        if not user:
             return None
-        auth.id = selfed_user.id
+        if not check_password_hash(user.password_hash, auth.password):
+            return None
+        auth.id = user.id
         return auth
    
     def register(self, auth: Auth) -> Optional[Auth]:

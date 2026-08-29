@@ -67,9 +67,10 @@ def login():
                     type: string
     """
     data = request.get_json()
-    username=data['username'],
-    password=data['password']
-    password = generate_password_hash(password)
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({'error': 'Missing username or password'}), 400
     user = auth_service.login(username, password)
     if not user:
         return jsonify({'error': 'Invalid credentials'}), 401
@@ -79,7 +80,7 @@ def login():
         'exp': datetime.utcnow() + timedelta(hours=2)
     }
     token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
-    return jsonify({'token': token})
+    return jsonify({'token': token, 'user_id': user.id})
 
 
 @auth_bp.route('/signup', methods=['POST'])

@@ -21,7 +21,7 @@ class CourseRepository(ICourseRepository):
     def add(self, course: Course) -> Course:
         course.id = self._id_counter
         self._id_counter += 1
-        self._todos.append(course)
+        self._courses.append(course)
         return course
 
     def get_by_id(self, course_id: int) -> Optional[Course]:

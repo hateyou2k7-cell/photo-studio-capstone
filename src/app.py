@@ -8,6 +8,8 @@ from api.controllers.room_controller import bp as room_bp
 from api.controllers.space_image_controller import bp as space_image_bp
 from api.controllers.space_schedule_controller import bp as space_schedule_bp
 from api.controllers.space_controller import bp as space_bp
+from api.controllers.reservation_controller import bp as reservation_bp
+from api.controllers.billing_controller import bp as billing_bp
 from api.middleware import middleware
 from api.responses import success_response
 from infrastructure.databases import init_db
@@ -27,6 +29,8 @@ def create_app():
     app.register_blueprint(space_image_bp)
     app.register_blueprint(space_schedule_bp)
     app.register_blueprint(space_bp)
+    app.register_blueprint(reservation_bp)
+    app.register_blueprint(billing_bp)
     # register_routes(app)
      # Thêm Swagger UI blueprint
     SWAGGER_URL = '/docs'
@@ -50,7 +54,7 @@ def create_app():
     with app.test_request_context():
         for rule in app.url_map.iter_rules():
             # Thêm các endpoint khác nếu cần
-            if rule.endpoint.startswith(('todo.', 'course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.')):
+            if rule.endpoint.startswith(('todo.', 'course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.', 'reservation.', 'billing.')):
                 view_func = app.view_functions[rule.endpoint]
                 print(f"Adding path: {rule.rule} -> {view_func}")
                 spec.path(view=view_func)
