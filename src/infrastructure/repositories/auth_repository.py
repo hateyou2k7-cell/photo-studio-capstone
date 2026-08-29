@@ -1,27 +1,15 @@
 from domain.models.iauth_repository import IAuthRepository
 from domain.models.auth import Auth
-from infrastructure.databases import Base
-from typing import List, Optional
-from dotenv import load_dotenv
-import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from config import Config
-from sqlalchemy import Column, Integer, String, DateTime
+from typing import Optional
 from infrastructure.databases.factory_database import FactoryDatabase as db_factory
-from infrastructure.databases.mssql import session
 from sqlalchemy.orm import Session
 from infrastructure.models.auth.auth_user_model import AuthUserModel
-from infrastructure.models.user_model import UserModel
 from werkzeug.security import check_password_hash
-load_dotenv()
 
 
 class AuthRepository(IAuthRepository):
-    def __init__(self, session: Session = session):
-        self._users = []
-        self._id_counter = 1
-        self.session = db_factory.get_database('POSTGREE').session
+    def __init__(self, session: Session = None):
+        self.session = session or db_factory.get_database('POSTGREE').session
     
     def login(self, auth: Auth) -> Auth:
         user = self.session.query(AuthUserModel).filter_by(username=auth.username).first()
