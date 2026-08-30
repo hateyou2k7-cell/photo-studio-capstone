@@ -74,7 +74,7 @@ def create_app():
         html = '''<!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8"><title>Photo Studio Management</title>
+<meta charset="UTF-8"><title>Photo Studio - Test GUI</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Arial,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
@@ -114,6 +114,7 @@ th{color:#e94560;background:#0f3460}
 <body>
 <div class="topbar">
 <h1>Photo Studio Management</h1>
+<span style="background:#e94560;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px">TEST GUI</span>
 <div>
 <a href="/docs">Swagger UI</a>
 <a href="/swagger.json">API JSON</a>
