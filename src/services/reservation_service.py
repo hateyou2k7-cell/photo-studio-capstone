@@ -143,7 +143,6 @@ class ReservationService:
             current = current.value
         if current not in ('confirmed', 'approved'):
             raise ValueError('Reservation must be confirmed before check-in')
-        self.repository.update_status(reservation_id, 'checked_in')
         return self.repository.check_in(reservation_id)
 
     def check_out(self, reservation_id: int) -> ServiceSession:
@@ -155,7 +154,6 @@ class ReservationService:
             current = current.value
         if current != 'checked_in':
             raise ValueError('Reservation must be checked_in before check-out')
-        self.repository.update_status(reservation_id, 'checked_out')
         return self.repository.check_out(reservation_id)
 
     def add_review(self, reservation_id: int, user_id: int, rating: int,
