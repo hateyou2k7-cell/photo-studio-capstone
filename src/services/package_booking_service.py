@@ -1,5 +1,5 @@
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from domain.models.package_booking import PackageBookingDomain
 from domain.models.ipackage_booking_repository import IPackageBookingRepository
 from infrastructure.models.equipment_model import Equipment as EquipmentModel, package_equipments
@@ -99,7 +99,7 @@ class PackageBookingService:
     def create(self, package_id: int, customer_id: int, start_time, end_time, notes=None) -> PackageBookingDomain:
         if start_time >= end_time:
             raise ValueError('start_time must be before end_time')
-        if start_time < datetime.utcnow():
+        if start_time < datetime.now(timezone.utc):
             raise ValueError('start_time cannot be in the past')
         pkg, equipments = self.availability_service.get_package_with_equipment(package_id)
         if not pkg:

@@ -88,8 +88,8 @@ class ServiceSession(Base):
 
     id = Column(BigInteger, primary_key=True)
     reservation_id = Column(BigInteger, ForeignKey('reservations.id'), nullable=False)
-    checked_in_at = Column(DateTime)
-    checked_out_at = Column(DateTime)
+    checked_in_at = Column(DateTime(timezone=True))
+    checked_out_at = Column(DateTime(timezone=True))
     actual_duration_minutes = Column(Integer)
     status = Column(String(50), default='in_progress')
 
