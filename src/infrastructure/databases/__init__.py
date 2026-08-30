@@ -7,6 +7,7 @@ from infrastructure.models import space_management_model
 from infrastructure.models.auth import auth_user_model, auth_role_model,auth_funtion_model
 from infrastructure.models.sell import sell_customer_model, sell_product_model, sell_invoice_model
 from infrastructure.models.pay import pay_tran_model
+from infrastructure.models import equipment_model, package_booking_model
 from infrastructure.models import (User, ProviderProfile, Space, Resource, SpaceResource, Consumable,
                                    ServicePackage, PackageItem, Reservation, ReservationItem, Payment,
                                    ServiceSession, Review, Post, Comment, Workshop, WorkshopRegistration,

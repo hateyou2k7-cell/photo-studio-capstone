@@ -19,11 +19,14 @@ class ServicePackage(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text)
     price = Column(Numeric(12, 2), nullable=False, default=0)
+    duration_minutes = Column(Integer, default=60)
     status = Column(Boolean, default=True)
     created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     provider = relationship('ProviderProfile', back_populates='packages')
     items = relationship('PackageItem', back_populates='package')
+    equipments = relationship('Equipment', secondary='package_equipments', back_populates='packages')
 
 
 class PackageItem(Base):
