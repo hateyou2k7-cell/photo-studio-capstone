@@ -1,7 +1,6 @@
 import enum
 from sqlalchemy import func, Column, BigInteger, String, Text, Boolean, DateTime, Numeric, ForeignKey, Index, Table
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
 from infrastructure.databases.base import Base
 
 
@@ -38,14 +37,14 @@ class Equipment(Base):
     space_id = Column(BigInteger, ForeignKey('spaces.id'), nullable=True)
     name = Column(String(255), nullable=False)
     model_name = Column(String(255))
-    type = Column(ENUM(EquipmentType), nullable=False)
+    type = Column(String(50), nullable=False)
     compatibility = Column(String(255))
-    condition = Column(ENUM(EquipmentCondition), default=EquipmentCondition.good)
+    condition = Column(String(50))
     description = Column(Text)
-    price_per_hour = Column(Numeric(12, 2), default=0)
+    price_per_hour = Column(Numeric)
     is_available = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now())
 
     space = relationship('Space', backref='equipments')
     packages = relationship('ServicePackage', secondary=package_equipments, back_populates='equipments')

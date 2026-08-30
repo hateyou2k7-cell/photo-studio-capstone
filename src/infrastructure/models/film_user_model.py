@@ -1,6 +1,5 @@
-from sqlalchemy import func, Column, Integer, BigInteger, String, Text, Boolean, DateTime, Numeric, Enum, ForeignKey
+from sqlalchemy import func, Column, Integer, BigInteger, String, Text, Boolean, DateTime, Numeric, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
 from infrastructure.databases.base import Base
 
 import enum
@@ -28,10 +27,10 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     phone = Column(String(20))
     avatar_url = Column(String(500))
-    role = Column(ENUM(UserRole), nullable=False, default=UserRole.photographer)
+    role = Column(String(50), nullable=False, default='photographer')
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now())
 
     provider_profile = relationship('ProviderProfile', back_populates='user', uselist=False)
 
@@ -44,8 +43,8 @@ class ProviderProfile(Base):
     business_name = Column(String(255), nullable=False)
     description = Column(Text)
     address = Column(String(255))
-    status = Column(ENUM(ProviderStatus), default=ProviderStatus.pending)
-    created_at = Column(DateTime, default=func.now())
+    status = Column(String(50), default='pending')
+    created_at = Column(DateTime, server_default=func.now())
 
     user = relationship('User', back_populates='provider_profile')
     spaces = relationship('Space', back_populates='provider')

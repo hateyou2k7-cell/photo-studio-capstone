@@ -34,7 +34,7 @@ class PackageItem(Base):
 
     id = Column(BigInteger, primary_key=True)
     package_id = Column(BigInteger, ForeignKey('service_packages.id', ondelete='CASCADE'), nullable=False)
-    item_type = Column(ENUM(ItemType), nullable=False)
+    item_type = Column(String(50), nullable=False)
     item_id = Column(BigInteger, nullable=False)
     quantity = Column(Integer, default=1)
 

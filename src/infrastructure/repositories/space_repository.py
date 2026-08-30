@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from domain.models.ispace_repository import ISpaceRepository
 from domain.models.space import Space
-from infrastructure.models.film_space_model import Space as SpaceModel, SpaceType
+from infrastructure.models.film_space_model import Space as SpaceModel
 from infrastructure.databases.factory_database import FactoryDatabase as db_factory
 
 
@@ -16,7 +16,7 @@ class SpaceRepository(ISpaceRepository):
             model = SpaceModel(
                 provider_id=space.provider_id,
                 name=space.name,
-                type=SpaceType(space.space_type),
+                type=space.space_type,
                 description=space.description,
                 address=space.address,
                 max_capacity=space.max_capacity,
@@ -37,8 +37,6 @@ class SpaceRepository(ISpaceRepository):
         except Exception:
             self.session.rollback()
             raise ValueError('Could not create space')
-        finally:
-            self.session.close()
 
     def get_by_id(self, space_id: int) -> Optional[SpaceModel]:
         return self.session.query(SpaceModel).filter_by(id=space_id).first()
@@ -57,7 +55,7 @@ class SpaceRepository(ISpaceRepository):
             ))
         space_type = filters.get('space_type')
         if space_type:
-            query = query.filter(SpaceModel.type == SpaceType(space_type))
+            query = query.filter(SpaceModel.type == space_type)
         min_price = filters.get('min_price')
         if min_price is not None:
             query = query.filter(SpaceModel.base_price_per_hour >= min_price)
@@ -78,7 +76,7 @@ class SpaceRepository(ISpaceRepository):
                 raise ValueError('Space not found')
             existing.provider_id = space.provider_id
             existing.name = space.name
-            existing.type = SpaceType(space.space_type)
+            existing.type = space.space_type
             existing.description = space.description
             existing.address = space.address
             existing.max_capacity = space.max_capacity
@@ -100,8 +98,6 @@ class SpaceRepository(ISpaceRepository):
         except Exception:
             self.session.rollback()
             raise ValueError('Could not update space')
-        finally:
-            self.session.close()
 
     def delete(self, space_id: int) -> None:
         try:
@@ -111,8 +107,8 @@ class SpaceRepository(ISpaceRepository):
                 self.session.commit()
             else:
                 raise ValueError('Space not found')
+        except ValueError:
+            raise
         except Exception:
             self.session.rollback()
             raise ValueError('Space not found')
-        finally:
-            self.session.close()

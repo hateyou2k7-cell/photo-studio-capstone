@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func as sa_func
 from domain.models.ipackage_booking_repository import IPackageBookingRepository
 from domain.models.package_booking import PackageBookingDomain
-from infrastructure.models.package_booking_model import PackageBooking as BookingModel, BookingStatus
+from infrastructure.models.package_booking_model import PackageBooking as BookingModel
 from infrastructure.models.equipment_model import Equipment as EquipmentModel, package_equipments
 from infrastructure.databases.factory_database import FactoryDatabase as db_factory
 
@@ -20,7 +20,7 @@ class PackageBookingRepository(IPackageBookingRepository):
                 customer_id=booking.customer_id,
                 start_time=booking.start_time,
                 end_time=booking.end_time,
-                status=BookingStatus(booking.status),
+                status=booking.status,
                 total_price=booking.total_price,
                 notes=booking.notes,
             )
@@ -46,7 +46,7 @@ class PackageBookingRepository(IPackageBookingRepository):
                 query = query.filter(BookingModel.customer_id == customer_id)
             status = filters.get('status')
             if status:
-                query = query.filter(BookingModel.status == BookingStatus(status))
+                query = query.filter(BookingModel.status == status)
         return query.order_by(BookingModel.created_at.desc()).all()
 
     def update(self, booking: PackageBookingDomain) -> BookingModel:
@@ -55,7 +55,7 @@ class PackageBookingRepository(IPackageBookingRepository):
             if not existing:
                 raise ValueError('Booking not found')
             if booking.status is not None:
-                existing.status = BookingStatus(booking.status)
+                existing.status = booking.status
             if booking.notes is not None:
                 existing.notes = booking.notes
             if booking.total_price is not None:
@@ -73,7 +73,7 @@ class PackageBookingRepository(IPackageBookingRepository):
     def find_conflicts(self, space_id: int, start_time, end_time, exclude_id=None) -> list:
         query = self.session.query(BookingModel).filter(
             BookingModel.space_id == space_id,
-            BookingModel.status.in_([BookingStatus.pending, BookingStatus.confirmed]),
+            BookingModel.status.in_(['pending', 'confirmed']),
             BookingModel.start_time < end_time,
             BookingModel.end_time > start_time,
         )
@@ -93,7 +93,7 @@ class PackageBookingRepository(IPackageBookingRepository):
             if pkg_ids:
                 bookings = self.session.query(BookingModel).filter(
                     BookingModel.package_id.in_(pkg_ids),
-                    BookingModel.status.in_([BookingStatus.pending, BookingStatus.confirmed]),
+                    BookingModel.status.in_(['pending', 'confirmed']),
                     BookingModel.start_time < end_time,
                     BookingModel.end_time > start_time,
                 )

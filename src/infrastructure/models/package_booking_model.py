@@ -1,7 +1,6 @@
 import enum
 from sqlalchemy import func, Column, BigInteger, String, Text, Boolean, DateTime, ForeignKey, Index
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
 from infrastructure.databases.base import Base
 
 
@@ -21,10 +20,10 @@ class PackageBooking(Base):
     customer_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
-    status = Column(ENUM(BookingStatus), default=BookingStatus.pending)
+    status = Column(String(50))
     total_price = Column(BigInteger, default=0)
     notes = Column(Text)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
 
     package = relationship('ServicePackage', backref='bookings')
     space = relationship('Space', backref='package_bookings')

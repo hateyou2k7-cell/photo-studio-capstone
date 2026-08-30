@@ -18,7 +18,7 @@ def _build_user_profile(customer_id: int) -> dict:
     session = FactoryDatabase.get_database('POSTGREE').session
     bookings = session.query(PackageBooking).filter(
         PackageBooking.customer_id == customer_id,
-        PackageBooking.status.in_([BookingStatus.confirmed, BookingStatus.completed]),
+        PackageBooking.status.in_(['confirmed', 'completed']),
     ).all()
     if not bookings:
         return {'has_history': False}

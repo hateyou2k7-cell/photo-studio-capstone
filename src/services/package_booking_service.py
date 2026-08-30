@@ -26,10 +26,10 @@ class ResourceAvailabilityService:
         if not pkg:
             return [{'resource_type': 'package', 'resource_id': package_id, 'resource_name': 'Package not found'}]
         conflicts = []
-        from infrastructure.models.package_booking_model import PackageBooking, BookingStatus
+        from infrastructure.models.package_booking_model import PackageBooking
         space_bookings = self.session.query(PackageBooking).filter(
             PackageBooking.space_id == pkg.provider_id,
-            PackageBooking.status.in_([BookingStatus.pending, BookingStatus.confirmed]),
+            PackageBooking.status.in_(['pending', 'confirmed']),
             PackageBooking.start_time < end_time,
             PackageBooking.end_time > start_time,
         )
@@ -51,7 +51,7 @@ class ResourceAvailabilityService:
                 if pkg_ids:
                     eq_bookings = self.session.query(PackageBooking).filter(
                         PackageBooking.package_id.in_(pkg_ids),
-                        PackageBooking.status.in_([BookingStatus.pending, BookingStatus.confirmed]),
+                        PackageBooking.status.in_(['pending', 'confirmed']),
                         PackageBooking.start_time < end_time,
                         PackageBooking.end_time > start_time,
                     )

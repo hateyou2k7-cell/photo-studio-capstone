@@ -1,7 +1,6 @@
 import enum
 from sqlalchemy import func, Column, BigInteger, String, Text, Boolean, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
 from infrastructure.databases.base import Base
 
 
@@ -26,11 +25,11 @@ class Post(Base):
     author_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
-    category = Column(ENUM(PostCategory), nullable=False, default=PostCategory.article)
+    category = Column(String(50), nullable=False, default='article')
     is_published = Column(Boolean, default=True)
     view_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now())
 
     author = relationship('User')
     comments = relationship('Comment', back_populates='post')
@@ -43,7 +42,7 @@ class Comment(Base):
     post_id = Column(BigInteger, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False)
     user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, server_default=func.now())
 
     post = relationship('Post', back_populates='comments')
     user = relationship('User')
@@ -60,7 +59,7 @@ class Workshop(Base):
     location = Column(String(255))
     capacity = Column(Integer, nullable=False, default=10)
     price = Column(Integer, default=0)
-    status = Column(ENUM(WorkshopStatus), default=WorkshopStatus.open)
+    status = Column(String(50), default='open')
 
     expert = relationship('User')
     registrations = relationship('WorkshopRegistration', back_populates='workshop')
@@ -73,7 +72,7 @@ class WorkshopRegistration(Base):
     workshop_id = Column(BigInteger, ForeignKey('workshops.id', ondelete='CASCADE'), nullable=False)
     user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
     status = Column(String(20), default='registered')
-    registered_at = Column(DateTime, default=func.now())
+    registered_at = Column(DateTime, server_default=func.now())
 
     workshop = relationship('Workshop', back_populates='registrations')
     user = relationship('User')
