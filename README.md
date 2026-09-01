@@ -6,6 +6,27 @@ Nền tảng kết nối cộng đồng nhiếp ảnh phim với dịch vụ ph�
 
 ---
 
+## Quick Start
+
+```bash
+git clone https://github.com/hateyou2k7-cell/photo-studio-capstone.git
+cd photo-studio-capstone/src
+
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+pip install -r requirements.txt
+cp .env.example .env
+
+python app.py
+```
+
+Mở `http://localhost:9999` để thấy GUI.
+
+Tài khoản admin: `admin` / `admin123`
+
+---
+
 ## Trạng thái
 
 | Luồng nghiệp vụ | Hoàn thành | Mô tả |
