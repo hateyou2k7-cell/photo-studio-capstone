@@ -1,7 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
-from domain.models.reservation import Reservation, ReservationItem, Payment, ServiceSession, Review
-from domain.models.ireservation_repository import IReservationRepository
+from business.models.reservation import Reservation, ReservationItem, Payment, ServiceSession, Review
+from business.models.ireservation_repository import IReservationRepository
 
 RESERVATION_STATUSES = {'pending', 'approved', 'confirmed', 'checked_in', 'checked_out', 'completed', 'cancelled'}
 PAYMENT_METHODS = {'vnpay', 'momo', 'cash'}

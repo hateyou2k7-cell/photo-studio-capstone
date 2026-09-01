@@ -39,8 +39,8 @@ def search_faq(query: str) -> dict:
 
 def suggest_equipment_local(equipment_type: str = None, compatibility: str = None) -> dict:
     try:
-        from infrastructure.databases.factory_database import FactoryDatabase
-        from infrastructure.models.equipment_model import Equipment as EqModel, EquipmentType
+        from database.databases.factory_database import FactoryDatabase
+        from database.models.equipment_model import Equipment as EqModel, EquipmentType
         session = FactoryDatabase.get_database('POSTGREE').session
         query = session.query(EqModel).filter_by(is_available=True)
         if equipment_type:
@@ -60,8 +60,8 @@ def suggest_equipment_local(equipment_type: str = None, compatibility: str = Non
 def suggest_rooms_local(space_type: str = None, art_style: str = None,
                         district: str = None, max_price: float = None) -> dict:
     try:
-        from infrastructure.databases.factory_database import FactoryDatabase
-        from infrastructure.models.film_space_model import Space, SpaceType
+        from database.databases.factory_database import FactoryDatabase
+        from database.models.film_space_model import Space, SpaceType
         session = FactoryDatabase.get_database('POSTGREE').session
         query = session.query(Space).filter_by(status=True)
         if space_type:
@@ -86,8 +86,8 @@ def suggest_rooms_local(space_type: str = None, art_style: str = None,
 
 def suggest_packages_local(keyword: str = None, max_price: float = None) -> dict:
     try:
-        from infrastructure.databases.factory_database import FactoryDatabase
-        from infrastructure.models.film_package_model import ServicePackage
+        from database.databases.factory_database import FactoryDatabase
+        from database.models.film_package_model import ServicePackage
         session = FactoryDatabase.get_database('POSTGREE').session
         query = session.query(ServicePackage).filter_by(status=True)
         items = query.all()

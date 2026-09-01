@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from api.pagination import paginate_list
 from services.equipment_service import EquipmentService
-from infrastructure.repositories.equipment_repository import EquipmentRepository
+from database.repositories.equipment_repository import EquipmentRepository
 from api.schemas.equipment import EquipmentRequestSchema, EquipmentUpdateSchema, EquipmentResponseSchema
 
 bp = Blueprint('equipment', __name__, url_prefix='/api/v1/equipment')

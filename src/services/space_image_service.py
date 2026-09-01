@@ -3,8 +3,8 @@ import uuid
 from typing import List, Optional
 from werkzeug.utils import secure_filename
 from config import Config
-from domain.models.space_image import SpaceImage
-from domain.models.ispace_image_repository import ISpaceImageRepository
+from business.models.space_image import SpaceImage
+from business.models.ispace_image_repository import ISpaceImageRepository
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
 

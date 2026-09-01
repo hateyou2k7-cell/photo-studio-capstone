@@ -49,8 +49,8 @@ class ProductionConfig(Config):
 template = {
     "swagger": "2.0",
     "info": {
-        "title": "Todo API",
-        "description": "API for managing todos",
+        "title": "Photo Studio API",
+        "description": "Film Photography Community & Creative Space Booking Platform",
         "version": "1.0.0"
     },
     "basePath": "/",
@@ -70,8 +70,8 @@ class SwaggerConfig:
     template = {
         "swagger": "2.0",
         "info": {
-            "title": "Todo API",
-            "description": "API for managing todos",
+            "title": "Photo Studio API",
+            "description": "Film Photography Community & Creative Space Booking Platform",
             "version": "1.0.0"
         },
         "basePath": "/",

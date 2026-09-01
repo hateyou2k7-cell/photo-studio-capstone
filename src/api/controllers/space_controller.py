@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from api.pagination import paginate_list
 from services.space_service import SpaceService
-from infrastructure.repositories.space_repository import SpaceRepository
+from database.repositories.space_repository import SpaceRepository
 from api.schemas.space import SpaceRequestSchema, SpaceResponseSchema
 
 bp = Blueprint('space', __name__, url_prefix='/spaces')

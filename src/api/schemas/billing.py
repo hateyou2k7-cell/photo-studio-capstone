@@ -2,7 +2,7 @@ from marshmallow import Schema, fields
 
 
 class InvoiceRequestSchema(Schema):
-    customer_id = fields.Int(required=True)
+    customer_id = fields.Int(required=False)
     total_amount = fields.Float(required=False, load_default=0)
     status = fields.Str(required=False, load_default='pending')
     invoice_date = fields.DateTime(required=False, allow_none=True)

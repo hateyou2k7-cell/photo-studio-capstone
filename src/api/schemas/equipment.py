@@ -52,6 +52,7 @@ class EquipmentResponseSchema(Schema):
 
 class PackageBookingRequestSchema(Schema):
     package_id = fields.Int(required=True)
+    space_id = fields.Int(required=True)
     customer_id = fields.Int(required=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)

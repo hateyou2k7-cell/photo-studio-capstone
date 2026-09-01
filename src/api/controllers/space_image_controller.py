@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.space_image_service import SpaceImageService
-from infrastructure.repositories.space_image_repository import SpaceImageRepository
+from database.repositories.space_image_repository import SpaceImageRepository
 from api.schemas.space_image import SpaceImageResponseSchema, SpaceImagePrimaryRequestSchema
 
 bp = Blueprint('space_image', __name__, url_prefix='/spaces')

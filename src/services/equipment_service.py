@@ -1,6 +1,6 @@
 from typing import List, Optional
-from domain.models.equipment import EquipmentDomain
-from domain.models.iequipment_repository import IEquipmentRepository
+from business.models.equipment import EquipmentDomain
+from business.models.iequipment_repository import IEquipmentRepository
 
 EQUIPMENT_TYPES = {'enlarger', 'camera', 'scanner', 'lighting', 'tripod', 'tank', 'other'}
 EQUIPMENT_CONDITIONS = {'excellent', 'good', 'fair', 'poor', 'broken'}

@@ -1,7 +1,7 @@
 
 from typing import List, Optional
-from domain.models.course import Course
-from domain.models.icourse_repository import ICourseRepository
+from business.models.course import Course
+from business.models.icourse_repository import ICourseRepository
 class CourseService:
     def __init__(self, repository: ICourseRepository):
         self.repository = repository

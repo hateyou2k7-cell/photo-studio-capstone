@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime, timedelta
 from api.schemas.auth import RigisterUserRequestSchema,RigisterUserResponseSchema
 from services.auth_service import AuthService
-from infrastructure.repositories.auth_repository import AuthRepository
+from database.repositories.auth_repository import AuthRepository
 import jwt
 from werkzeug.security import generate_password_hash
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')

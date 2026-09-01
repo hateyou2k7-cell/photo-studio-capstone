@@ -3,7 +3,7 @@ from datetime import datetime
 from api.auth_middleware import jwt_required
 from api.pagination import paginate_list
 from services.reservation_service import ReservationService
-from infrastructure.repositories.reservation_repository import ReservationRepository
+from database.repositories.reservation_repository import ReservationRepository
 from api.schemas.reservation import (
     ReservationRequestSchema, ReservationResponseSchema,
     ReservationItemRequestSchema, ReservationItemResponseSchema,

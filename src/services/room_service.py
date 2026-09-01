@@ -1,6 +1,6 @@
 from typing import List, Optional
-from domain.models.room import Room
-from domain.models.iroom_repository import IRoomRepository
+from business.models.room import Room
+from business.models.iroom_repository import IRoomRepository
 
 
 class RoomService:

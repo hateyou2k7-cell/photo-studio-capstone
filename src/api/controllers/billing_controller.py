@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from api.auth_middleware import jwt_required
 from api.pagination import paginate_list
 from services.billing_service import BillingService
-from infrastructure.repositories.billing_repository import InvoiceRepository
+from database.repositories.billing_repository import InvoiceRepository
 from api.schemas.billing import (
     InvoiceRequestSchema, InvoiceResponseSchema,
     InvoiceItemRequestSchema, InvoiceItemResponseSchema,
@@ -162,7 +162,7 @@ def update_invoice(invoice_id):
     try:
         invoice = billing_service.update_invoice(
             invoice_id=invoice_id,
-            customer_id=data['customer_id'],
+            customer_id=data.get('customer_id'),
             total_amount=data.get('total_amount', 0),
             status=data.get('status', 'pending'),
         )

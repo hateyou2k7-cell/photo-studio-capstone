@@ -2,9 +2,9 @@ from datetime import datetime, time
 from unittest.mock import MagicMock
 
 import pytest
-from infrastructure.repositories.space_repository import SpaceRepository
-from infrastructure.models.film_space_model import SpaceType
-from domain.models.space import Space
+from database.repositories.space_repository import SpaceRepository
+from database.models.film_space_model import SpaceType
+from business.models.space import Space
 
 
 def make_domain_space(space_id=None):

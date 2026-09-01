@@ -1,10 +1,10 @@
 from typing import List, Optional
 from datetime import datetime, timezone
-from domain.models.package_booking import PackageBookingDomain
-from domain.models.ipackage_booking_repository import IPackageBookingRepository
-from infrastructure.models.equipment_model import Equipment as EquipmentModel, package_equipments
-from infrastructure.models.film_package_model import ServicePackage
-from infrastructure.databases.factory_database import FactoryDatabase as db_factory
+from business.models.package_booking import PackageBookingDomain
+from business.models.ipackage_booking_repository import IPackageBookingRepository
+from database.models.equipment_model import Equipment as EquipmentModel, package_equipments
+from database.models.film_package_model import ServicePackage
+from database.databases.factory_database import FactoryDatabase as db_factory
 
 
 class ResourceAvailabilityService:
@@ -26,7 +26,7 @@ class ResourceAvailabilityService:
         if not pkg:
             return [{'resource_type': 'package', 'resource_id': package_id, 'resource_name': 'Package not found'}]
         conflicts = []
-        from infrastructure.models.package_booking_model import PackageBooking
+        from database.models.package_booking_model import PackageBooking
         space_bookings = self.session.query(PackageBooking).filter(
             PackageBooking.space_id == pkg.provider_id,
             PackageBooking.status.in_(['pending', 'confirmed']),
@@ -96,7 +96,7 @@ class PackageBookingService:
         self.repository = repository
         self.availability_service = ResourceAvailabilityService()
 
-    def create(self, package_id: int, customer_id: int, start_time, end_time, notes=None) -> PackageBookingDomain:
+    def create(self, package_id: int, space_id: int, customer_id: int, start_time, end_time, notes=None) -> PackageBookingDomain:
         if start_time >= end_time:
             raise ValueError('start_time must be before end_time')
         if start_time < datetime.now(timezone.utc):
@@ -112,7 +112,7 @@ class PackageBookingService:
         duration_hours = (end_time - start_time).total_seconds() / 3600
         total_price = int(float(pkg.price) * duration_hours) if pkg.price else 0
         booking = PackageBookingDomain(
-            package_id=package_id, space_id=pkg.provider_id, customer_id=customer_id,
+            package_id=package_id, space_id=space_id, customer_id=customer_id,
             start_time=start_time, end_time=end_time, total_price=total_price, notes=notes,
         )
         return self.repository.add(booking)

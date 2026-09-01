@@ -1,10 +1,23 @@
 from flask import Blueprint, request, jsonify
+from datetime import datetime
 from api.pagination import paginate_list
 from api.schemas.equipment import (
     PackageBookingRequestSchema, PackageBookingResponseSchema, ResourceConflictSchema,
 )
-from infrastructure.repositories.package_booking_repository import PackageBookingRepository
+from database.repositories.package_booking_repository import PackageBookingRepository
 from services.package_booking_service import PackageBookingService
+
+
+def _parse_datetime(value):
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        if dt.tzinfo is None:
+            from datetime import timezone
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+    return value
 
 bp = Blueprint('package_booking', __name__, url_prefix='/api/v1/package-bookings')
 
@@ -99,9 +112,10 @@ def create_booking():
     try:
         item = booking_service.create(
             package_id=data['package_id'],
+            space_id=data['space_id'],
             customer_id=data['customer_id'],
-            start_time=data['start_time'],
-            end_time=data['end_time'],
+            start_time=_parse_datetime(data['start_time']),
+            end_time=_parse_datetime(data['end_time']),
             notes=data.get('notes'),
         )
     except ValueError as e:

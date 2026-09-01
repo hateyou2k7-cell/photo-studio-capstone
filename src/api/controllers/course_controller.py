@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.course_service import CourseService
-from infrastructure.repositories.course_repository import CourseRepository
+from database.repositories.course_repository import CourseRepository
 from datetime import datetime
 
 bp = Blueprint('course', __name__, url_prefix='/courses')

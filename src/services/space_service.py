@@ -1,6 +1,6 @@
 from typing import List, Optional
-from domain.models.space import Space
-from domain.models.ispace_repository import ISpaceRepository
+from business.models.space import Space
+from business.models.ispace_repository import ISpaceRepository
 
 SPACE_TYPES = {'darkroom', 'studio'}
 

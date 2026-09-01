@@ -1,7 +1,7 @@
 
 from typing import List, Optional
-from domain.models.auth import Auth
-from domain.models.iauth_repository import IAuthRepository
+from business.models.auth import Auth
+from business.models.iauth_repository import IAuthRepository
 class AuthService:
     def __init__(self, repository: IAuthRepository):
         self.repository = repository

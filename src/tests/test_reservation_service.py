@@ -84,7 +84,7 @@ class FakeReservationRepo:
         return session
 
     def check_in(self, reservation_id):
-        from domain.models.reservation import ServiceSession
+        from business.models.reservation import ServiceSession
         session = ServiceSession(
             id=self._session_counter, reservation_id=reservation_id,
             checked_in_at=datetime.utcnow(), status='in_progress',

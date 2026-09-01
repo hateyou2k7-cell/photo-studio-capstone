@@ -1,7 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
-from domain.models.billing import Invoice, InvoiceItem, Customer, Product, PayTransaction
-from domain.models.ibilling_repository import IInvoiceRepository
+from business.models.billing import Invoice, InvoiceItem, Customer, Product, PayTransaction
+from business.models.ibilling_repository import IInvoiceRepository
 
 INVOICE_STATUSES = {'pending', 'paid', 'partial', 'cancelled', 'refunded'}
 PAYMENT_METHODS = {'cash', 'bank_transfer', 'vnpay', 'momo'}
@@ -28,17 +28,18 @@ class BillingService:
             raise ValueError(f'status must be one of {INVOICE_STATUSES}')
         return self.repository.list(customer_id=customer_id, status=status)
 
-    def update_invoice(self, invoice_id: int, customer_id: int, total_amount=0,
+    def update_invoice(self, invoice_id: int, customer_id: int = None, total_amount=0,
                        status='pending', invoice_date=None, blank_amount=0,
                        paid_amount=0) -> Invoice:
         existing = self.repository.get_by_id(invoice_id)
         if not existing:
             raise ValueError('Invoice not found')
         invoice = Invoice(
-            id=invoice_id, customer_id=customer_id,
+            id=invoice_id, customer_id=customer_id or existing.customer_id,
             invoice_date=invoice_date or existing.invoice_date,
-            total_amount=total_amount, status=status,
-            blank_amount=blank_amount, paid_amount=paid_amount,
+            total_amount=total_amount or existing.total_amount,
+            status=status, blank_amount=blank_amount,
+            paid_amount=paid_amount,
         )
         return self.repository.update(invoice)
 
