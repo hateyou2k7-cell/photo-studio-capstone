@@ -14,6 +14,7 @@ from api.controllers.package_booking_controller import bp as package_booking_bp
 from api.controllers.chatbot_controller import bp as chatbot_bp
 from api.controllers.recommendation_controller import bp as recommendation_bp
 from api.controllers.course_controller import bp as course_bp
+from api.controllers.provider_controller import bp as provider_bp
 from api.middleware import middleware
 from api.responses import success_response
 from database.databases import init_db
@@ -40,6 +41,7 @@ def create_app():
     app.register_blueprint(chatbot_bp)
     app.register_blueprint(recommendation_bp)
     app.register_blueprint(course_bp)
+    app.register_blueprint(provider_bp)
     # register_routes(app)
      # Thêm Swagger UI blueprint
     SWAGGER_URL = '/docs'
