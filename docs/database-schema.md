@@ -2,54 +2,130 @@
 
 Photo Studio Capstone sử dụng **PostgreSQL** (Supabase) với **SQLAlchemy ORM**.
 
+**Database URL**: Supabase PostgreSQL (cloud)  
+**Tổng tables**: 44 | **Tổng enums**: 11 | **Tổng FKs**: 50
+
 ---
 
 ## Bảng tổng quan
 
-| # | Table | File ORM | Trạng thái API |
-|---|---|---|---|
-| 1 | users | `film_user_model.py` | Có API (qua auth + reservation) |
-| 2 | provider_profiles | `film_user_model.py` | **Chưa có API** |
-| 3 | spaces | `film_space_model.py` | Có API |
-| 4 | resources | `film_space_model.py` | **Chưa có API** |
-| 5 | space_resources | `film_space_model.py` | **Chưa có API** |
-| 6 | consumables | `film_space_model.py` | **Chưa có API** |
-| 7 | space_images | `space_management_model.py` | Có API |
-| 8 | space_schedules | `space_management_model.py` | Có API |
-| 9 | equipments | `equipment_model.py` | Có API |
-| 10 | service_packages | `film_package_model.py` | Có API (qua package bookings) |
-| 11 | package_items | `film_package_model.py` | **Chưa có API** |
-| 12 | package_equipments | `equipment_model.py` | Liên kết M:N |
-| 13 | reservations | `film_reservation_model.py` | Có API |
-| 14 | reservation_items | `film_reservation_model.py` | Có API |
-| 15 | payments | `film_reservation_model.py` | Có API |
-| 16 | service_sessions | `film_reservation_model.py` | Có API (qua checkin/checkout) |
-| 17 | reviews | `film_reservation_model.py` | Có API |
-| 18 | package_bookings | `package_booking_model.py` | Có API |
-| 19 | posts | `film_community_model.py` | **Chưa có API** |
-| 20 | comments | `film_community_model.py` | **Chưa có API** |
-| 21 | workshops | `film_community_model.py` | **Chưa có API** |
-| 22 | workshop_registrations | `film_community_model.py` | **Chưa có API** |
-| 23 | conversations | `film_ai_model.py` | **Chưa có API** |
-| 24 | messages | `film_ai_model.py` | **Chưa có API** |
-| 25 | rooms | `room_model.py` | Có API (legacy) |
-| 26 | todos | - | Legacy, đã xóa ORM model |
-| 27 | auth_users | `auth_user_model.py` | Có API (login) |
-| 28 | auth_roles | `auth_role_model.py` | **Chưa có API** |
-| 29 | auth_functions | `auth_funtion_model.py` | **Chưa có API** |
-| 30 | sell_customers | `sell_customer_model.py` | Có API (billing) |
-| 31 | sell_products | `sell_product_model.py` | Có API (billing) |
-| 32 | sell_invoices | `sell_invoice_model.py` | Có API (billing) |
-| 33 | sell_invoice_items | `sell_invoice_model.py` | Có API (billing) |
-| 34 | pay_trans | `pay_tran_model.py` | Có API (billing) |
-| 35 | flask_user | `user_model.py` | Legacy, không dùng |
-| 36 | consultants | `consultant_model.py` | Orphaned, không dùng |
-| 37 | feedbacks | `feedback_model.py` | Orphaned, không dùng |
-| 38 | appointments | `appointment_model.py` | Orphaned, không dùng |
-| 39 | programs | `program_model.py` | Orphaned, không dùng |
-| 40 | surveys | `survey_model.py` | Orphaned, không dùng |
-| 41 | courses | `course_model.py` | Có API (PostgreSQL) |
-| 42 | course_register | `course_register_model.py` | Orphaned, không dùng |
+| # | Table | Columns | Rows | ORM Model | API |
+|---|---|:---:|:---:|---|:---:|
+| 1 | users | 10 | 11 | `film_user_model.py` | ✅ |
+| 2 | provider_profiles | 7 | 1 | `film_user_model.py` | ✅ (internal) |
+| 3 | spaces | 20 | 4 | `film_space_model.py` | ✅ |
+| 4 | resources | 10 | 0 | `film_space_model.py` | ❌ |
+| 5 | space_resources | 4 | 0 | `film_space_model.py` | ❌ |
+| 6 | consumables | 8 | 0 | `film_space_model.py` | ❌ |
+| 7 | space_images | 6 | 0 | `space_management_model.py` | ✅ |
+| 8 | space_schedules | 8 | 0 | `space_management_model.py` | ✅ |
+| 9 | equipments | 13 | 3 | `equipment_model.py` | ✅ |
+| 10 | service_packages | 9 | 0 | `film_package_model.py` | ❌ |
+| 11 | package_items | 5 | 0 | `film_package_model.py` | ❌ |
+| 12 | package_equipments | 2 | 0 | `equipment_model.py` | ❌ |
+| 13 | reservations | 12 | 2 | `film_reservation_model.py` | ✅ |
+| 14 | reservation_items | 6 | 1 | `film_reservation_model.py` | ✅ |
+| 15 | payments | 8 | 1 | `film_reservation_model.py` | ✅ |
+| 16 | service_sessions | 6 | 1 | `film_reservation_model.py` | ✅ |
+| 17 | reviews | 7 | 1 | `film_reservation_model.py` | ✅ |
+| 18 | package_bookings | 10 | 0 | `package_booking_model.py` | ✅ |
+| 19 | posts | 9 | 0 | `film_community_model.py` | ❌ |
+| 20 | comments | 5 | 0 | `film_community_model.py` | ❌ |
+| 21 | workshops | 9 | 0 | `film_community_model.py` | ❌ |
+| 22 | workshop_registrations | 5 | 0 | `film_community_model.py` | ❌ |
+| 23 | conversations | 4 | 0 | `film_ai_model.py` | ❌ |
+| 24 | messages | 5 | 0 | `film_ai_model.py` | ❌ |
+| 25 | rooms | 9 | 3 | `room_model.py` | ✅ (legacy) |
+| 26 | todos | 6 | 0 | - | ❌ (legacy) |
+| 27 | auth_users | 6 | 11 | `auth_user_model.py` | ✅ |
+| 28 | auth_roles | 3 | 0 | `auth_role_model.py` | ❌ |
+| 29 | auth_functions | 6 | 0 | `auth_funtion_model.py` | ❌ |
+| 30 | auth_user_roles | 3 | 0 | `auth_role_model.py` | ❌ |
+| 31 | auth_role_functions | 3 | 0 | `auth_role_model.py` | ❌ |
+| 32 | sell_customers | 7 | 14 | `sell_customer_model.py` | ✅ |
+| 33 | sell_products | 6 | 15 | `sell_product_model.py` | ✅ |
+| 34 | sell_invoices | 10 | 12 | `sell_invoice_model.py` | ✅ |
+| 35 | sell_invoice_items | 8 | 10 | `sell_invoice_model.py` | ✅ |
+| 36 | pay_trans | 5 | 3 | `pay_tran_model.py` | ✅ |
+| 37 | flask_user | 7 | 0 | `user_model.py` | ❌ (legacy) |
+| 38 | consultants | 8 | 0 | `consultant_model.py` | ❌ |
+| 39 | feedbacks | 7 | 0 | `feedback_model.py` | ❌ |
+| 40 | appointments | 10 | 0 | `appointment_model.py` | ❌ |
+| 41 | programs | 6 | 0 | `program_model.py` | ❌ |
+| 42 | surveys | 6 | 0 | `survey_model.py` | ❌ |
+| 43 | courses | 8 | 10 | `course_model.py` | ✅ |
+| 44 | course_register | 3 | 0 | `course_register_model.py` | ❌ |
+
+---
+
+## Enums (11 types)
+
+| Enum | Values |
+|---|---|
+| `user_role` | photographer, provider, expert, admin, **user** |
+| `provider_status` | pending, approved, rejected |
+| `space_type` | darkroom, studio |
+| `equipment_type` | enlarger, camera, scanner, lighting, tripod, tank, other |
+| `equipment_condition` | excellent, good, fair, poor, broken |
+| `resource_category` | camera, lens, enlarger, scanner, lighting, tripod, background, darkroom_equipment |
+| `item_type` | space, resource, consumable |
+| `reservation_status` | pending, approved, confirmed, checked_in, checked_out, completed, cancelled |
+| `payment_method` | vnpay, momo, cash |
+| `payment_status` | pending, success, failed, refunded |
+| `session_status` | in_progress, completed |
+| `post_category` | article, tutorial, equipment_review, technique |
+| `workshop_status` | open, full, cancelled, done |
+| `booking_status` | pending, confirmed, cancelled, completed |
+
+---
+
+## Foreign Keys (50 relationships)
+
+### Core Business Flow
+```
+users ──(1:N)──> reservations ──(1:N)──> reservation_items
+    │                 │
+    │                 ├──(1:N)──> payments
+    │                 ├──(1:N)──> service_sessions
+    │                 └──(1:N)──> reviews
+    │
+    └──(1:1)──> provider_profiles ──(1:N)──> spaces ──(1:N)──> space_images
+                        │                       │
+                        │                       └──(1:N)──> space_schedules
+                        │
+                        ├──(1:N)──> equipments
+                        ├──(1:N)──> resources ──(M:N)──> space_resources
+                        ├──(1:N)──> consumables
+                        └──(1:N)──> service_packages ──(1:N)──> package_items
+                                                    │
+                                                    └──(M:N)──> package_equipments
+```
+
+### Community
+```
+users ──(1:N)──> posts ──(1:N)──> comments
+users ──(1:N)──> workshops ──(1:N)──> workshop_registrations
+users ──(1:N)──> conversations ──(1:N)──> messages
+```
+
+### Auth
+```
+auth_users ──(M:N)──> auth_roles ──(M:N)──> auth_functions
+```
+
+### Billing
+```
+sell_customers ──(1:N)──> sell_invoices ──(1:N)──> sell_invoice_items
+                                        └──(1:N)──> pay_trans
+sell_products ──(1:N)──> sell_invoice_items
+```
+
+### Legacy
+```
+flask_user ──(1:N)──> course_register ──(N:1)──> courses
+flask_user ──(1:N)──> appointments ──(N:1)──> consultants
+flask_user ──(1:N)──> feedbacks ──(N:1)──> courses
+```
 
 ---
 
