@@ -181,9 +181,9 @@ POSTGREE_DATABASE_URL="postgresql+psycopg2://postgres:your_password@localhost:54
 ```
 photo-studio-capstone/
 ├── docs/
-│   ├── api-documentation.md       # Chi tiết 80 API endpoints
+│   ├── api-documentation.md       # Chi tiết 75 API endpoints
 │   ├── architecture.md             # Kiến trúc, data flow
-│   ├── database-schema.md          # ERD, 35+ bảng database
+│   ├── database-schema.md          # ERD, 44 bảng database
 │   └── deployment-guide.md         # Hướng dẫn deploy
 ├── src/
 │   ├── api/                        # API Layer
@@ -202,7 +202,7 @@ photo-studio-capstone/
 │   ├── database/                   # Data Access Layer
 │   │   ├── databases/             # PostgreSQL/MSSQL adapters (Factory pattern)
 │   │   ├── repositories/          # Concrete repository implementations
-│   │   └── models/                # SQLAlchemy ORM models (35+ tables)
+│   │   └── models/                # SQLAlchemy ORM models (36 tables)
 │   ├── tests/                      # Test suite
 │   ├── uploads/                    # Uploaded files
 │   ├── app.py                      # Entry point
