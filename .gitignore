@@ -211,3 +211,7 @@ __marimo__/
 
 src/test.db
 src/test_app.py
+
+# Lock files
+*.~lock*
+.#*
