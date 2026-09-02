@@ -268,21 +268,21 @@ Hệ thống là multi-sided platform kết nối:
 
 ### 5.1 Implemented Features
 
-| Module | Endpoints | Status |
-|:---|:---:|:---|
-| Auth (Signup/Login) | 3 | ✅ |
-| Rooms Management | 5 | ✅ |
-| Spaces Management | 6 | ✅ |
-| Space Images | 4 | ✅ |
-| Space Schedules | 4 | ✅ |
-| Equipment Management | 5 | ✅ |
-| Reservations | 17 | ✅ |
-| Package Bookings | 4 | ✅ |
-| Billing (Invoices) | 19 | ✅ |
-| Courses | 5 | ✅ |
-| Chatbot (AI) | 2 | ✅ |
-| Recommendations (AI) | 1 | ✅ |
-| **Total** | **75** | |
+| Module | Endpoints | DB Tables | Status |
+|:---|:---:|:---:|:---|
+| Auth (Signup/Login) | 3 | auth_users, users | ✅ |
+| Rooms Management | 5 | rooms | ✅ |
+| Spaces Management | 6 | spaces | ✅ |
+| Space Images | 4 | space_images | ✅ |
+| Space Schedules | 4 | space_schedules | ✅ |
+| Equipment Management | 5 | equipments | ✅ |
+| Reservations | 17 | reservations, reservation_items, payments, service_sessions, reviews | ✅ |
+| Package Bookings | 4 | package_bookings | ✅ |
+| Billing (Invoices) | 19 | sell_customers, sell_products, sell_invoices, sell_invoice_items, pay_trans | ✅ |
+| Courses | 5 | courses | ✅ |
+| Chatbot (AI) | 2 | conversations, messages | ✅ |
+| Recommendations (AI) | 1 | - | ✅ |
+| **Total** | **75** | **28 tables** | |
 
 ### 5.2 Pending Features
 
@@ -306,41 +306,61 @@ Hệ thống là multi-sided platform kết nối:
 ### 6.1 Entity Relationship Summary
 
 **Total tables**: 44  
-**Tables with API**: 19  
-**Tables without API**: 25 (legacy + pending)
+**Tables with ORM model**: 36  
+**Tables with API**: 28  
+**Legacy tables (no ORM)**: 8 (appointments, consultants, course_register, feedbacks, flask_user, programs, surveys, todos)  
+**Total enums**: 11  
+**Total foreign keys**: 50
 
 ### 6.2 Key Relationships
 
 ```
-users (1) ──── (N) reservations
-users (1) ──── (N) posts
-users (1) ──── (N) reviews
+users (1) ──── (N) reservations ── (1:N) reservation_items
+    │                  │
+    │                  ├── (1:N) payments
+    │                  ├── (1:N) service_sessions
+    │                  └── (1:N) reviews
+    │
+    ├── (1:1) provider_profiles ── (1:N) spaces ── (1:N) space_images
+    │              │                       │
+    │              │                       └── (1:N) space_schedules
+    │              │
+    │              ├── (1:N) equipments
+    │              ├── (1:N) resources ── (M:N via space_resources) spaces
+    │              ├── (1:N) consumables
+    │              └── (1:N) service_packages ── (1:N) package_items
+    │                                           └── (M:N via package_equipments) equipments
+    │
+    ├── (1:N) posts ── (1:N) comments
+    ├── (1:N) workshops ── (1:N) workshop_registrations
+    ├── (1:N) conversations ── (1:N) messages
+    └── (1:N) package_bookings
 
-provider_profiles (1) ──── (N) spaces
-provider_profiles (1) ──── (N) equipments
-provider_profiles (1) ──── (N) reservations
+sell_customers (1) ──── (N) sell_invoices ── (1:N) sell_invoice_items
+                                            └── (1:N) pay_trans
+sell_products (1) ──── (N) sell_invoice_items
 
-spaces (1) ──── (N) space_images
-spaces (1) ──── (N) space_schedules
-spaces (1) ──── (N) reservations
-
-reservations (1) ──── (N) reservation_items
-reservations (1) ──── (N) payments
-reservations (1) ──── (1) service_sessions
-reservations (1) ──── (N) reviews
-
-service_packages (1) ──── (N) package_items
-service_packages (1) ──── (N) package_equipments
-service_packages (1) ──── (N) package_bookings
-
-sell_invoices (1) ──── (N) sell_invoice_items
-sell_invoices (1) ──── (N) pay_trans
-
-courses (1) ──── (N) course_register
-workshops (1) ──── (N) workshop_registrations
-conversations (1) ──── (N) messages
-posts (1) ──── (N) comments
+auth_users (M:N via auth_user_roles) auth_roles (M:N via auth_role_functions) auth_functions
 ```
+
+### 6.3 Database Enums
+
+| Enum | Values | Used By |
+|---|---|---|
+| `user_role` | photographer, provider, expert, admin, **user** | users.role |
+| `provider_status` | pending, approved, rejected | provider_profiles.status |
+| `space_type` | darkroom, studio | spaces.type |
+| `equipment_type` | enlarger, camera, scanner, lighting, tripod, tank, other | equipments.type |
+| `equipment_condition` | excellent, good, fair, poor, broken | equipments.condition |
+| `resource_category` | camera, lens, enlarger, scanner, lighting, tripod, background, darkroom_equipment | resources.category |
+| `item_type` | space, resource, consumable | reservation_items.item_type, package_items.item_type |
+| `reservation_status` | pending, approved, confirmed, checked_in, checked_out, completed, cancelled | reservations.status |
+| `payment_method` | vnpay, momo, cash | payments.method |
+| `payment_status` | pending, success, failed, refunded | payments.status |
+| `session_status` | in_progress, completed | service_sessions.status |
+| `post_category` | article, tutorial, equipment_review, technique | posts.category |
+| `workshop_status` | open, full, cancelled, done | workshops.status |
+| `booking_status` | pending, confirmed, cancelled, completed | package_bookings.status |
 
 ---
 
@@ -434,15 +454,16 @@ src/
 │   └── swagger.py       # OpenAPI setup
 ├── services/            # 12 Business services
 ├── business/
-│   ├── models/          # 21 Domain models
+│   ├── models/          # 21 Domain models + 11 repository interfaces
 │   └── constants.py     # App constants
 ├── database/
-│   ├── databases/       # DB connection factory
-│   ├── models/          # 19 ORM models
+│   ├── databases/       # DB connection factory (PostgreSQL/MSSQL)
+│   ├── models/          # 36 ORM models (maps 36 DB tables)
 │   └── repositories/    # 10 Repository implementations
-├── app.py               # Flask app factory
+├── app.py               # Flask app factory + inline GUI
 ├── config.py            # Configuration
-└── requirements.txt     # Dependencies
+├── test_all.py          # Full test suite (75 endpoints)
+└── requirements.txt     # 15 dependencies
 ```
 
 ---
