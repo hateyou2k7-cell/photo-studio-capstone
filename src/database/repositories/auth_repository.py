@@ -21,8 +21,10 @@ class AuthRepository(IAuthRepository):
         auth_user = self.session.query(User).filter_by(email=user.email).first()
         if auth_user:
             auth.id = auth_user.id
+            auth.role = auth_user.role
         else:
             auth.id = user.id
+            auth.role = 'user'
         return auth
    
     def register(self, auth: Auth, role: str = 'user') -> Optional[Auth]:

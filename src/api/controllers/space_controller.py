@@ -3,6 +3,7 @@ from api.pagination import paginate_list
 from services.space_service import SpaceService
 from database.repositories.space_repository import SpaceRepository
 from api.schemas.space import SpaceRequestSchema, SpaceResponseSchema
+from api.auth_middleware import jwt_required, role_required
 
 bp = Blueprint('space', __name__, url_prefix='/spaces')
 
@@ -123,6 +124,8 @@ def get_space(space_id):
 
 
 @bp.route('/', methods=['POST'])
+@jwt_required
+@role_required('admin', 'manager')
 def create_space():
     """
     Create a new space (room)
@@ -164,6 +167,8 @@ def create_space():
 
 
 @bp.route('/<int:space_id>', methods=['PUT'])
+@jwt_required
+@role_required('admin', 'manager')
 def update_space(space_id):
     """
     Update a space by id
@@ -217,6 +222,8 @@ def update_space(space_id):
 
 
 @bp.route('/<int:space_id>', methods=['DELETE'])
+@jwt_required
+@role_required('admin', 'manager')
 def delete_space(space_id):
     """
     Delete a space by id

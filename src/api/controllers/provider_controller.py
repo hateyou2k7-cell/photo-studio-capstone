@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from services.provider_service import ProviderService
 from database.repositories.provider_profile_repository import ProviderProfileRepository
 from api.schemas.provider import ProviderRequestSchema, ProviderResponseSchema
+from api.auth_middleware import jwt_required, role_required
 
 bp = Blueprint('provider', __name__, url_prefix='/providers')
 
@@ -121,6 +122,8 @@ def create_provider():
 
 
 @bp.route('/<int:profile_id>/approve', methods=['PUT'])
+@jwt_required
+@role_required('admin', 'manager')
 def approve_provider(profile_id):
     """
     Approve a provider profile (admin only)
@@ -149,6 +152,8 @@ def approve_provider(profile_id):
 
 
 @bp.route('/<int:profile_id>/reject', methods=['PUT'])
+@jwt_required
+@role_required('admin', 'manager')
 def reject_provider(profile_id):
     """
     Reject a provider profile (admin only)
@@ -177,6 +182,8 @@ def reject_provider(profile_id):
 
 
 @bp.route('/<int:profile_id>', methods=['DELETE'])
+@jwt_required
+@role_required('admin', 'manager')
 def delete_provider(profile_id):
     """
     Delete a provider profile

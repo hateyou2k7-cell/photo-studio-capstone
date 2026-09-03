@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from services.course_service import CourseService
 from database.repositories.course_repository import CourseRepository
 from datetime import datetime
+from api.auth_middleware import jwt_required, role_required
 
 bp = Blueprint('course', __name__, url_prefix='/courses')
 
@@ -74,6 +75,8 @@ def get_course(course_id):
 
 
 @bp.route('/', methods=['POST'])
+@jwt_required
+@role_required('admin', 'manager')
 def create_course():
     """
     Create a new course
@@ -128,6 +131,8 @@ def create_course():
 
 
 @bp.route('/<int:course_id>', methods=['PUT'])
+@jwt_required
+@role_required('admin', 'manager')
 def update_course(course_id):
     """
     Update a course
@@ -189,6 +194,8 @@ def update_course(course_id):
 
 
 @bp.route('/<int:course_id>', methods=['DELETE'])
+@jwt_required
+@role_required('admin', 'manager')
 def delete_course(course_id):
     """
     Delete a course

@@ -3,6 +3,7 @@ from api.pagination import paginate_list
 from services.equipment_service import EquipmentService
 from database.repositories.equipment_repository import EquipmentRepository
 from api.schemas.equipment import EquipmentRequestSchema, EquipmentUpdateSchema, EquipmentResponseSchema
+from api.auth_middleware import jwt_required, role_required
 
 bp = Blueprint('equipment', __name__, url_prefix='/api/v1/equipment')
 
@@ -77,6 +78,8 @@ def get_equipment(equipment_id):
 
 
 @bp.route('', methods=['POST'])
+@jwt_required
+@role_required('admin', 'manager')
 def create_equipment():
     """
     Create new equipment
@@ -119,6 +122,8 @@ def create_equipment():
 
 
 @bp.route('/<int:equipment_id>', methods=['PUT'])
+@jwt_required
+@role_required('admin', 'manager')
 def update_equipment(equipment_id):
     """
     Update equipment
@@ -170,6 +175,8 @@ def update_equipment(equipment_id):
 
 
 @bp.route('/<int:equipment_id>', methods=['DELETE'])
+@jwt_required
+@role_required('admin', 'manager')
 def delete_equipment(equipment_id):
     """
     Delete equipment

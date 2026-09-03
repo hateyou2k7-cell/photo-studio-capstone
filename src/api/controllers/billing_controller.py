@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from api.auth_middleware import jwt_required
+from api.auth_middleware import jwt_required, role_required
 from api.pagination import paginate_list
 from services.billing_service import BillingService
 from database.repositories.billing_repository import InvoiceRepository
@@ -87,6 +87,7 @@ def get_invoice(invoice_id):
 
 @bp.route('/invoices', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def create_invoice():
     """
     Create a new invoice
@@ -124,6 +125,7 @@ def create_invoice():
 
 @bp.route('/invoices/<int:invoice_id>', methods=['PUT'])
 @jwt_required
+@role_required('admin', 'manager')
 def update_invoice(invoice_id):
     """
     Update an invoice
@@ -173,6 +175,7 @@ def update_invoice(invoice_id):
 
 @bp.route('/invoices/<int:invoice_id>', methods=['DELETE'])
 @jwt_required
+@role_required('admin', 'manager')
 def delete_invoice(invoice_id):
     """
     Delete an invoice
@@ -225,6 +228,7 @@ def list_items(invoice_id):
 
 @bp.route('/invoices/<int:invoice_id>/items', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def add_item(invoice_id):
     """
     Add an item to an invoice
@@ -292,6 +296,7 @@ def list_payments(invoice_id):
 
 @bp.route('/invoices/<int:invoice_id>/payments', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def add_payment(invoice_id):
     """
     Add a payment to an invoice
@@ -379,6 +384,7 @@ def get_customer(customer_id):
 
 @bp.route('/customers', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def create_customer():
     """
     Create a new customer
@@ -417,6 +423,7 @@ def create_customer():
 
 @bp.route('/customers/<int:customer_id>', methods=['PUT'])
 @jwt_required
+@role_required('admin', 'manager')
 def update_customer(customer_id):
     """
     Update a customer
@@ -467,6 +474,7 @@ def update_customer(customer_id):
 
 @bp.route('/customers/<int:customer_id>', methods=['DELETE'])
 @jwt_required
+@role_required('admin', 'manager')
 def delete_customer(customer_id):
     """
     Delete a customer
@@ -540,6 +548,7 @@ def get_product(product_id):
 
 @bp.route('/products', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def create_product():
     """
     Create a new product
@@ -577,6 +586,7 @@ def create_product():
 
 @bp.route('/products/<int:product_id>', methods=['PUT'])
 @jwt_required
+@role_required('admin', 'manager')
 def update_product(product_id):
     """
     Update a product
@@ -626,6 +636,7 @@ def update_product(product_id):
 
 @bp.route('/products/<int:product_id>', methods=['DELETE'])
 @jwt_required
+@role_required('admin', 'manager')
 def delete_product(product_id):
     """
     Delete a product

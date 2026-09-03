@@ -74,10 +74,11 @@ def login():
 
     payload = {
         'user_id': user.id,
+        'role': user.role,
         'exp': datetime.utcnow() + timedelta(hours=2)
     }
     token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
-    return jsonify({'token': token, 'user_id': user.id})
+    return jsonify({'token': token, 'user_id': user.id, 'role': user.role})
 
 
 @auth_bp.route('/signup', methods=['POST'])

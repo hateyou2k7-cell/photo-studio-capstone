@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime
-from api.auth_middleware import jwt_required
+from api.auth_middleware import jwt_required, role_required
 from api.pagination import paginate_list
 from services.reservation_service import ReservationService
 from database.repositories.reservation_repository import ReservationRepository
@@ -231,6 +231,7 @@ def delete_reservation(reservation_id):
 
 @bp.route('/<int:reservation_id>/approve', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def approve_reservation(reservation_id):
     """
     Approve a reservation
@@ -260,6 +261,7 @@ def approve_reservation(reservation_id):
 
 @bp.route('/<int:reservation_id>/confirm', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def confirm_reservation(reservation_id):
     """
     Confirm a reservation
@@ -318,6 +320,7 @@ def cancel_reservation(reservation_id):
 
 @bp.route('/<int:reservation_id>/checkin', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def check_in(reservation_id):
     """
     Check in to a reservation
@@ -347,6 +350,7 @@ def check_in(reservation_id):
 
 @bp.route('/<int:reservation_id>/checkout', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def check_out(reservation_id):
     """
     Check out from a reservation

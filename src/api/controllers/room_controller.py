@@ -3,6 +3,7 @@ from services.room_service import RoomService
 from database.repositories.room_repository import RoomRepository
 from api.schemas.room import RoomRequestSchema, RoomResponseSchema
 from datetime import datetime
+from api.auth_middleware import jwt_required, role_required
 
 bp = Blueprint('room', __name__, url_prefix='/rooms')
 
@@ -74,6 +75,8 @@ def get_room(room_id):
 
 
 @bp.route('/', methods=['POST'])
+@jwt_required
+@role_required('admin', 'manager')
 def create_room():
     """
     Create a new room
@@ -133,6 +136,8 @@ def create_room():
 
 
 @bp.route('/<int:room_id>', methods=['PUT'])
+@jwt_required
+@role_required('admin', 'manager')
 def update_room(room_id):
     """
     Update a room by id
@@ -211,6 +216,8 @@ def update_room(room_id):
 
 
 @bp.route('/<int:room_id>', methods=['DELETE'])
+@jwt_required
+@role_required('admin', 'manager')
 def delete_room(room_id):
     """
     Delete a room by id

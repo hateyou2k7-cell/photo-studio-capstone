@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime
-from api.auth_middleware import jwt_required
+from api.auth_middleware import jwt_required, role_required
 from api.pagination import paginate_list
 from services.community_service import CommunityService
 from database.repositories.post_repository import PostRepository
@@ -94,6 +94,7 @@ def get_post(post_id):
 
 @bp.route('/posts', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def create_post():
     """
     Create a new post
@@ -136,6 +137,7 @@ def create_post():
 
 @bp.route('/posts/<int:post_id>', methods=['PUT'])
 @jwt_required
+@role_required('admin', 'manager')
 def update_post(post_id):
     """
     Update a post
@@ -186,6 +188,7 @@ def update_post(post_id):
 
 @bp.route('/posts/<int:post_id>', methods=['DELETE'])
 @jwt_required
+@role_required('admin', 'manager')
 def delete_post(post_id):
     """
     Delete a post
@@ -289,6 +292,7 @@ def add_comment(post_id):
 
 @bp.route('/comments/<int:comment_id>', methods=['DELETE'])
 @jwt_required
+@role_required('admin', 'manager')
 def delete_comment(comment_id):
     """
     Delete a comment
@@ -376,6 +380,7 @@ def get_workshop(workshop_id):
 
 @bp.route('/workshops', methods=['POST'])
 @jwt_required
+@role_required('admin', 'manager')
 def create_workshop():
     """
     Create a new workshop
@@ -420,6 +425,7 @@ def create_workshop():
 
 @bp.route('/workshops/<int:workshop_id>', methods=['PUT'])
 @jwt_required
+@role_required('admin', 'manager')
 def update_workshop(workshop_id):
     """
     Update a workshop
@@ -473,6 +479,7 @@ def update_workshop(workshop_id):
 
 @bp.route('/workshops/<int:workshop_id>', methods=['DELETE'])
 @jwt_required
+@role_required('admin', 'manager')
 def delete_workshop(workshop_id):
     """
     Delete a workshop
