@@ -112,6 +112,8 @@ def register():
                   message:
                     type: string
     """
+    ALLOWED_ROLES = {'user', 'photographer', 'provider', 'expert'}
+
     data = request.get_json()
     errors = register_request.validate(data)
     if errors:
@@ -123,6 +125,7 @@ def register():
     password = data.get('password') if isinstance(data, dict) else None
     passwordconfirm = data.get('passwordconfirm') if isinstance(data, dict) else None
     email = data.get('email') if isinstance(data, dict) else None
+    role = data.get('role', 'user') if isinstance(data, dict) else 'user'
 
     if not username or not password or not passwordconfirm or not email:
       return jsonify({'message': 'Missing required fields: username, password, passwordconfirm, email'}), 400
@@ -130,12 +133,15 @@ def register():
     if password != passwordconfirm:
       return jsonify({'message': 'Passwords do not match'}), 400
 
+    if role not in ALLOWED_ROLES:
+      return jsonify({'message': f'role must be one of {ALLOWED_ROLES}'}), 400
+
     if auth_service.check_exist(username):
       return jsonify({'message': 'User already exists. Please login.'}), 400
     #  vieets theo kien truc clean architecture
     # password_hashed = Str.encode()(password)
     password_hashed =generate_password_hash(password)
-    new_user = auth_service.register(username, password_hashed, email)
+    new_user = auth_service.register(username, password_hashed, email, role=role)
     if not new_user:
       return jsonify({'message': 'Registration failed'}), 500 
     result = register_response.dump(new_user)

@@ -144,6 +144,7 @@ input,select,textarea{font-size:12px !important}
 <div class="form-row"><input id="su-email" placeholder="Email" type="email"></div>
 <div class="form-row"><input id="su-pass" placeholder="Password" type="password"></div>
 <div class="form-row"><input id="su-pass2" placeholder="Xac nhan password" type="password"></div>
+<div class="form-row"><select id="su-role"><option value="user">User</option><option value="photographer">Photographer</option><option value="provider">Provider</option><option value="expert">Expert</option></select></div>
 <button class="btn btn-green" onclick="doSignup()">Dang ky</button>
 </div>
 <div class="card">
@@ -322,10 +323,10 @@ function showOut(id,data){const el=document.getElementById(id);el.style.display=
 
 // AUTH
 async function doSignup(){
-  const u=document.getElementById('su-user').value,e=document.getElementById('su-email').value,p=document.getElementById('su-pass').value,p2=document.getElementById('su-pass2').value;
+  const u=document.getElementById('su-user').value,e=document.getElementById('su-email').value,p=document.getElementById('su-pass').value,p2=document.getElementById('su-pass2').value,role=document.getElementById('su-role').value;
   if(!u||!e||!p){toast('Vui long nhap day du thong tin!','err');return}
   if(p!==p2){toast('Mat khau khong khop!','err');return}
-  try{const r=await fetch(API+'/auth/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,email:e,password:p,passwordconfirm:p2})});
+  try{const r=await fetch(API+'/auth/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,email:e,password:p,passwordconfirm:p2,role:role})});
   const d=await r.json();if(r.ok){toast('Dang ky thanh cong! Username: '+d.username,true);document.getElementById('su-user').value='';document.getElementById('su-email').value='';document.getElementById('su-pass').value='';document.getElementById('su-pass2').value=''}else toast(d.message||'Dang ky that bai',false)}catch(e){toast('Loi: '+e.message,false)}
 }
 async function doLogin(){

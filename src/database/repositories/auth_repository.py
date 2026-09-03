@@ -25,7 +25,7 @@ class AuthRepository(IAuthRepository):
             auth.id = user.id
         return auth
    
-    def register(self, auth: Auth) -> Optional[Auth]:
+    def register(self, auth: Auth, role: str = 'user') -> Optional[Auth]:
         try:
             new_auth_user = AuthUserModel(
                 username=auth.username,
@@ -39,7 +39,7 @@ class AuthRepository(IAuthRepository):
                 email=auth.email,
                 password_hash=auth.password,
                 full_name=auth.username,
-                role='user',
+                role=role,
                 is_active=True,
             )
             self.session.add(new_user)
