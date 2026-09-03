@@ -51,8 +51,8 @@ def role_required(*allowed_roles):
             role = getattr(request, 'current_user_role', None)
             if not role:
                 return jsonify({'error': 'Authentication required'}), 401
-            if role not in allowed_roles:
-                return jsonify({'error': f'Role {role} is not allowed. Required: {allowed_roles}'}), 403
-            return f(*args, **kwargs)
+            if role == 'admin' or role in allowed_roles:
+                return f(*args, **kwargs)
+            return jsonify({'error': f'Role {role} is not allowed. Required: {allowed_roles}'}), 403
         return decorated
     return decorator

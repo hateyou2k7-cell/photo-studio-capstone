@@ -161,6 +161,13 @@ def create_space():
         profile = session.query(ProviderProfile).filter_by(user_id=request.current_user_id).first()
         if not profile or profile.id != data.get('provider_id'):
             return jsonify({'error': 'You can only create spaces for your own provider profile'}), 403
+    elif role == 'manager':
+        from database.databases.factory_database import FactoryDatabase
+        from database.models.film_user_model import ProviderProfile
+        session = FactoryDatabase.get_database('POSTGREE').session
+        profile = session.query(ProviderProfile).filter_by(user_id=request.current_user_id).first()
+        if not profile or profile.id != data.get('provider_id'):
+            return jsonify({'error': 'Manager can only create spaces for their own provider profile'}), 403
 
     try:
         space = space_service.create(
