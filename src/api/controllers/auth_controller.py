@@ -78,7 +78,17 @@ def login():
         'exp': datetime.utcnow() + timedelta(hours=2)
     }
     token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
-    return jsonify({'token': token, 'user_id': user.id, 'role': user.role})
+
+    provider_profile_id = None
+    if user.role == 'provider':
+        from database.databases.factory_database import FactoryDatabase
+        from database.models.film_user_model import ProviderProfile
+        session = FactoryDatabase.get_database('POSTGREE').session
+        profile = session.query(ProviderProfile).filter_by(user_id=user.id).first()
+        if profile:
+            provider_profile_id = profile.id
+
+    return jsonify({'token': token, 'user_id': user.id, 'role': user.role, 'provider_profile_id': provider_profile_id})
 
 
 @auth_bp.route('/signup', methods=['POST'])

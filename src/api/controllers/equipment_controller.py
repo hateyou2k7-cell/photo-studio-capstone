@@ -79,7 +79,6 @@ def get_equipment(equipment_id):
 
 @bp.route('', methods=['POST'])
 @jwt_required
-@role_required('admin', 'manager')
 def create_equipment():
     """
     Create new equipment
@@ -99,10 +98,23 @@ def create_equipment():
         400:
           description: Validation error
     """
+    role = getattr(request, 'current_user_role', None)
+    if role not in ('admin', 'manager', 'provider'):
+        return jsonify({'error': 'Role not allowed'}), 403
+
     data = request.get_json()
     errors = request_schema.validate(data)
     if errors:
         return jsonify(errors), 400
+
+    if role == 'provider':
+        from database.databases.factory_database import FactoryDatabase
+        from database.models.film_user_model import ProviderProfile
+        session = FactoryDatabase.get_database('POSTGREE').session
+        profile = session.query(ProviderProfile).filter_by(user_id=request.current_user_id).first()
+        if not profile or profile.id != data.get('provider_id'):
+            return jsonify({'error': 'You can only create equipment for your own provider profile'}), 403
+
     try:
         item = equipment_service.create(
             provider_id=data['provider_id'],

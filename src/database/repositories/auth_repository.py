@@ -4,7 +4,7 @@ from typing import Optional
 from database.databases.factory_database import FactoryDatabase as db_factory
 from sqlalchemy.orm import Session
 from database.models.auth.auth_user_model import AuthUserModel
-from database.models.film_user_model import User
+from database.models.film_user_model import User, ProviderProfile
 from werkzeug.security import check_password_hash
 
 
@@ -45,6 +45,17 @@ class AuthRepository(IAuthRepository):
                 is_active=True,
             )
             self.session.add(new_user)
+            self.session.flush()
+
+            if role == 'provider':
+                provider_profile = ProviderProfile(
+                    user_id=new_user.id,
+                    business_name=auth.username + "'s Studio",
+                    description='',
+                    status='approved'
+                )
+                self.session.add(provider_profile)
+
             self.session.commit()
             self.session.refresh(new_auth_user)
             auth.id = new_auth_user.id
