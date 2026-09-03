@@ -201,18 +201,16 @@ input,select,textarea{font-size:12px !important}
 
 <!-- RESERVATIONS -->
 <div class="section">
-<h2>5. Reservations (can JWT token)</h2>
+<h2>5. Reservations</h2>
 <div class="form-row">
-<input id="res-uid" type="number" placeholder="User ID" value="1">
-<input id="res-pid" type="number" placeholder="Provider ID" value="1">
-<input id="res-sid" type="number" placeholder="Space ID" value="1">
-<input id="res-start" type="datetime-local" value="2026-12-28T09:00">
-<input id="res-end" type="datetime-local" value="2026-12-28T11:00">
-<input id="res-price" type="number" value="300000">
-<button class="btn btn-green" onclick="createReservation()">Tao</button>
+<select id="res-sid"><option value="">-- Chon space --</option></select>
+<input id="res-start" type="datetime-local" value="2026-09-04T09:00">
+<input id="res-end" type="datetime-local" value="2026-09-04T12:00">
+<input id="res-price" type="number" placeholder="Gia tien" value="300000">
+<button class="btn btn-green" onclick="createReservation()">Dat cho</button>
 <button class="btn btn-blue" onclick="loadReservations()">Load</button>
 </div>
-<table><thead><tr><th>ID</th><th>User</th><th>Space</th><th>Start</th><th>End</th><th>Gia</th><th>Status</th><th>Thao tac</th></tr></thead><tbody id="resl"></tbody></table>
+<table><thead><tr><th>ID</th><th>Space</th><th>Start</th><th>End</th><th>Gia</th><th>Status</th><th>Thao tac</th></tr></thead><tbody id="resl"></tbody></table>
 </div>
 
 <!-- BILLING -->
@@ -368,8 +366,10 @@ async function createEquipment(){const pid=parseInt(localStorage.getItem('provid
 async function delEquipment(id){if(!confirm('Xoa thiet bi #'+id+'?'))return;const{ok}=await apiCall('DELETE','/api/v1/equipment/'+id,null,true);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadEquipment()}
 
 // RESERVATIONS
-async function loadReservations(){const{data}=await apiCall('GET','/v1/reservations/',null,true);const tb=document.getElementById('resl');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.user_id+'</td><td>'+(r.space_id||'-')+'</td><td>'+(r.start_time||'').slice(0,16)+'</td><td>'+(r.end_time||'').slice(0,16)+'</td><td>'+Number(r.total_price||0).toLocaleString()+'</td><td>'+r.status+'</td><td><button class="btn btn-orange" onclick="confirmRes('+r.id+')">Confirm</button> <button class="btn btn-blue" onclick="approveRes('+r.id+')">Approve</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#666">Khong co reservation</td></tr>'}
-async function createReservation(){const d={user_id:parseInt(document.getElementById('res-uid').value),provider_id:parseInt(document.getElementById('res-pid').value),space_id:parseInt(document.getElementById('res-sid').value),start_time:document.getElementById('res-start').value.replace('T','T')+':00',end_time:document.getElementById('res-end').value.replace('T','T')+':00',total_price:parseFloat(document.getElementById('res-price').value)};const{ok,data}=await apiCall('POST','/v1/reservations/',d,true);showMsg(ok?'Tao reservation #'+data.id:(data.message||'Loi'),ok);if(ok)loadReservations()}
+let _spaceMap={};
+async function loadSpaceOptions(){const{data}=await apiCall('GET','/spaces/',null,true);const items=(data&&data.items)?data.items:(Array.isArray(data)?data:[]);const sel=document.getElementById('res-sid');sel.innerHTML='<option value="">-- Chon space --</option>';_spaceMap={};items.forEach(s=>{_spaceMap[s.id]=s;sel.innerHTML+='<option value="'+s.id+'">'+s.name+' ('+Number(s.base_price_per_hour||0).toLocaleString()+'/h)</option>'})}
+async function loadReservations(){const{data}=await apiCall('GET','/v1/reservations/',null,true);const tb=document.getElementById('resl');tb.innerHTML='';const items=(data&&data.items)?data.items:(Array.isArray(data)?data:[]);items.forEach(r=>{const sp=_spaceMap[r.space_id]||{};const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+(sp.name||'Space #'+r.space_id)+'</td><td>'+(r.start_time||'').slice(0,16)+'</td><td>'+(r.end_time||'').slice(0,16)+'</td><td>'+Number(r.total_price||0).toLocaleString()+'</td><td>'+r.status+'</td><td><button class="btn btn-orange" onclick="confirmRes('+r.id+')">Confirm</button> <button class="btn btn-blue" onclick="approveRes('+r.id+')">Approve</button></td>';tb.appendChild(tr)});if(!items.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong co reservation</td></tr>'}
+async function createReservation(){const uid=parseInt(localStorage.getItem('user_id'));const sid=parseInt(document.getElementById('res-sid').value);const sp=_spaceMap[sid];if(!sid||!sp){showMsg('Chon space!',false);return}const d={user_id:uid,provider_id:sp.provider_id,space_id:sid,start_time:document.getElementById('res-start').value+':00',end_time:document.getElementById('res-end').value+':00',total_price:parseFloat(document.getElementById('res-price').value)};const{ok,data}=await apiCall('POST','/v1/reservations/',d,true);showMsg(ok?'Dat cho thanh cong #'+data.id:(data.message||'Loi'),ok);if(ok)loadReservations()}
 async function confirmRes(id){const{ok,data}=await apiCall('POST','/v1/reservations/'+id+'/confirm',null,true);showMsg(ok?'Confirmed #'+id:(data.message||'Loi'),ok);loadReservations()}
 async function approveRes(id){const{ok,data}=await apiCall('POST','/v1/reservations/'+id+'/approve',null,true);showMsg(ok?'Approved #'+id:(data.message||'Loi'),ok);loadReservations()}
 
@@ -404,6 +404,7 @@ async function runApi(){const m=document.getElementById('method').value;const p=
 
 // Auto load
 loadRooms();
+loadSpaceOptions();
 </script></body></html>'''
         return Response(html, mimetype='text/html')
 
