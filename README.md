@@ -25,6 +25,8 @@ Mở `http://localhost:9999` để thấy GUI.
 
 Tài khoản admin: `admin` / `admin123`
 
+> **Database đã bao gồm.** Không cần cài PostgreSQL. Dữ liệu lưu trên Supabase cloud miễn phí.
+
 ---
 
 ## Trạng thái
@@ -62,8 +64,9 @@ Tài khoản admin: `admin` / `admin123`
 ### Yêu cầu
 
 - Python 3.8+
-- PostgreSQL (hoặc dùng Supabase cloud)
 - pip
+
+> **Không cần cài PostgreSQL.** Database đã bao gồm trên Supabase cloud miễn phí.
 
 ### Kiểm tra Python
 
@@ -76,7 +79,7 @@ python3 --version
 ### Bước 1: Clone repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/hateyou2k7-cell/photo-studio-capstone.git
 cd photo-studio-capstone
 ```
 
@@ -120,18 +123,13 @@ cd src
 pip install -r requirements.txt
 ```
 
-### Bước 5: Cấu hình môi trường
+### Bước 5: Copy file cấu hình
 
-Tạo file `.env` trong thư mục `src/`:
-
-```env
-# Flask
-FLASK_ENV=development
-SECRET_KEY=your_secret_key_here
-
-# PostgreSQL (Supabase)
-POSTGREE_DATABASE_URL="postgresql+psycopg2://postgres.xxx:password@aws-0-ap-south-1.pooler.supabase.com:5432/postgres"
+```bash
+cp .env.example .env
 ```
+
+> File `.env.example` đã chứa sẵn database URL. Không cần chỉnh sửa gì thêm.
 
 ### Bước 6: Chạy ứng dụng
 
@@ -146,33 +144,6 @@ python app.py
 | http://localhost:9999/ | Test GUI |
 | http://localhost:9999/docs | Swagger UI |
 | http://localhost:9999/swagger.json | OpenAPI spec |
-
----
-
-## Docker (tùy chọn)
-
-### Pull PostgreSQL image
-
-```bash
-docker pull postgres:16-alpine
-```
-
-### Chạy PostgreSQL container
-
-```bash
-docker run -e POSTGRES_DB=photo_studio \
-           -e POSTGRES_USER=postgres \
-           -e POSTGRES_PASSWORD=your_password \
-           -p 5432:5432 \
-           --name photo-studio-db \
-           -d postgres:16-alpine
-```
-
-### Cập nhật .env
-
-```env
-POSTGREE_DATABASE_URL="postgresql+psycopg2://postgres:your_password@localhost:5432/photo_studio"
-```
 
 ---
 
@@ -277,7 +248,9 @@ Xem chi tiết tại [API Documentation](docs/api-documentation.md).
 
 ## Database
 
-PostgreSQL với SQLAlchemy ORM. **44 bảng** trong đó 12 bảng đã có API.
+PostgreSQL (Supabase cloud miễn phí) với SQLAlchemy ORM. **44 bảng** trong đó 12 bảng đã có API.
+
+> Database đã bao gồm. Không cần cài đặt hay cấu hình gì thêm.
 
 Tài khoản có sẵn:
 | Username | Password | Role | Ghi chú |
@@ -304,8 +277,6 @@ pytest
 Xem hướng dẫn chi tiết tại [Deployment Guide](docs/deployment-guide.md).
 
 - **Local**: `python app.py`
-- **Docker**: `docker-compose up -d --build`
-- **Supabase**: Cloud PostgreSQL
 - **Render / Railway / Heroku**: Web service deploy
 
 ---
