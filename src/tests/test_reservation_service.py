@@ -91,6 +91,9 @@ class FakeReservationRepo:
         )
         self._session_counter += 1
         self.sessions.append(session)
+        reservation = self.get_by_id(reservation_id)
+        if reservation:
+            reservation.status = 'checked_in'
         return session
 
     def check_out(self, reservation_id):

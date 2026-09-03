@@ -15,6 +15,7 @@ from api.controllers.chatbot_controller import bp as chatbot_bp
 from api.controllers.recommendation_controller import bp as recommendation_bp
 from api.controllers.course_controller import bp as course_bp
 from api.controllers.provider_controller import bp as provider_bp
+from api.controllers.community_controller import bp as community_bp
 from api.middleware import middleware
 from api.responses import success_response
 from database.databases import init_db
@@ -42,6 +43,7 @@ def create_app():
     app.register_blueprint(recommendation_bp)
     app.register_blueprint(course_bp)
     app.register_blueprint(provider_bp)
+    app.register_blueprint(community_bp)
     # register_routes(app)
      # Thêm Swagger UI blueprint
     SWAGGER_URL = '/docs'
@@ -65,7 +67,7 @@ def create_app():
     with app.test_request_context():
         for rule in app.url_map.iter_rules():
             # Thêm các endpoint khác nếu cần
-            if rule.endpoint.startswith(('course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.', 'reservation.', 'billing.', 'equipment.', 'package_booking.', 'chatbot.', 'recommendation.')):
+            if rule.endpoint.startswith(('course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.', 'reservation.', 'billing.', 'equipment.', 'package_booking.', 'chatbot.', 'recommendation.', 'community.')):
                 view_func = app.view_functions[rule.endpoint]
                 print(f"Adding path: {rule.rule} -> {view_func}")
                 spec.path(view=view_func)

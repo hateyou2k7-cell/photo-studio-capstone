@@ -8,18 +8,40 @@ Nền tảng kết nối cộng đồng nhiếp ảnh phim với dịch vụ ph�
 
 ## Quick Start
 
+### Linux / macOS
+
 ```bash
 git clone https://github.com/hateyou2k7-cell/photo-studio-capstone.git
 cd photo-studio-capstone/src
 
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 
 pip install -r requirements.txt
 cp .env.example .env
 
+python3 app.py
+```
+
+### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/hateyou2k7-cell/photo-studio-capstone.git
+cd photo-studio-capstone\src
+
+py -m venv .venv
+.venv\Scripts\activate.ps1
+
+pip install -r requirements.txt
+Copy-Item .env.example .env
+
 python app.py
 ```
+
+> Nếu gặp lỗi `Set-ExecutionPolicy`, chạy PowerShell với quyền Administrator:
+> ```powershell
+> Set-ExecutionPolicy RemoteSigned -Force
+> ```
 
 Mở `http://localhost:9999` để thấy GUI.
 
@@ -31,13 +53,13 @@ Tài khoản admin: `admin` / `admin123`
 
 | Luồng nghiệp vụ | Hoàn thành | Mô tả |
 |:---|:---:|:---|
-| Đăng ký / Đăng nhập | 80% | JWT auth, signup đồng bộ auth_users + users,role-based |
+| Đăng ký / Đăng nhập | 80% | JWT auth, signup đồng bộ auth_users + users, role-based |
 | Quản lý Không gian | 80% | CRUD, search, images, schedules |
 | Quản lý Thiết bị | 50% | Equipment CRUD, thiếu consumables/resources |
 | Đặt chỗ & Phân bổ | 70% | Reservation + conflict detection + payments |
 | Phiên Sử dụng | 60% | Check-in/out, chưa QR code generation |
 | Gói Dịch vụ | 50% | Package booking, thiếu Package CRUD API |
-| Cộng đồng | 5% | Chỉ có DB model, chưa có API |
+| Cộng đồng | 85% | Posts, Comments, Workshops, Registrations — CRUD hoàn chỉnh |
 | AI Features | 25% | Chatbot + recommendation |
 | Hóa đơn / Thanh toán | 60% | Billing CRUD, invoices, customers, products |
 
@@ -84,11 +106,11 @@ cd photo-studio-capstone
 
 **Windows:**
 
-```bash
+```powershell
 py -m venv .venv
 ```
 
-**Unix/macOS:**
+**Linux / macOS:**
 
 ```bash
 python3 -m venv .venv
@@ -98,7 +120,7 @@ python3 -m venv .venv
 
 **Windows (PowerShell):**
 
-```bash
+```powershell
 .venv\Scripts\activate.ps1
 ```
 
@@ -107,7 +129,13 @@ python3 -m venv .venv
 > Set-ExecutionPolicy RemoteSigned -Force
 > ```
 
-**Unix/macOS:**
+**Windows (CMD):**
+
+```cmd
+.venv\Scripts\activate.bat
+```
+
+**Linux / macOS:**
 
 ```bash
 source .venv/bin/activate
@@ -124,6 +152,26 @@ pip install -r requirements.txt
 
 Tạo file `.env` trong thư mục `src/`:
 
+**Linux / macOS:**
+
+```bash
+cp .env.example .env
+```
+
+**Windows (PowerShell):**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+**Windows (CMD):**
+
+```cmd
+copy .env.example .env
+```
+
+Nội dung `.env`:
+
 ```env
 # Flask
 FLASK_ENV=development
@@ -133,7 +181,17 @@ SECRET_KEY=your_secret_key_here
 POSTGREE_DATABASE_URL="postgresql+psycopg2://postgres.xxx:password@aws-0-ap-south-1.pooler.supabase.com:5432/postgres"
 ```
 
+> **Lưu ý:** File `.env` phải nằm trong thư mục `src/`, không phải thư mục gốc project.
+
 ### Bước 6: Chạy ứng dụng
+
+**Linux / macOS:**
+
+```bash
+python3 app.py
+```
+
+**Windows:**
 
 ```bash
 python app.py
@@ -159,12 +217,25 @@ docker pull postgres:16-alpine
 
 ### Chạy PostgreSQL container
 
+**Linux / macOS:**
+
 ```bash
 docker run -e POSTGRES_DB=photo_studio \
            -e POSTGRES_USER=postgres \
            -e POSTGRES_PASSWORD=your_password \
            -p 5432:5432 \
            --name photo-studio-db \
+           -d postgres:16-alpine
+```
+
+**Windows (PowerShell):**
+
+```powershell
+docker run -e POSTGRES_DB=photo_studio `
+           -e POSTGRES_USER=postgres `
+           -e POSTGRES_PASSWORD=your_password `
+           -p 5432:5432 `
+           --name photo-studio-db `
            -d postgres:16-alpine
 ```
 
@@ -181,13 +252,13 @@ POSTGREE_DATABASE_URL="postgresql+psycopg2://postgres:your_password@localhost:54
 ```
 photo-studio-capstone/
 ├── docs/
-│   ├── api-documentation.md       # Chi tiết 75 API endpoints
+│   ├── api-documentation.md       # Chi tiết 91 API endpoints
 │   ├── architecture.md             # Kiến trúc, data flow
 │   ├── database-schema.md          # ERD, 44 bảng database
 │   └── deployment-guide.md         # Hướng dẫn deploy
 ├── src/
 │   ├── api/                        # API Layer
-│   │   ├── controllers/            # 12 Flask Blueprint controllers
+│   │   ├── controllers/            # 14 Flask Blueprint controllers
 │   │   ├── schemas/                # Marshmallow validation schemas
 │   │   ├── middleware.py           # Request/response middleware
 │   │   ├── auth_middleware.py      # @jwt_required, @jwt_optional
@@ -202,7 +273,7 @@ photo-studio-capstone/
 │   ├── database/                   # Data Access Layer
 │   │   ├── databases/             # PostgreSQL/MSSQL adapters (Factory pattern)
 │   │   ├── repositories/          # Concrete repository implementations
-│   │   └── models/                # SQLAlchemy ORM models (36 tables)
+│   │   └── models/                # SQLAlchemy ORM models (44 tables)
 │   ├── tests/                      # Test suite
 │   ├── uploads/                    # Uploaded files
 │   ├── app.py                      # Entry point
@@ -254,7 +325,7 @@ Xem chi tiết tại [Architecture Documentation](docs/architecture.md).
 
 ## API Endpoints
 
-Tổng: **75 endpoints** | JWT Protected: **22** | Public: **53**
+Tổng: **91 endpoints** | JWT Protected: **38** | Public: **53**
 
 | Module | Prefix | Endpoints | JWT |
 |:---|:---|:---:|:---:|
@@ -270,6 +341,7 @@ Tổng: **75 endpoints** | JWT Protected: **22** | Public: **53**
 | Chatbot | `/api/v1/chatbot` | 2 | 0 |
 | Recommendations | `/api/v1/recommendations` | 1 | 0 |
 | Courses | `/courses` | 5 | 0 |
+| Community | `/api/v1/community` | 16 | 8 |
 
 Xem chi tiết tại [API Documentation](docs/api-documentation.md).
 
@@ -277,7 +349,7 @@ Xem chi tiết tại [API Documentation](docs/api-documentation.md).
 
 ## Database
 
-PostgreSQL với SQLAlchemy ORM. **44 bảng** trong đó 12 bảng đã có API.
+PostgreSQL với SQLAlchemy ORM. **44 bảng** trong đó 13 bảng đã có API.
 
 Tài khoản có sẵn:
 | Username | Password | Role | Ghi chú |
@@ -292,9 +364,18 @@ Xem chi tiết tại [Database Schema](docs/database-schema.md).
 
 ## Testing
 
+**Linux / macOS:**
+
 ```bash
 cd src
-pytest
+python3 -m pytest
+```
+
+**Windows:**
+
+```bash
+cd src
+python -m pytest
 ```
 
 ---
@@ -307,6 +388,48 @@ Xem hướng dẫn chi tiết tại [Deployment Guide](docs/deployment-guide.md)
 - **Docker**: `docker-compose up -d --build`
 - **Supabase**: Cloud PostgreSQL
 - **Render / Railway / Heroku**: Web service deploy
+
+---
+
+## Troubleshooting
+
+### Lỗi `DATABASE_URI is None` trên Windows
+
+Nguyên nhân: File `.env` không được load đúng.
+
+Giải pháp:
+1. Kiểm tra file `.env` nằm trong thư mục `src/`
+2. Kiểm tra nội dung `.env` đúng format (có dấu `"` bao quanh URL)
+3. Kiểm tra variable name đúng là `POSTGREE_DATABASE_URL` (không phải `DATABASE_URL`)
+
+### Lỗi `Set-ExecutionPolicy` trên Windows
+
+```powershell
+# Chạy PowerShell với quyền Administrator
+Set-ExecutionPolicy RemoteSigned -Force
+```
+
+### Lỗi `psycopg2` not found
+
+```bash
+pip install psycopg2-binary
+```
+
+### Port 9999 đang được sử dụng
+
+**Linux / macOS:**
+
+```bash
+lsof -i :9999
+kill -9 <PID>
+```
+
+**Windows:**
+
+```cmd
+netstat -ano | findstr :9999
+taskkill /PID <PID> /F
+```
 
 ---
 

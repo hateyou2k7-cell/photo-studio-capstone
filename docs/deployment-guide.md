@@ -16,21 +16,65 @@ Hướng dẫn triển khai Photo Studio Capstone Backend.
 
 ### Bước 1: Clone & Setup
 
+**Linux / macOS:**
+
 ```bash
 cd photo-studio-capstone/src
 
-# Tạo môi trường ảo
 python3 -m venv .venv
-source .venv/bin/activate  # Unix/macOS
-# .venv\Scripts\activate   # Windows
+source .venv/bin/activate
 
-# Cài dependencies
+pip install -r requirements.txt
+```
+
+**Windows (PowerShell):**
+
+```powershell
+cd photo-studio-capstone\src
+
+py -m venv .venv
+.venv\Scripts\activate.ps1
+
+pip install -r requirements.txt
+```
+
+> Nếu gặp lỗi `Set-ExecutionPolicy`, chạy PowerShell với quyền Administrator:
+> ```powershell
+> Set-ExecutionPolicy RemoteSigned -Force
+> ```
+
+**Windows (CMD):**
+
+```cmd
+cd photo-studio-capstone\src
+
+py -m venv .venv
+.venv\Scripts\activate.bat
+
 pip install -r requirements.txt
 ```
 
 ### Bước 2: Cấu hình .env
 
-Tạo file `src/.env`:
+**Linux / macOS:**
+
+```bash
+cp .env.example .env
+```
+
+**Windows (PowerShell):**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+**Windows (CMD):**
+
+```cmd
+copy .env.example .env
+```
+
+Nội dung `src/.env`:
 
 ```env
 FLASK_ENV=development
@@ -43,7 +87,17 @@ POSTGREE_DATABASE_URL="postgresql+psycopg2://postgres.xxx:password@aws-0-ap-sout
 # POSTGREE_DATABASE_URL="postgresql+psycopg2://user:password@localhost:5432/photo_studio"
 ```
 
+> **Lưu ý:** File `.env` phải nằm trong thư mục `src/`, không phải thư mục gốc project.
+
 ### Bước 3: Chạy
+
+**Linux / macOS:**
+
+```bash
+python3 app.py
+```
+
+**Windows:**
 
 ```bash
 python app.py
@@ -100,9 +154,22 @@ volumes:
 
 ### Chạy
 
+**Linux / macOS:**
+
 ```bash
 echo "SECRET_KEY=your_secret" > .env
 echo "DATABASE_URL=postgresql+psycopg2://..." >> .env
+docker-compose up -d --build
+```
+
+**Windows (PowerShell):**
+
+```powershell
+@"
+SECRET_KEY=your_secret
+DATABASE_URL=postgresql+psycopg2://...
+"@ | Out-File .env
+
 docker-compose up -d --build
 ```
 
@@ -218,15 +285,54 @@ print(os.environ.get('POSTGREE_DATABASE_URL'))
 
 ### Port 9999 in use
 
+**Linux / macOS:**
+
 ```bash
-lsof -i :9999        # macOS/Linux
-netstat -ano | findstr :9999  # Windows
+lsof -i :9999
 kill -9 <PID>
+```
+
+**Windows:**
+
+```cmd
+netstat -ano | findstr :9999
+taskkill /PID <PID> /F
 ```
 
 ### Import errors
 
+**Linux / macOS:**
+
 ```bash
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+**Windows:**
+
+```powershell
+.venv\Scripts\activate.ps1
+pip install -r requirements.txt
+```
+
+### Lỗi `DATABASE_URI is None` trên Windows
+
+Nguyên nhân: File `.env` không được load đúng.
+
+Giải pháp:
+1. Kiểm tra file `.env` nằm trong thư mục `src/`
+2. Kiểm tra nội dung `.env` đúng format (có dấu `"` bao quanh URL)
+3. Kiểm tra variable name đúng là `POSTGREE_DATABASE_URL`
+
+### Lỗi `Set-ExecutionPolicy` trên Windows
+
+```powershell
+# Chạy PowerShell với quyền Administrator
+Set-ExecutionPolicy RemoteSigned -Force
+```
+
+### Lỗi `psycopg2` not found
+
+```bash
+pip install psycopg2-binary
 ```

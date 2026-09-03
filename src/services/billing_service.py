@@ -75,7 +75,7 @@ class BillingService:
         existing = self.repository.get_by_id(invoice_id)
         if existing:
             existing.total_amount = total
-            self.repository.session.commit()
+            self.repository.update(existing)
 
     def create_customer(self, customer_name: str, email: str = None,
                         phone: str = None, address: str = None) -> Customer:
@@ -165,4 +165,4 @@ class BillingService:
             else:
                 existing.status = 'partial'
             existing.updated_at = datetime.utcnow()
-            self.repository.session.commit()
+            self.repository.update(existing)

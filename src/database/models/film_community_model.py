@@ -62,7 +62,7 @@ class Workshop(Base):
     status = Column(String(50), default='open')
 
     expert = relationship('User')
-    registrations = relationship('WorkshopRegistration', back_populates='workshop')
+    registrations = relationship('WorkshopRegistration', back_populates='workshop', cascade='all, delete-orphan')
 
 
 class WorkshopRegistration(Base):
