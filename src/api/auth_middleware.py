@@ -15,6 +15,9 @@ def jwt_required(f):
         try:
             payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
             request.current_user_id = payload.get('user_id')
+            request.current_user_role = payload.get('role', 'user')
+            if request.current_user_role == 'admin':
+                return f(*args, **kwargs)
         except jwt.ExpiredSignatureError:
             return jsonify({'error': 'Token has expired'}), 401
         except jwt.InvalidTokenError:
@@ -31,10 +34,12 @@ def jwt_optional(f):
         if auth_header.startswith('Bearer '):
             token = auth_header.split(' ')[1]
         request.current_user_id = None
+        request.current_user_role = None
         if token:
             try:
                 payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
                 request.current_user_id = payload.get('user_id')
+                request.current_user_role = payload.get('role', 'user')
             except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
                 pass
         return f(*args, **kwargs)

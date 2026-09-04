@@ -142,6 +142,7 @@ input,select,textarea{font-size:12px !important}
 <div class="form-row"><input id="su-email" placeholder="Email" type="email"></div>
 <div class="form-row"><input id="su-pass" placeholder="Password" type="password"></div>
 <div class="form-row"><input id="su-pass2" placeholder="Xac nhan password" type="password"></div>
+<div class="form-row"><select id="su-role"><option value="user">User</option><option value="photographer">Photographer</option><option value="provider">Provider</option><option value="expert">Expert</option></select></div>
 <button class="btn btn-green" onclick="doSignup()">Dang ky</button>
 </div>
 <div class="card">
@@ -199,17 +200,26 @@ input,select,textarea{font-size:12px !important}
 <!-- RESERVATIONS -->
 <div class="section">
 <h2>5. Reservations (can JWT token)</h2>
-<div class="form-row">
-<input id="res-uid" type="number" placeholder="User ID" value="1">
-<input id="res-pid" type="number" placeholder="Provider ID" value="1">
-<input id="res-sid" type="number" placeholder="Space ID" value="1">
-<input id="res-start" type="datetime-local" value="2026-12-28T09:00">
-<input id="res-end" type="datetime-local" value="2026-12-28T11:00">
-<input id="res-price" type="number" value="300000">
-<button class="btn btn-green" onclick="createReservation()">Tao</button>
-<button class="btn btn-blue" onclick="loadReservations()">Load</button>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div class="card">
+<h2>Tao reservation moi</h2>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">User (dang nhap)</label><input id="res-uid" type="number" placeholder="User ID" readonly style="background:#222"></div>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">Phong (Space)</label><select id="res-sid" onchange="calcResPrice()"><option value="">-- Chon phong --</option></select></div>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">Ngay bat dau</label><input id="res-start" type="datetime-local" onchange="calcResPrice()" oninput="calcResPrice()"></div>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">Ngay ket thuc</label><input id="res-end" type="datetime-local" onchange="calcResPrice()" oninput="calcResPrice()"></div>
+<div style="background:#0d1117;border:1px solid #0f3460;border-radius:6px;padding:10px;margin:8px 0">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px"><span>Don gia:</span><span id="res-unit">—</span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px"><span>Thoi luong:</span><span id="res-hours">—</span></div>
+<div style="display:flex;justify-content:space-between;font-size:14px;color:#4caf50;font-weight:bold;border-top:1px solid #0f3460;padding-top:6px;margin-top:4px"><span>Tong cong:</span><span id="res-total">—</span></div>
 </div>
-<table><thead><tr><th>ID</th><th>User</th><th>Space</th><th>Start</th><th>End</th><th>Gia</th><th>Status</th><th>Thao tac</th></tr></thead><tbody id="resl"></tbody></table>
+<button class="btn btn-green" onclick="createReservation()">Tao reservation</button>
+</div>
+<div class="card">
+<h2>Danh sach reservation</h2>
+<button class="btn btn-blue" onclick="loadReservations()" style="margin-bottom:8px">Load lai</button>
+<table><thead><tr><th>ID</th><th>User</th><th>Space</th><th>Start</th><th>End</th><th>Gia</th><th>Status</th><th></th></tr></thead><tbody id="resl"></tbody></table>
+</div>
+</div>
 </div>
 
 <!-- BILLING -->
@@ -306,6 +316,7 @@ input,select,textarea{font-size:12px !important}
 <script>
 const API=window.location.origin;
 let TOKEN=null;
+let PROVIDER_ID=null;
 
 function showMsg(t,ok){const m=document.getElementById('msg');m.className='msg '+(ok?'msg-ok':'msg-err');m.textContent=t;m.style.display='block';setTimeout(()=>m.style.display='none',5000);toast(t,ok?'ok':'err')}
 function toast(t,type){
@@ -320,11 +331,11 @@ function showOut(id,data){const el=document.getElementById(id);el.style.display=
 
 // AUTH
 async function doSignup(){
-  const u=document.getElementById('su-user').value,e=document.getElementById('su-email').value,p=document.getElementById('su-pass').value,p2=document.getElementById('su-pass2').value;
+  const u=document.getElementById('su-user').value,e=document.getElementById('su-email').value,p=document.getElementById('su-pass').value,p2=document.getElementById('su-pass2').value,r=document.getElementById('su-role').value;
   if(!u||!e||!p){toast('Vui long nhap day du thong tin!','err');return}
   if(p!==p2){toast('Mat khau khong khop!','err');return}
-  try{const r=await fetch(API+'/auth/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,email:e,password:p,passwordconfirm:p2})});
-  const d=await r.json();if(r.ok){toast('Dang ky thanh cong! Username: '+d.username,true);document.getElementById('su-user').value='';document.getElementById('su-email').value='';document.getElementById('su-pass').value='';document.getElementById('su-pass2').value=''}else toast(d.message||'Dang ky that bai',false)}catch(e){toast('Loi: '+e.message,false)}
+  try{const res=await fetch(API+'/auth/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,email:e,password:p,passwordconfirm:p2,role:r})});
+  const d=await res.json();if(res.ok){toast('Dang ky thanh cong! Username: '+d.username,true);document.getElementById('su-user').value='';document.getElementById('su-email').value='';document.getElementById('su-pass').value='';document.getElementById('su-pass2').value=''}else toast(d.message||'Dang ky that bai',false)}catch(e){toast('Loi: '+e.message,false)}
 }
 async function doLogin(){
   const u=document.getElementById('li-user').value,p=document.getElementById('li-pass').value;
@@ -332,15 +343,18 @@ async function doLogin(){
   try{const r=await fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
   const d=await r.json();if(r.ok){TOKEN=d.token;localStorage.setItem('token',d.token);localStorage.setItem('user_id',d.user_id);
   document.getElementById('auth-status').textContent='Da dang nhap: '+u+' (ID:'+d.user_id+')';document.getElementById('auth-status').style.color='#4caf50';
-  document.getElementById('btn-logout').style.display='inline-block';document.getElementById('user-info').textContent='user_id='+d.user_id;toast('Dang nhap thanh cong! Xin chao '+u,true);document.getElementById('li-user').value='';document.getElementById('li-pass').value=''}else toast(d.error||'Sai username hoac password',false)}catch(e){toast('Loi: '+e.message,false)}
+  document.getElementById('btn-logout').style.display='inline-block';document.getElementById('user-info').textContent='user_id='+d.user_id;toast('Dang nhap thanh cong! Xin chao '+u,true);document.getElementById('li-user').value='';document.getElementById('li-pass').value='';
+  try{const pr=await fetch(API+'/providers/user/'+d.user_id);if(pr.ok){const pd=await pr.json();PROVIDER_ID=pd.id;localStorage.setItem('provider_id',pd.id);document.getElementById('user-info').textContent+=' | provider_id='+pd.id}}catch(e){}
+  loadReservations();loadBookings();loadCustomers();loadProducts();loadInvoices()
+  }else toast(d.error||'Sai username hoac password',false)}catch(e){toast('Loi: '+e.message,false)}
 }
-function doLogout(){TOKEN=null;localStorage.removeItem('token');localStorage.removeItem('user_id');document.getElementById('auth-status').textContent='Chua dang nhap';document.getElementById('auth-status').style.color='#f44336';document.getElementById('btn-logout').style.display='none';document.getElementById('user-info').textContent=''}
-(function(){const t=localStorage.getItem('token'),uid=localStorage.getItem('user_id');if(t){TOKEN=t;document.getElementById('auth-status').textContent='Da dang nhap (ID:'+uid+')';document.getElementById('auth-status').style.color='#4caf50';document.getElementById('btn-logout').style.display='inline-block'}})();
+function doLogout(){TOKEN=null;PROVIDER_ID=null;localStorage.removeItem('token');localStorage.removeItem('user_id');document.getElementById('auth-status').textContent='Chua dang nhap';document.getElementById('auth-status').style.color='#f44336';document.getElementById('btn-logout').style.display='none';document.getElementById('user-info').textContent=''}
+(function(){const t=localStorage.getItem('token'),uid=localStorage.getItem('user_id'),pid=localStorage.getItem('provider_id');if(t){TOKEN=t;PROVIDER_ID=pid?Number(pid):null;document.getElementById('auth-status').textContent='Da dang nhap (ID:'+uid+')';document.getElementById('auth-status').style.color='#4caf50';document.getElementById('btn-logout').style.display='inline-block'}})();
 
 // GENERIC API CALL
 async function apiCall(method,path,body,auth){
   const opt={method,headers:{'Content-Type':'application/json'}};
-  if(auth)Object.assign(opt.headers,authHeaders());
+  if(auth){const t=TOKEN||localStorage.getItem('token');if(t){opt.headers['Authorization']='Bearer '+t}else{return{status:401,data:{error:'Chua dang nhap'},ok:false}}}
   if(body&&method!=='GET')opt.body=JSON.stringify(body);
   const r=await fetch(API+path,opt);
   const t=await r.text();
@@ -354,33 +368,79 @@ async function createRoom(){const d={name:document.getElementById('r-name').valu
 async function delRoom(id){if(!confirm('Xoa room #'+id+'?'))return;const{ok}=await apiCall('DELETE','/rooms/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadRooms()}
 
 // SPACES
-async function loadSpaces(){const{data}=await apiCall('GET','/spaces/');const tb=document.getElementById('spl');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.space_type||r.type||'-')+'</td><td>'+Number(r.base_price_per_hour||0).toLocaleString()+'</td><td>'+r.max_capacity+'</td><td>'+(r.status?'Active':'Inactive')+'</td><td><button class="btn btn-red" onclick="delSpace('+r.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong co space</td></tr>'}
-async function createSpace(){const d={provider_id:1,name:document.getElementById('sp-name').value,space_type:document.getElementById('sp-type').value,base_price_per_hour:parseFloat(document.getElementById('sp-price').value),max_capacity:parseInt(document.getElementById('sp-cap').value),status:true};if(!d.name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/spaces/',d);showMsg(ok?'Tao thanh cong: '+data.name:(data.message||'Loi'),ok);if(ok)loadSpaces()}
+async function loadSpaces(){const{data}=await apiCall('GET','/spaces/');const items=data.items||data;const tb=document.getElementById('spl');tb.innerHTML='';(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.space_type||r.type||'-')+'</td><td>'+Number(r.base_price_per_hour||0).toLocaleString()+'</td><td>'+r.max_capacity+'</td><td>'+(r.status?'Active':'Inactive')+'</td><td><button class="btn btn-red" onclick="delSpace('+r.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong co space</td></tr>'}
+async function createSpace(){if(!PROVIDER_ID){toast('Ban can dang nhap voi tai khoan provider de tao space!','err');return}const d={provider_id:PROVIDER_ID,name:document.getElementById('sp-name').value,space_type:document.getElementById('sp-type').value,base_price_per_hour:parseFloat(document.getElementById('sp-price').value),max_capacity:parseInt(document.getElementById('sp-cap').value),status:true};if(!d.name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/spaces/',d);showMsg(ok?'Tao thanh cong: '+data.name:(data.message||'Loi'),ok);if(ok)loadSpaces()}
 async function delSpace(id){if(!confirm('Xoa space #'+id+'?'))return;const{ok}=await apiCall('DELETE','/spaces/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadSpaces()}
-async function searchSpaces(){const q=document.getElementById('sp-name').value||'studio';const{data}=await apiCall('GET','/spaces/search?q='+encodeURIComponent(q));const tb=document.getElementById('spl');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.space_type||r.type||'-')+'</td><td>'+Number(r.base_price_per_hour||0).toLocaleString()+'</td><td>'+r.max_capacity+'</td><td>'+(r.status?'Active':'Inactive')+'</td><td>-</td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong tim thay</td></tr>'}
+async function searchSpaces(){const q=document.getElementById('sp-name').value||'studio';const{data}=await apiCall('GET','/spaces/search?q='+encodeURIComponent(q));const items=data.items||data;const tb=document.getElementById('spl');tb.innerHTML='';(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.space_type||r.type||'-')+'</td><td>'+Number(r.base_price_per_hour||0).toLocaleString()+'</td><td>'+r.max_capacity+'</td><td>'+(r.status?'Active':'Inactive')+'</td><td>-</td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong tim thay</td></tr>'}
 
 // EQUIPMENT
-async function loadEquipment(){const{data}=await apiCall('GET','/api/v1/equipment');const tb=document.getElementById('eql');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.type||r.equipment_type||'-')+'</td><td>'+Number(r.price_per_hour||0).toLocaleString()+'</td><td>'+(r.is_available!==false?'Yes':'No')+'</td><td><button class="btn btn-red" onclick="delEquipment('+r.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#666">Khong co thiet bi</td></tr>'}
-async function createEquipment(){const d={provider_id:1,name:document.getElementById('eq-name').value,type:document.getElementById('eq-type').value,price_per_hour:parseFloat(document.getElementById('eq-price').value),condition:'good',is_available:true};if(!d.name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/api/v1/equipment',d);showMsg(ok?'Tao thanh cong: '+data.name:(data.message||'Loi'),ok);if(ok)loadEquipment()}
+async function loadEquipment(){const{data}=await apiCall('GET','/api/v1/equipment');const items=data.items||data;const tb=document.getElementById('eql');tb.innerHTML='';(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.type||r.equipment_type||'-')+'</td><td>'+Number(r.price_per_hour||0).toLocaleString()+'</td><td>'+(r.is_available!==false?'Yes':'No')+'</td><td><button class="btn btn-red" onclick="delEquipment('+r.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#666">Khong co thiet bi</td></tr>'}
+async function createEquipment(){if(!PROVIDER_ID){toast('Ban can dang nhap voi tai khoan provider de tao thiet bi!','err');return}const d={provider_id:PROVIDER_ID,name:document.getElementById('eq-name').value,type:document.getElementById('eq-type').value,price_per_hour:parseFloat(document.getElementById('eq-price').value),condition:'good',is_available:true};if(!d.name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/api/v1/equipment',d);showMsg(ok?'Tao thanh cong: '+data.name:(data.message||'Loi'),ok);if(ok)loadEquipment()}
 async function delEquipment(id){if(!confirm('Xoa thiet bi #'+id+'?'))return;const{ok}=await apiCall('DELETE','/api/v1/equipment/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadEquipment()}
 
 // RESERVATIONS
-async function loadReservations(){const{data}=await apiCall('GET','/v1/reservations/',null,true);const tb=document.getElementById('resl');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.user_id+'</td><td>'+(r.space_id||'-')+'</td><td>'+(r.start_time||'').slice(0,16)+'</td><td>'+(r.end_time||'').slice(0,16)+'</td><td>'+Number(r.total_price||0).toLocaleString()+'</td><td>'+r.status+'</td><td><button class="btn btn-orange" onclick="confirmRes('+r.id+')">Confirm</button> <button class="btn btn-blue" onclick="approveRes('+r.id+')">Approve</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#666">Khong co reservation</td></tr>'}
-async function createReservation(){const d={user_id:parseInt(document.getElementById('res-uid').value),provider_id:parseInt(document.getElementById('res-pid').value),space_id:parseInt(document.getElementById('res-sid').value),start_time:document.getElementById('res-start').value.replace('T','T')+':00',end_time:document.getElementById('res-end').value.replace('T','T')+':00',total_price:parseFloat(document.getElementById('res-price').value)};const{ok,data}=await apiCall('POST','/v1/reservations/',d,true);showMsg(ok?'Tao reservation #'+data.id:(data.message||'Loi'),ok);if(ok)loadReservations()}
+let RES_SPACES=[];
+async function loadResSpaces(){
+  const{data}=await apiCall('GET','/spaces/');
+  const items=data.items||data;
+  RES_SPACES=Array.isArray(items)?items:[];
+  const sel=document.getElementById('res-sid');
+  sel.innerHTML='<option value="">-- Chon phong --</option>';
+  RES_SPACES.forEach(s=>{sel.innerHTML+='<option value="'+s.id+'">'+s.name+' ('+s.type+') - '+Number(s.base_price_per_hour||0).toLocaleString()+'d/gio</option>'});
+}
+function calcResPrice(){
+  const sid=document.getElementById('res-sid').value;
+  const s=document.getElementById('res-start').value;
+  const e=document.getElementById('res-end').value;
+  const unitEl=document.getElementById('res-unit');
+  const hoursEl=document.getElementById('res-hours');
+  const totalEl=document.getElementById('res-total');
+  if(!sid){unitEl.textContent='—';hoursEl.textContent='—';totalEl.textContent='—';return}
+  const space=RES_SPACES.find(x=>x.id==sid);
+  if(!space)return;
+  const price=space.base_price_per_hour||0;
+  unitEl.textContent=Number(price).toLocaleString()+'d/gio';
+  if(!s||!e){hoursEl.textContent='—';totalEl.textContent='—';return}
+  const ms=new Date(e)-new Date(s);
+  const hours=ms/3600000;
+  if(hours<=0){hoursEl.textContent='Khong hop le';totalEl.textContent='—';return}
+  hoursEl.textContent=(hours%1===0?hours:hours.toFixed(1))+' gio';
+  totalEl.textContent=Number(Math.round(hours*price)).toLocaleString()+'d';
+}
+async function loadReservations(){const uid=localStorage.getItem('user_id');const{ok,data}=await apiCall('GET','/v1/reservations/');const tb=document.getElementById('resl');if(!ok){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#666">'+(data.error||data.message||'Loi load')+'</td></tr>';return}const items=data.items||data;tb.innerHTML='';const loggedIn=!!TOKEN;(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.user_id+'</td><td>'+(r.space_id||'-')+'</td><td>'+(r.start_time||'').slice(0,16)+'</td><td>'+(r.end_time||'').slice(0,16)+'</td><td>'+Number(r.total_price||0).toLocaleString()+'</td><td>'+r.status+'</td><td>'+(loggedIn?'<button class=\"btn btn-orange\" onclick=\"confirmRes('+r.id+')\">Confirm</button> <button class=\"btn btn-blue\" onclick=\"approveRes('+r.id+')\">Approve</button>':'-')+'</td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#666">Khong co reservation</td></tr>'}
+async function createReservation(){
+  const uid=localStorage.getItem('user_id');
+  const sid=parseInt(document.getElementById('res-sid').value);
+  const s=document.getElementById('res-start').value;
+  const e=document.getElementById('res-end').value;
+  if(!uid){toast('Ban can dang nhap!','err');return}
+  if(!sid){toast('Chon phong!','err');return}
+  if(!s||!e){toast('Chon ngay bat dau va ket thuc!','err');return}
+  const ms=new Date(e)-new Date(s);
+  const hours=ms/3600000;
+  if(hours<=0){toast('Gio ket thuc phai sau gio bat dau!','err');return}
+  const space=RES_SPACES.find(x=>x.id==sid);
+  if(!space){toast('Phong khong ton tai!','err');return}
+  const total=Math.round(hours*(space.base_price_per_hour||0));
+  const pid=space.provider_id;
+  const d={user_id:parseInt(uid),provider_id:pid,space_id:sid,start_time:s+':00',end_time:e+':00',total_price:total};
+  const{ok,data}=await apiCall('POST','/v1/reservations/',d,true);
+  showMsg(ok?'Tao reservation #'+data.id+' thanh cong! Tong: '+Number(total).toLocaleString()+'d':(data.message||'Loi'),ok);
+  if(ok)loadReservations()}
 async function confirmRes(id){const{ok,data}=await apiCall('POST','/v1/reservations/'+id+'/confirm',null,true);showMsg(ok?'Confirmed #'+id:(data.message||'Loi'),ok);loadReservations()}
 async function approveRes(id){const{ok,data}=await apiCall('POST','/v1/reservations/'+id+'/approve',null,true);showMsg(ok?'Approved #'+id:(data.message||'Loi'),ok);loadReservations()}
 
 // BILLING
-async function loadCustomers(){const{data}=await apiCall('GET','/v1/billing/customers',null,true);const el=document.getElementById('cl');el.innerHTML='';(Array.isArray(data)?data:[]).forEach(c=>{el.innerHTML+='<div style="font-size:11px;padding:3px 0;border-bottom:1px solid #0f3460">#'+c.id+' '+c.customer_name+' | '+c.email+' <button class="btn btn-red" style="padding:1px 6px" onclick="delCustomer('+c.id+')">x</button></div>'})}
+async function loadCustomers(){if(!TOKEN){document.getElementById('cl').innerHTML='<div style="color:#666;font-size:12px">Chua dang nhap</div>';return}const{ok,data}=await apiCall('GET','/v1/billing/customers',null,true);const el=document.getElementById('cl');el.innerHTML='';const items=data.items||data;(Array.isArray(items)?items:[]).forEach(c=>{el.innerHTML+='<div style="font-size:11px;padding:3px 0;border-bottom:1px solid #0f3460">#'+c.id+' '+c.customer_name+' | '+c.email+' <button class="btn btn-red" style="padding:1px 6px" onclick="delCustomer('+c.id+')">x</button></div>'});if(!Array.isArray(items)||!items.length)el.innerHTML='<div style="color:#666;font-size:12px">Khong co KH</div>'}
 async function createCustomer(){const d={customer_name:document.getElementById('c-name').value,email:document.getElementById('c-email').value,phone:document.getElementById('c-phone').value};if(!d.customer_name){showMsg('Nhap ten!',false);return}const{ok}=await apiCall('POST','/v1/billing/customers',d,true);showMsg(ok?'Tao KH thanh cong':'Loi',ok);if(ok)loadCustomers()}
 async function delCustomer(id){const{ok}=await apiCall('DELETE','/v1/billing/customers/'+id,null,true);if(ok)loadCustomers()}
-async function loadProducts(){const{data}=await apiCall('GET','/v1/billing/products',null,true);const el=document.getElementById('pl');el.innerHTML='';(Array.isArray(data)?data:[]).forEach(p=>{el.innerHTML+='<div style="font-size:11px;padding:3px 0;border-bottom:1px solid #0f3460">#'+p.id+' '+p.product_name+' ('+p.product_code+') <button class="btn btn-red" style="padding:1px 6px" onclick="delProduct('+p.id+')">x</button></div>'})}
+async function loadProducts(){if(!TOKEN){document.getElementById('pl').innerHTML='<div style="color:#666;font-size:12px">Chua dang nhap</div>';return}const{ok,data}=await apiCall('GET','/v1/billing/products',null,true);const el=document.getElementById('pl');el.innerHTML='';const items=data.items||data;(Array.isArray(items)?items:[]).forEach(p=>{el.innerHTML+='<div style="font-size:11px;padding:3px 0;border-bottom:1px solid #0f3460">#'+p.id+' '+p.product_name+' ('+p.product_code+') <button class="btn btn-red" style="padding:1px 6px" onclick="delProduct('+p.id+')">x</button></div>'});if(!Array.isArray(items)||!items.length)el.innerHTML='<div style="color:#666;font-size:12px">Khong co SP</div>'}
 async function createProduct(){const d={product_name:document.getElementById('p-name').value,product_code:document.getElementById('p-code').value};if(!d.product_name){showMsg('Nhap ten!',false);return}const{ok}=await apiCall('POST','/v1/billing/products',d,true);showMsg(ok?'Tao SP thanh cong':'Loi',ok);if(ok)loadProducts()}
 async function delProduct(id){const{ok}=await apiCall('DELETE','/v1/billing/products/'+id,null,true);if(ok)loadProducts()}
-async function loadInvoices(){const{data}=await apiCall('GET','/v1/billing/invoices',null,true);const el=document.getElementById('il');el.innerHTML='';(Array.isArray(data)?data:[]).forEach(i=>{el.innerHTML+='<div style="font-size:11px;padding:3px 0;border-bottom:1px solid #0f3460">#'+i.id+' '+i.invoice_code+' | '+Number(i.total_amount||0).toLocaleString()+' | '+i.status+'</div>'})}
+async function loadInvoices(){if(!TOKEN){document.getElementById('il').innerHTML='<div style="color:#666;font-size:12px">Chua dang nhap</div>';return}const{ok,data}=await apiCall('GET','/v1/billing/invoices',null,true);const el=document.getElementById('il');el.innerHTML='';const items=data.items||data;(Array.isArray(items)?items:[]).forEach(i=>{el.innerHTML+='<div style="font-size:11px;padding:3px 0;border-bottom:1px solid #0f3460">#'+i.id+' '+i.invoice_code+' | '+Number(i.total_amount||0).toLocaleString()+' | '+i.status+'</div>'});if(!Array.isArray(items)||!items.length)el.innerHTML='<div style="color:#666;font-size:12px">Khong co hoa don</div>'}
 
 // PACKAGE BOOKINGS
-async function loadBookings(){const{data}=await apiCall('GET','/api/v1/package-bookings');const tb=document.getElementById('bkl');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.package_id+'</td><td>'+r.space_id+'</td><td>'+r.customer_id+'</td><td>'+(r.start_time||'').slice(0,16)+'</td><td>'+(r.end_time||'').slice(0,16)+'</td><td>'+Number(r.total_price||0).toLocaleString()+'</td><td>'+r.status+'</td><td><button class="btn btn-red" onclick="cancelBooking('+r.id+')">Cancel</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:#666">Khong co booking</td></tr>'}
+async function loadBookings(){const{data}=await apiCall('GET','/api/v1/package-bookings');const items=data.items||data;const tb=document.getElementById('bkl');tb.innerHTML='';(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.package_id+'</td><td>'+r.space_id+'</td><td>'+r.customer_id+'</td><td>'+(r.start_time||'').slice(0,16)+'</td><td>'+(r.end_time||'').slice(0,16)+'</td><td>'+Number(r.total_price||0).toLocaleString()+'</td><td>'+r.status+'</td><td><button class="btn btn-red" onclick="cancelBooking('+r.id+')">Cancel</button></td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:#666">Khong co booking</td></tr>'}
 async function createBooking(){const d={package_id:parseInt(document.getElementById('bk-pkg').value),space_id:parseInt(document.getElementById('bk-sp').value),customer_id:parseInt(document.getElementById('bk-uid').value),start_time:document.getElementById('bk-start').value.replace('T','T')+':00',end_time:document.getElementById('bk-end').value.replace('T','T')+':00',notes:'Test'};const{ok,data}=await apiCall('POST','/api/v1/package-bookings',d);showMsg(ok?'Tao booking #'+data.id:(data.message||'Loi'),ok);if(ok)loadBookings()}
 async function cancelBooking(id){const{ok,data}=await apiCall('PATCH','/api/v1/package-bookings/'+id+'/cancel');showMsg(ok?'Cancelled #'+id:(data.message||'Loi'),ok);loadBookings()}
 
@@ -401,6 +461,11 @@ async function runApi(){const m=document.getElementById('method').value;const p=
 
 // Auto load
 loadRooms();
+loadEquipment();
+loadResSpaces();
+loadReservations();
+if(TOKEN){loadBookings();loadCustomers();loadProducts();loadInvoices()}
+(function(){const uid=localStorage.getItem('user_id');if(uid){document.getElementById('res-uid').value=uid}})();
 </script></body></html>'''
         return Response(html, mimetype='text/html')
 

@@ -26,7 +26,7 @@ Nền tảng kết nối cộng đồng nhiếp ảnh phim với dịch vụ ph�
 | Gói dịch vụ | 50% | Package booking, chưa có Package CRUD |
 | Cộng đồng | 5% | Chỉ có DB model |
 | AI | 25% | Chatbot + recommendation |
-| Vai trò | 25% | JWT auth, chưa có role-based access |
+| Vai trò | 25% | JWT auth + admin bypass (role-based access) |
 
 **Tổng: ~35-40% hoàn thành**
 

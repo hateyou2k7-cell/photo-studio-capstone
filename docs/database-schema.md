@@ -152,7 +152,7 @@ CREATE TABLE users (
 
 **Enums**: `role` = `user` | `photographer` | `provider` | `expert` | `admin`
 
-> **Lưu ý**: Khi đăng ký qua API, user mới được tạo với role `user` (quyền cơ bản). Role `admin` chỉ được gán trực tiếp trong database.
+> **Lưu ý**: Khi đăng ký qua API, user có thể chọn role (`user`, `photographer`, `provider`, `expert`). Role `admin` bị từ chối khi signup. Nếu role=provider, tự tạo `provider_profiles` record (status=pending).
 
 ---
 

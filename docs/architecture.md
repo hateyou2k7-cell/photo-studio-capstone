@@ -323,7 +323,7 @@ database/models/
 6. Controller accesses request.current_user_id
 ```
 
-**Lưu ý**: Hiện tại JWT chỉ check token valid, chưa check role-based access control.
+**Lưu ý**: JWT chứa `user_id` và `role` trong payload. Admin role bypass tất cả JWT validation.
 
 ---
 
@@ -333,7 +333,7 @@ database/models/
 |---|---|
 | Duplicate user systems | `auth_users` (login) và `users` (reservations) không liên kết |
 | Duplicate space systems | `rooms` (RoomController) và `spaces` (SpaceController) riêng biệt |
-| No role-based access | `jwt_required` chỉ check token, chưa check role |
+| Admin bypass | Admin role có unconditional access, bypass JWT validation |
 | Empty files | `schemas/user.py`, `dependency_container.py`, `api/requests.py` |
 | Legacy code | `todo_*`, `course_repository.py` (in-memory) |
 | Swagger title | Vẫn ghi "Todo API" thay vì "Photo Studio API" |

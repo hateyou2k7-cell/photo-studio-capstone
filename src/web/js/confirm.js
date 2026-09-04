@@ -46,10 +46,6 @@ function renderLoggedOutGate() {
         <label>Mật khẩu</label>
         <input type="password" id="login-password" placeholder="••••••••" />
       </div>
-      <div class="field" style="margin-bottom:14px;">
-        <label>Mã khách hàng (user id)</label>
-        <input type="number" id="login-user-id" placeholder="vd: 2" />
-      </div>
       <button type="button" class="btn btn-primary" id="login-submit">Đăng nhập &amp; tiếp tục</button>
       <div class="inline-error" id="login-error" style="display:none;"></div>
     </div>`;
@@ -61,11 +57,10 @@ function bindLoginGate() {
   btn.addEventListener("click", async () => {
     const username = document.getElementById("login-username").value.trim();
     const password = document.getElementById("login-password").value;
-    const userId = Number(document.getElementById("login-user-id").value);
     const errBox = document.getElementById("login-error");
     errBox.style.display = "none";
-    if (!username || !password || !userId) {
-      errBox.textContent = "Nhập đủ tên đăng nhập, mật khẩu và mã khách hàng.";
+    if (!username || !password) {
+      errBox.textContent = "Nhập đủ tên đăng nhập và mật khẩu.";
       errBox.style.display = "block";
       return;
     }
@@ -79,7 +74,7 @@ function bindLoginGate() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Đăng nhập thất bại");
-      AuthStore.setSession(data.token, userId);
+      AuthStore.setSession(data.token, data.user_id);
       render();
     } catch (err) {
       errBox.textContent = err.message;

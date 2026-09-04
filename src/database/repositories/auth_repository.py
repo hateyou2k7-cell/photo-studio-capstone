@@ -4,7 +4,7 @@ from typing import Optional
 from database.databases.factory_database import FactoryDatabase as db_factory
 from sqlalchemy.orm import Session
 from database.models.auth.auth_user_model import AuthUserModel
-from database.models.film_user_model import User
+from database.models.film_user_model import User, ProviderProfile
 from werkzeug.security import check_password_hash
 
 
@@ -21,11 +21,13 @@ class AuthRepository(IAuthRepository):
         auth_user = self.session.query(User).filter_by(email=user.email).first()
         if auth_user:
             auth.id = auth_user.id
+            auth.role = auth_user.role
         else:
             auth.id = user.id
+            auth.role = 'user'
         return auth
    
-    def register(self, auth: Auth) -> Optional[Auth]:
+    def register(self, auth: Auth, role: str = 'user') -> Optional[Auth]:
         try:
             new_auth_user = AuthUserModel(
                 username=auth.username,
@@ -39,13 +41,24 @@ class AuthRepository(IAuthRepository):
                 email=auth.email,
                 password_hash=auth.password,
                 full_name=auth.username,
-                role='user',
+                role=role,
                 is_active=True,
             )
             self.session.add(new_user)
             self.session.commit()
-            self.session.refresh(new_auth_user)
-            auth.id = new_auth_user.id
+            self.session.refresh(new_user)
+
+            if role == 'provider':
+                provider_profile = ProviderProfile(
+                    user_id=new_user.id,
+                    business_name=auth.username,
+                    description='',
+                    status='pending'
+                )
+                self.session.add(provider_profile)
+                self.session.commit()
+
+            auth.id = new_user.id
             return auth
         except Exception as e:
             self.session.rollback()

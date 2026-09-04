@@ -45,9 +45,12 @@ POST /auth/signup
   "username": "string",
   "password": "string",
   "passwordconfirm": "string",
-  "email": "user@example.com"
+  "email": "user@example.com",
+  "role": "user"
 }
 ```
+
+`role` (optional): `user` | `photographer` | `provider` | `expert` (default: `user`). `admin` và `manager` bị từ chối.
 
 **Response** (201):
 ```json
@@ -57,11 +60,10 @@ POST /auth/signup
 }
 ```
 
-Đăng ký tự động tạo 2 records:
+Đăng ký tự động tạo records:
 - `auth_users`: username, email, password_hash (dùng cho login)
-- `users`: email, password_hash, full_name, role='user' (dùng cho reservation, billing...)
-
-**Roles**: `user` | `photographer` | `provider` | `expert` | `admin`
+- `users`: email, password_hash, full_name, role (dùng cho reservation, billing...)
+- Nếu `role=provider`: tự tạo `provider_profiles` record (status=pending)
 
 ### Health check
 
@@ -76,6 +78,10 @@ Thêm header cho các endpoint có `@jwt_required`:
 ```
 Authorization: Bearer <token>
 ```
+
+JWT payload chứa: `user_id`, `role`, `exp`.
+
+**Admin bypass**: Nếu `role=admin` trong JWT, bypass tất cả JWT validation (unconditional access).
 
 ---
 
