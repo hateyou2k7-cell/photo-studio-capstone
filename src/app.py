@@ -304,7 +304,7 @@ input,select,textarea{font-size:12px !important}
 
 </div>
 <script>
-const API='http://127.0.0.1:9999';
+const API=window.location.origin;
 let TOKEN=null;
 
 function showMsg(t,ok){const m=document.getElementById('msg');m.className='msg '+(ok?'msg-ok':'msg-err');m.textContent=t;m.style.display='block';setTimeout(()=>m.style.display='none',5000);toast(t,ok?'ok':'err')}
