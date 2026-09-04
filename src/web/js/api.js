@@ -1,7 +1,7 @@
 // ============================================================
 // Cấu hình API — đổi API_BASE nếu server chạy ở địa chỉ khác
 // ============================================================
-const API_BASE = "http://localhost:9999";
+const API_BASE = window.location.origin;
 const TOKEN_KEY = "sf_auth_token";
 const CURRENT_USER_KEY = "sf_current_user_id";
 
