@@ -215,3 +215,4 @@ src/test_app.py
 # Lock files
 *.~lock*
 .#*
+src_backup/

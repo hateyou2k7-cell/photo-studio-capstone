@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xác nhận đơn — Studio Phim</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="mobile-shell">
+    <div class="mobile-topbar">
+      <a href="#" id="back-link" class="icon-btn" aria-label="Quay lại">&larr;</a>
+      <h1 class="display">Xác nhận đơn</h1>
+    </div>
+
+    <div class="step-indicator">
+      <div class="step active"><span class="dot">1</span><span class="label">Xác nhận</span></div>
+      <div class="rule"></div>
+      <div class="step"><span class="dot">2</span><span class="label">Thanh toán</span></div>
+    </div>
+
+    <div class="mobile-content" id="confirm-content">
+      <div class="loading-state">Đang tải thông tin phòng...</div>
+    </div>
+
+    <div class="mobile-bottom-bar" id="bottom-bar" style="display:none;">
+      <div class="inner">
+        <div class="bar-price">
+          <small>Tổng cộng</small>
+          <span id="bar-total">0đ</span>
+        </div>
+        <button type="button" class="btn btn-primary" id="confirm-btn">Xác nhận đặt phòng</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/confirm.js"></script>
+</body>
+</html>

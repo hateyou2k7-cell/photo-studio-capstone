@@ -415,6 +415,13 @@ loadRooms();
     def uploaded_file(filename):
         return send_from_directory(upload_folder, filename)
 
+    web_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web')
+
+    @app.route("/web/")
+    @app.route("/web/<path:filename>")
+    def serve_web(filename='search.html'):
+        return send_from_directory(web_folder, filename)
+
     return app
 # Run the application
 
