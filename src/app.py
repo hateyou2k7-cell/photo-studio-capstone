@@ -281,12 +281,33 @@ input,select,textarea{font-size:12px !important}
 <!-- CHATBOT -->
 <div class="section">
 <h2>9. Chatbot AI</h2>
-<div class="form-row">
-<input id="chat-msg" placeholder="Nhap cau hoi ve dich vu studio..." style="flex:3">
-<button class="btn btn-green" onclick="askChatbot()">Hoi</button>
-<button class="btn btn-blue" onclick="chatHealth()">Health</button>
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+<div class="card" style="padding:0;display:flex;flex-direction:column;height:400px">
+<div style="background:#0f3460;padding:8px 12px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center">
+<span style="font-size:13px;color:#e94560;font-weight:bold">Chat with AI</span>
+<button class="btn btn-blue" onclick="chatHealth()" style="font-size:10px;padding:2px 8px">Health</button>
 </div>
-<div id="chat-out" class="output"></div>
+<div id="chat-box" style="flex:1;overflow-y:auto;padding:12px;background:#0d1117;border-radius:0 0 10px 10px;font-size:13px;line-height:1.6"></div>
+<div style="padding:8px;background:#16213e;border-radius:0 0 10px 10px;display:flex;gap:6px">
+<input id="chat-msg" placeholder="Nhap cau hoi..." style="flex:1;padding:8px;background:#0d1117;color:#eee;border:1px solid #0f3460;border-radius:6px;font-size:13px" onkeydown="if(event.key==='Enter')askChatbot()">
+<button class="btn btn-green" onclick="askChatbot()" style="padding:8px 16px">Gui</button>
+</div>
+</div>
+<div class="card">
+<h2>Quick questions</h2>
+<div style="display:flex;flex-direction:column;gap:6px">
+<button class="btn btn-blue" onclick="quickChat('Phim 35mm dùng máy rọi nào?')">FAQ: May roi 35mm</button>
+<button class="btn btn-blue" onclick="quickChat('Tráng phim cần hoá chất gì?')">FAQ: Hoa chat trang phim</button>
+<button class="btn btn-green" onclick="quickChat('tìm phòng studio cho tôi thuê')">Tim phong studio</button>
+<button class="btn btn-green" onclick="quickChat('tìm phòng darkroom')">Tim darkroom</button>
+<button class="btn btn-green" onclick="quickChat('có thiết bị máy ảnh nào không')">Tim thiet bi</button>
+<button class="btn btn-green" onclick="quickChat('bên mình có gói dịch vụ nào')">Goi dich vu</button>
+<button class="btn btn-orange" onclick="quickChat('bên bạn có sản phẩm gì?')">Tong quan SP/DV</button>
+<button class="btn btn-orange" onclick="quickChat('gợi ý phòng phù hợp với tôi dựa trên lịch sử')">Ca nhan hoa</button>
+<button class="btn btn-red" onclick="document.getElementById('chat-box').innerHTML=''">Clear chat</button>
+</div>
+</div>
+</div>
 </div>
 
 <!-- RECOMMENDATIONS -->
@@ -450,8 +471,37 @@ async function createCourse(){const d={course_name:document.getElementById('co-n
 async function delCourse(id){if(!confirm('Xoa khoa hoc #'+id+'?'))return;const{ok}=await apiCall('DELETE','/courses/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadCourses()}
 
 // CHATBOT
-async function askChatbot(){const msg=document.getElementById('chat-msg').value;if(!msg){showMsg('Nhap cau hoi!',false);return}showOut('chat-out','Dang xu ly...');const{ok,data}=await apiCall('POST','/api/v1/chatbot/ask',{message:msg});showOut('chat-out',ok?(data.answer||JSON.stringify(data)):(data.error||'Loi'))}
-async function chatHealth(){const{ok,data}=await apiCall('GET','/api/v1/chatbot/health');showOut('chat-out',JSON.stringify(data))}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML}
+function addChatMsg(role,text){
+  const box=document.getElementById('chat-box');
+  const isUser=role==='user';
+  const div=document.createElement('div');
+  div.style.cssText='margin-bottom:10px;display:flex;flex-direction:'+(isUser?'row-reverse':'row')+';gap:8px;align-items:flex-start';
+  const avatar=document.createElement('div');
+  avatar.style.cssText='width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;background:'+(isUser?'#e94560':'#4caf50')+';color:#fff';
+  avatar.textContent=isUser?'U':'AI';
+  const bubble=document.createElement('div');
+  bubble.style.cssText='max-width:80%;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.6;white-space:pre-wrap;background:'+(isUser?'#0f3460;color:#eee':'#16213e;color:#ddd')+';border:1px solid '+(isUser?'#0f3460':'#0f3460');
+  bubble.textContent=text;
+  div.appendChild(avatar);div.appendChild(bubble);
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
+}
+function quickChat(msg){document.getElementById('chat-msg').value=msg;askChatbot()}
+async function askChatbot(){
+  const msg=document.getElementById('chat-msg').value.trim();
+  if(!msg)return;
+  document.getElementById('chat-msg').value='';
+  addChatMsg('user',msg);
+  const uid=localStorage.getItem('user_id');
+  const body={message:msg};if(uid)body.user_id=parseInt(uid);
+  try{
+    const{ok,data}=await apiCall('POST','/api/v1/chatbot/ask',body);
+    const reply=ok?(data.answer||JSON.stringify(data)):(data.error||data.message||'Loi');
+    addChatMsg('bot',reply);
+  }catch(e){addChatMsg('bot','Loi: '+e.message)}
+}
+async function chatHealth(){const{ok,data}=await apiCall('GET','/api/v1/chatbot/health');addChatMsg('bot','Health: '+JSON.stringify(data))}
 
 // RECOMMENDATIONS
 async function getRecommendations(){const uid=document.getElementById('rec-uid').value;showOut('rec-out','Dang tai...');const{ok,data}=await apiCall('GET','/api/v1/recommendations/'+uid);showOut('rec-out',JSON.stringify(data,null,2))}
