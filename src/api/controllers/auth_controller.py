@@ -1,15 +1,12 @@
 from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime, timedelta
-from infrastructure.models.user_model import UserModel
-from infrastructure.databases.mssql import session
 from api.schemas.auth import RigisterUserRequestSchema,RigisterUserResponseSchema
 from services.auth_service import AuthService
-from infrastructure.repositories.auth_repository import AuthRepository
-from hashlib import sha256
+from database.repositories.auth_repository import AuthRepository
 import jwt
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
-auth_service = AuthService(AuthRepository(session))
+auth_service = AuthService(AuthRepository())
 register_request = RigisterUserRequestSchema()
 register_response = RigisterUserResponseSchema()
 @auth_bp.route('/check_router', methods=['GET'])
@@ -67,19 +64,21 @@ def login():
                     type: string
     """
     data = request.get_json()
-    username=data['username'],
-    password=data['password']
-    password = generate_password_hash(password)
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({'error': 'Missing username or password'}), 400
     user = auth_service.login(username, password)
     if not user:
         return jsonify({'error': 'Invalid credentials'}), 401
 
     payload = {
         'user_id': user.id,
+        'role': user.role if hasattr(user, 'role') else 'user',
         'exp': datetime.utcnow() + timedelta(hours=2)
     }
     token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
-    return jsonify({'token': token})
+    return jsonify({'token': token, 'user_id': user.id})
 
 
 @auth_bp.route('/signup', methods=['POST'])
@@ -125,6 +124,10 @@ def register():
     password = data.get('password') if isinstance(data, dict) else None
     passwordconfirm = data.get('passwordconfirm') if isinstance(data, dict) else None
     email = data.get('email') if isinstance(data, dict) else None
+    role = data.get('role', 'user') if isinstance(data, dict) else 'user'
+
+    if role not in ('user', 'photographer', 'provider', 'expert'):
+      return jsonify({'message': 'Invalid role. Allowed: user, photographer, provider, expert'}), 400
 
     if not username or not password or not passwordconfirm or not email:
       return jsonify({'message': 'Missing required fields: username, password, passwordconfirm, email'}), 400
@@ -137,7 +140,7 @@ def register():
     #  vieets theo kien truc clean architecture
     # password_hashed = Str.encode()(password)
     password_hashed =generate_password_hash(password)
-    new_user = auth_service.register(username, password_hashed, email)
+    new_user = auth_service.register(username, password_hashed, email, role)
     if not new_user:
       return jsonify({'message': 'Registration failed'}), 500 
     result = register_response.dump(new_user)

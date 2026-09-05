@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tìm phòng — Studio Phim</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a href="search.html" class="brand display">Studio<span>Phim</span></a>
+    <nav><a href="search.html">Tìm phòng</a></nav>
+  </header>
+  <div class="sprocket-rule"></div>
+
+  <main class="container">
+    <div class="search-layout">
+      <aside class="filters">
+        <h2>Bộ lọc</h2>
+        <form id="filter-form">
+          <div class="field">
+            <label for="q">Tìm kiếm</label>
+            <input type="text" id="q" name="q" placeholder="Tên phòng, khu vực..." />
+          </div>
+
+          <div class="field">
+            <label for="space_type">Loại không gian</label>
+            <select id="space_type" name="space_type">
+              <option value="">Tất cả</option>
+              <option value="darkroom">Phòng tối (Darkroom)</option>
+              <option value="studio">Studio chụp</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Giá / giờ (VNĐ)</label>
+            <div class="range-row">
+              <input type="number" id="min_price" name="min_price" placeholder="Từ" min="0" />
+              <input type="number" id="max_price" name="max_price" placeholder="Đến" min="0" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="min_capacity">Sức chứa tối thiểu</label>
+            <input type="number" id="min_capacity" name="min_capacity" placeholder="Số người" min="1" />
+          </div>
+
+          <div class="field checkbox-row">
+            <input type="checkbox" id="available" name="available" />
+            <label for="available" style="margin:0;">Chỉ hiện phòng còn trống</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Áp dụng bộ lọc</button>
+          <button type="button" id="reset-filters" class="btn btn-ghost">Xoá bộ lọc</button>
+        </form>
+      </aside>
+
+      <section>
+        <div class="results-header">
+          <h1 class="display">Không gian sáng tạo</h1>
+          <span class="results-count" id="results-count"></span>
+        </div>
+        <div id="results-area">
+          <div class="loading-state">Đang tải danh sách phòng...</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/search.js"></script>
+</body>
+</html>

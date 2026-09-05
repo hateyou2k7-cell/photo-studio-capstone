@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.room_service import RoomService
-from infrastructure.repositories.room_repository import RoomRepository
+from database.repositories.room_repository import RoomRepository
 from api.schemas.room import RoomRequestSchema, RoomResponseSchema
 from datetime import datetime
 

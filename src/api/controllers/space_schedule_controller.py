@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime
 from services.space_schedule_service import SpaceScheduleService
-from infrastructure.repositories.space_schedule_repository import SpaceScheduleRepository
+from database.repositories.space_schedule_repository import SpaceScheduleRepository
 from api.schemas.space_schedule import SpaceScheduleRequestSchema, SpaceScheduleResponseSchema
 
 bp = Blueprint('space_schedule', __name__, url_prefix='/spaces')

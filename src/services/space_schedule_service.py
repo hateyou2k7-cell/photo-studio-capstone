@@ -1,7 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
-from domain.models.space_schedule import SpaceSchedule
-from domain.models.ispace_schedule_repository import ISpaceScheduleRepository
+from business.models.space_schedule import SpaceSchedule
+from business.models.ispace_schedule_repository import ISpaceScheduleRepository
 
 DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 

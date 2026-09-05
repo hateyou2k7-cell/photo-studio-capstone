@@ -1,184 +1,286 @@
-# Architecture
+# Photo Studio Capstone
+
+Nền tảng kết nối cộng đồng nhiếp ảnh phim với dịch vụ phòng tối & phòng chụp.
+
+**Film Photography Community & Creative Space Booking Platform**
+
+---
+
+## Quick Start
 
 ```bash
-    ├── migrations
-    ├── scripts
-    │   └── run_postgres.sh
-    ├── src
-    │   ├── api
-    │   │   ├── controllers
-    │   │   │   └── ...  # controllers for the api
-    │   │   ├── schemas
-    │   │   │   └── ...  # Marshmallow schemas
-    │   │   ├── middleware.py
-    │   │   ├── responses.py
-    │   │   └── requests.py
-    │   ├── infrastructure
-    │   │   ├── services
-    │   │   │   └── ...  # Services that use third party libraries or services (e.g. email service)
-    │   │   ├── databases
-    │   │   │   └── ...  # Database adapaters and initialization
-    │   │   ├── repositories
-    │   │   │   └── ...  # Repositories for interacting with the databases
-    │   │   └── models
-    │   │   │   └── ...  # Database models
-    │   ├── domain
-    │   │   ├── constants.py
-    │   │   ├── exceptions.py
-    │   │   ├── models
-    │   │   │   └── ...  # Business logic models
-    │   ├── services
-    │   │    └── ...  # Services for interacting with the domain (business logic)
-    │   ├── app.py
-    │   ├── config.py
-    │   ├── cors.py
-    │   ├── create_app.py
-    │   ├── dependency_container.py
-    │   ├── error_handler.py
-    │   └── logging.py
+git clone https://github.com/hateyou2k7-cell/photo-studio-capstone.git
+cd photo-studio-capstone/src
+
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+pip install -r requirements.txt
+cp .env.example .env
+
+python app.py
 ```
 
-## Domain Layer
+Mở `http://localhost:9999` để thấy GUI.
 
-## Services Layer
+Tài khoản admin: `admin` / `admin123`
 
-## Infrastructure Layer
+> **Database đã bao gồm.** Không cần cài PostgreSQL. Dữ liệu lưu trên Supabase cloud miễn phí.
 
-## Download source code (CMD)
-    git clone https://github.com/ChienNguyensrdn/Flask-CleanArchitecture.git
-## Kiểm tra đã cài python đã cài đặt trên máy chưa
-    python --version
-## Run app
+---
 
- - Bước 1: Tạo môi trường ảo co Python (phiên bản 3.x)
-     ## Windows:
-     		py -m venv .venv
-     ## Unix/MacOS:
-     		python3 -m venv .venv
-   - Bước 2: Kích hoạt môi trường:
-     ## Windows:
-     		.venv\Scripts\activate.ps1
-     ### Nếu xảy ra lỗi active .venv trên winos run powershell -->Administrator
-         Set-ExecutionPolicy RemoteSigned -Force
-     ## Unix/MacOS:
-     		source .venv/bin/activate
-     
-   - Bước 3: Cài đặt các thư viện cần thiết
-     ## Install:
-     		pip install -r requirements.txt
-   - Bước 4: Chạy mã xử lý dữ liệu
-     ## Run:
-    		python app.py
+## Trạng thái
 
+| Luồng nghiệp vụ | Hoàn thành | Mô tả |
+|:---|:---:|:---|
+| Đăng ký / Đăng nhập | 80% | JWT auth, signup đồng bộ auth_users + users,role-based |
+| Quản lý Không gian | 80% | CRUD, search, images, schedules |
+| Quản lý Thiết bị | 50% | Equipment CRUD, thiếu consumables/resources |
+| Đặt chỗ & Phân bổ | 70% | Reservation + conflict detection + payments |
+| Phiên Sử dụng | 60% | Check-in/out, chưa QR code generation |
+| Gói Dịch vụ | 50% | Package booking, thiếu Package CRUD API |
+| Cộng đồng | 5% | Chỉ có DB model, chưa có API |
+| AI Features | 25% | Chatbot + recommendation |
+| Hóa đơn / Thanh toán | 60% | Billing CRUD, invoices, customers, products |
 
-     Truy câp http://localhost:6868/docs
-     Truy câp http://localhost:9999/docs
+---
 
+## Công nghệ
 
+| Thành phần | Công nghệ |
+|:---|:---|
+| Backend | Flask (Python) |
+| ORM | SQLAlchemy |
+| Database | PostgreSQL (Supabase) |
+| Validation | Marshmallow |
+| Auth | JWT (PyJWT) |
+| API Docs | Swagger UI (Flasgger) |
+| AI | OpenAI GPT-4o-mini |
 
-## Create file .env in folder /src/.env
-    
-    # Flask settings
-    FLASK_ENV=development
-    SECRET_KEY=your_secret_key
-    
-    # SQL Server settings
-    DB_USER=sa
-    DB_PASSWORD=Aa@123456
-    DB_HOST=127.0.0.1
-    DB_PORT=1433
-    DB_NAME=FlaskApiDB
-    
-    
-    DATABASE_URI = "mssql+pymssql://sa:Aa%40123456@127.0.0.1:1433/FlaskApiDB"
+---
 
-## pull image MS SQL server 
-    
-    ```bash
-    docker pull mcr.microsoft.com/mssql/server:2025-latest
-    ```
-## Install MS SQL server in docker 
-    ```bash
-    docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Aa123456" -p 1433:1433 --name sql1 --hostname sql1 -d  mcr.microsoft.com/mssql/server:2025-latest
-    ```
-## Test connect SQL server 
+## Cài đặt
 
-## ORM Flask (from sqlalchemy.orm )
-Object Relational Mapping
+### Yêu cầu
 
-Ánh xạ 1 class (OOP)  model src/infrastructure/models --> Table in database 
-Ánh xạ các mối quan hệ (Relational) -- Khoá ngoại CSDL 
-(n-n): many to many 
+- Python 3.8+
+- pip
 
-@startuml
-' Diagram Title
-title Clean Architecture Sequence Diagram
+> **Không cần cài PostgreSQL.** Database đã bao gồm trên Supabase cloud miễn phí.
 
-' Define participants in order of appearance
-actor Actor
-participant "Web App"
-participant "Controller"
-participant "Services"
-participant "Domain"
-participant "infrastructure"
-database "Database"
+### Kiểm tra Python
 
-' --- Message Flow ---
+```bash
+python --version
+# hoặc
+python3 --version
+```
 
-' 1. Initial Request
-Actor -> "Web App": Request
-activate "Web App"
+### Bước 1: Clone repository
 
-' 2. Forwarding to Controller
-"Web App" -> "Controller"
-activate "Controller"
+```bash
+git clone https://github.com/hateyou2k7-cell/photo-studio-capstone.git
+cd photo-studio-capstone
+```
 
-' 3. Calling the Service Layer
-"Controller" -> "Services"
-activate "Services"
+### Bước 2: Tạo môi trường ảo
 
-' 4. Interacting with the Domain Layer
-"Services" -> "Domain"
-activate "Domain"
-note over Domain: Interfaces
+**Windows:**
 
-' 5. Interacting with Infrastructure
-"Domain" -> "infrastructure"
-activate "infrastructure"
-note over infrastructure: Class implement
+```bash
+py -m venv .venv
+```
 
-' 6. Database Query
-"infrastructure" -> "Database"
-activate "Database"
+**Unix/macOS:**
 
-' --- Response Flow (Return Messages) ---
+```bash
+python3 -m venv .venv
+```
 
-' 7. Database returns data
-"Database" --> "infrastructure"
-deactivate "Database"
+### Bước 3: Kích hoạt môi trường ảo
 
-' 8. Infrastructure returns to Domain
-"infrastructure" --> "Domain"
-deactivate "infrastructure"
+**Windows (PowerShell):**
 
-' 9. Domain returns to Services
-"Domain" --> "Services"
-deactivate "Domain"
+```bash
+.venv\Scripts\activate.ps1
+```
 
-' 10. Services returns to Controller
-"Services" --> "Controller"
-deactivate "Services"
+> Nếu gặp lỗi `Set-ExecutionPolicy`, chạy PowerShell với quyền Administrator:
+> ```powershell
+> Set-ExecutionPolicy RemoteSigned -Force
+> ```
 
-' 11. Controller returns to Web App
-"Controller" --> "Web App"
-deactivate "Controller"
+**Unix/macOS:**
 
-' 12. Final data rendering to Actor
-"Web App" --> Actor
-note left of "Web App"
-  Render data
-end note
-deactivate "Web App"
+```bash
+source .venv/bin/activate
+```
 
-@enduml
-=======
+### Bước 4: Cài đặt dependencies
+
+```bash
+cd src
+pip install -r requirements.txt
+```
+
+### Bước 5: Copy file cấu hình
+
+```bash
+cp .env.example .env
+```
+
+> File `.env.example` đã chứa sẵn database URL. Không cần chỉnh sửa gì thêm.
+
+### Bước 6: Chạy ứng dụng
+
+```bash
+python app.py
+```
+
+### Truy cập
+
+| URL | Mô tả |
+|:---|:---|
+| http://localhost:9999/ | Test GUI |
+| http://localhost:9999/docs | Swagger UI |
+| http://localhost:9999/swagger.json | OpenAPI spec |
+
+---
+
+## Cấu trúc dự án
+
+```
+photo-studio-capstone/
+├── docs/
+│   ├── api-documentation.md       # Chi tiết 75 API endpoints
+│   ├── architecture.md             # Kiến trúc, data flow
+│   ├── database-schema.md          # ERD, 44 bảng database
+│   └── deployment-guide.md         # Hướng dẫn deploy
+├── src/
+│   ├── api/                        # API Layer
+│   │   ├── controllers/            # 12 Flask Blueprint controllers
+│   │   ├── schemas/                # Marshmallow validation schemas
+│   │   ├── middleware.py           # Request/response middleware
+│   │   ├── auth_middleware.py      # @jwt_required, @jwt_optional
+│   │   ├── responses.py           # Standardized JSON responses
+│   │   ├── pagination.py          # Pagination utility
+│   │   └── swagger.py             # OpenAPI/Swagger setup
+│   ├── business/                   # Business Logic Layer
+│   │   ├── constants.py           # App constants
+│   │   ├── exceptions.py          # Custom exceptions
+│   │   └── models/                # Domain models + repository interfaces (ABC)
+│   ├── services/                   # Service Layer (business logic)
+│   ├── database/                   # Data Access Layer
+│   │   ├── databases/             # PostgreSQL/MSSQL adapters (Factory pattern)
+│   │   ├── repositories/          # Concrete repository implementations
+│   │   └── models/                # SQLAlchemy ORM models (36 tables)
+│   ├── tests/                      # Test suite
+│   ├── uploads/                    # Uploaded files
+│   ├── app.py                      # Entry point
+│   ├── config.py                   # Configuration (Dev/Testing/Production)
+│   └── requirements.txt            # Python dependencies
+├── README.md
+└── .gitignore
+```
+
+---
+
+## Kiến trúc
+
+```
+HTTP Request
+    │
+    ▼
+┌──────────────────────────────────────────┐
+│  API Layer        (api/controllers/)     │
+│  ↓ Validation    (api/schemas/)          │
+│  ↓ Auth          (api/auth_middleware.py)│
+└──────────────────┬───────────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────────┐
+│  Service Layer   (services/)             │
+│  Business logic, state machine           │
+└──────────────────┬───────────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────────┐
+│  Business Layer  (business/models/)      │
+│  Domain models + Repository interfaces   │
+└──────────────────┬───────────────────────┘
+                   │ implements
+                   ▼
+┌──────────────────────────────────────────┐
+│  Database Layer  (database/)             │
+│  Repository impl + ORM models + DB       │
+└──────────────────┬───────────────────────┘
+                   │
+                   ▼
+              PostgreSQL
+```
+
+Xem chi tiết tại [Architecture Documentation](docs/architecture.md).
+
+---
+
+## API Endpoints
+
+Tổng: **75 endpoints** | JWT Protected: **22** | Public: **53**
+
+| Module | Prefix | Endpoints | JWT |
+|:---|:---|:---:|:---:|
+| Auth | `/auth` | 3 | 0 |
+| Rooms | `/rooms` | 5 | 0 |
+| Spaces | `/spaces` | 6 | 0 |
+| Space Images | `/spaces/{id}/images` | 4 | 0 |
+| Space Schedules | `/spaces/{id}/schedule` | 4 | 0 |
+| Reservations | `/v1/reservations` | 17 | 11 |
+| Equipment | `/api/v1/equipment` | 5 | 0 |
+| Package Bookings | `/api/v1/package-bookings` | 4 | 0 |
+| Billing | `/v1/billing` | 19 | 11 |
+| Chatbot | `/api/v1/chatbot` | 2 | 0 |
+| Recommendations | `/api/v1/recommendations` | 1 | 0 |
+| Courses | `/courses` | 5 | 0 |
+
+Xem chi tiết tại [API Documentation](docs/api-documentation.md).
+
+---
+
+## Database
+
+PostgreSQL (Supabase cloud miễn phí) với SQLAlchemy ORM. **44 bảng** trong đó 12 bảng đã có API.
+
+> Database đã bao gồm. Không cần cài đặt hay cấu hình gì thêm.
+
+Tài khoản có sẵn:
+| Username | Password | Role | Ghi chú |
+|:---|:---|:---|:---|
+| admin | admin123 | admin | Quản trị viên |
+
+> User đăng ký mới tự động có role `user` (quyền cơ bản).
+
+Xem chi tiết tại [Database Schema](docs/database-schema.md).
+
+---
+
+## Testing
+
+```bash
+cd src
+pytest
+```
+
+---
+
+## Deploy
+
+Xem hướng dẫn chi tiết tại [Deployment Guide](docs/deployment-guide.md).
+
+- **Local**: `python app.py`
+- **Render / Railway / Heroku**: Web service deploy
+
+---
+
+## License
+
+MIT

@@ -1,15 +1,15 @@
 from flask import Blueprint, request, jsonify
 from services.todo_service import TodoService
-from infrastructure.repositories.todo_repository import TodoRepository
+from database.repositories.todo_repository import TodoRepository
 from api.schemas.todo import TodoRequestSchema, TodoResponseSchema
 from datetime import datetime
-from infrastructure.databases.mssql import session
+
 bp = Blueprint('todo', __name__, url_prefix='/todos')
 
-todo_service = TodoService(TodoRepository(session))
-
+todo_service = TodoService(TodoRepository())
 request_schema = TodoRequestSchema()
 response_schema = TodoResponseSchema()
+
 
 @bp.route('/', methods=['GET'])
 def list_todos():
@@ -18,20 +18,14 @@ def list_todos():
     ---
     get:
       summary: Get all todos
-      tags:
-        - Todos
+      tags: [Todos]
       responses:
         200:
           description: List of todos
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TodoResponse'
     """
     todos = todo_service.list_todos()
     return jsonify(response_schema.dump(todos, many=True)), 200
+
 
 @bp.route('/<int:todo_id>', methods=['GET'])
 def get_todo(todo_id):
@@ -44,27 +38,13 @@ def get_todo(todo_id):
         - name: todo_id
           in: path
           required: true
-          schema:
-            type: integer
-          description: ID của todo cần lấy
-      tags:
-        - Todos
+          schema: {type: integer}
+      tags: [Todos]
       responses:
         200:
-          description: object of todo
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TodoResponse'
+          description: Todo object
         404:
-          description: Todo not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+          description: Not found
     """
     todo = todo_service.get_todo(todo_id)
     if not todo:
@@ -85,24 +65,12 @@ def create_todo():
           application/json:
             schema:
               $ref: '#/components/schemas/TodoRequest'
-      tags:
-        - Todos
+      tags: [Todos]
       responses:
         201:
-          description: Todo created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TodoResponse'
+          description: Created
         400:
           description: Invalid input
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
     """
     data = request.get_json()
     errors = request_schema.validate(data)
@@ -111,12 +79,13 @@ def create_todo():
     now = datetime.utcnow()
     todo = todo_service.create_todo(
         title=data['title'],
-        description=data['description'],
+        description=data.get('description'),
         status=data['status'],
         created_at=now,
         updated_at=now
     )
-    return jsonify(response_schema.dump(todo)), 201  
+    return jsonify(response_schema.dump(todo)), 201
+
 
 @bp.route('/<int:todo_id>', methods=['PUT'])
 def update_todo(todo_id):
@@ -124,48 +93,24 @@ def update_todo(todo_id):
     Update a todo by id
     ---
     put:
-      summary: Update a todo by id
+      summary: Update a todo
       parameters:
         - name: todo_id
           in: path
           required: true
-          schema:
-            type: integer
-          description: ID của todo cần cập nhật
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TodoRequest'
-      tags:
-        - Todos
+          schema: {type: integer}
+      tags: [Todos]
       responses:
         200:
-          description: Todo updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TodoResponse'
+          description: Updated
         400:
           description: Invalid input
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
         404:
-          description: Todo not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+          description: Not found
     """
+    existing = todo_service.get_todo(todo_id)
+    if not existing:
+        return jsonify({'message': 'Todo not found'}), 404
     data = request.get_json()
     errors = request_schema.validate(data)
     if errors:
@@ -173,12 +118,13 @@ def update_todo(todo_id):
     todo = todo_service.update_todo(
         todo_id=todo_id,
         title=data['title'],
-        description=data['description'],
+        description=data.get('description'),
         status=data['status'],
-        created_at=datetime.utcnow(),
+        created_at=existing.created_at,
         updated_at=datetime.utcnow()
     )
     return jsonify(response_schema.dump(todo)), 200
+
 
 @bp.route('/<int:todo_id>', methods=['DELETE'])
 def delete_todo(todo_id):
@@ -186,28 +132,21 @@ def delete_todo(todo_id):
     Delete a todo by id
     ---
     delete:
-      summary: Delete a todo by id
+      summary: Delete a todo
       parameters:
         - name: todo_id
           in: path
           required: true
-          schema:
-            type: integer
-          description: ID của todo cần xóa
-      tags:
-        - Todos
+          schema: {type: integer}
+      tags: [Todos]
       responses:
         204:
-          description: Todo deleted successfully
+          description: Deleted
         404:
-          description: Todo not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+          description: Not found
     """
-    todo_service.delete_todo(todo_id)
+    try:
+        todo_service.delete_todo(todo_id)
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 404
     return '', 204

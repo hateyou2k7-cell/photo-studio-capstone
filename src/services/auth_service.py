@@ -1,12 +1,12 @@
 
 from typing import List, Optional
-from domain.models.auth import Auth
-from domain.models.iauth_repository import IAuthRepository
+from business.models.auth import Auth
+from business.models.iauth_repository import IAuthRepository
 class AuthService:
     def __init__(self, repository: IAuthRepository):
         self.repository = repository
 
-    def register(self, username: str, password: str, email: str) -> Optional[Auth]:
+    def register(self, username: str, password: str, email: str, role: str = 'user') -> Optional[Auth]:
         # Check if user already exists
         if self.repository.check_exist(username):
             return None  # User already exists
@@ -15,7 +15,7 @@ class AuthService:
             password=password,
             passwordcomfirm=password,
             email=email)
-        return self.repository.register(auth)
+        return self.repository.register(auth, role)
     def login(self, username: str, password: str) -> Optional[Auth]:
         auth = Auth( 
                     username=username, 
