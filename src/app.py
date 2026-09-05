@@ -15,6 +15,7 @@ from api.controllers.chatbot_controller import bp as chatbot_bp
 from api.controllers.recommendation_controller import bp as recommendation_bp
 from api.controllers.course_controller import bp as course_bp
 from api.controllers.provider_controller import bp as provider_bp
+from api.controllers.todo_controller import bp as todo_bp
 from api.middleware import middleware
 from api.responses import success_response
 from database.databases import init_db
@@ -42,6 +43,7 @@ def create_app():
     app.register_blueprint(recommendation_bp)
     app.register_blueprint(course_bp)
     app.register_blueprint(provider_bp)
+    app.register_blueprint(todo_bp)
     # register_routes(app)
      # Thêm Swagger UI blueprint
     SWAGGER_URL = '/docs'
@@ -65,7 +67,7 @@ def create_app():
     with app.test_request_context():
         for rule in app.url_map.iter_rules():
             # Thêm các endpoint khác nếu cần
-            if rule.endpoint.startswith(('course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.', 'reservation.', 'billing.', 'equipment.', 'package_booking.', 'chatbot.', 'recommendation.')):
+            if rule.endpoint.startswith(('course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.', 'reservation.', 'billing.', 'equipment.', 'package_booking.', 'chatbot.', 'recommendation.', 'todo.')):
                 view_func = app.view_functions[rule.endpoint]
                 print(f"Adding path: {rule.rule} -> {view_func}")
                 spec.path(view=view_func)
@@ -275,7 +277,18 @@ input,select,textarea{font-size:12px !important}
 <button class="btn btn-green" onclick="createCourse()">Tao</button>
 <button class="btn btn-blue" onclick="loadCourses()">Load</button>
 </div>
-<table><thead><tr><th>ID</th><th>Ten</th><th>Mo ta</th><th>Status</th><th></th></tr></thead><tbody id="col"></tbody></table>
+
+<!-- TODOS -->
+<div class="section">
+<h2>9. Todos</h2>
+<div class="form-row">
+<input id="todo-title" placeholder="Tieu de">
+<input id="todo-desc" placeholder="Mo ta" style="flex:2">
+<select id="todo-status"><option value="pending">Pending</option><option value="done">Done</option></select>
+<button class="btn btn-green" onclick="createTodo()">Tao</button>
+<button class="btn btn-blue" onclick="loadTodos()">Load</button>
+</div>
+<table><thead><tr><th>ID</th><th>Tieu de</th><th>Mo ta</th><th>Status</th><th></th></tr></thead><tbody id="todol"></tbody></table>
 </div>
 
 <!-- CHATBOT -->
@@ -469,6 +482,11 @@ async function cancelBooking(id){const{ok,data}=await apiCall('PATCH','/api/v1/p
 async function loadCourses(){const{data}=await apiCall('GET','/courses/');const tb=document.getElementById('col');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(c=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+c.id+'</td><td>'+c.course_name+'</td><td>'+c.description+'</td><td>'+c.status+'</td><td><button class="btn btn-red" onclick="delCourse('+c.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#666">Khong co khoa hoc</td></tr>'}
 async function createCourse(){const d={course_name:document.getElementById('co-name').value,description:document.getElementById('co-desc').value,status:'active',start_date:'2026-11-01',end_date:'2026-12-01'};if(!d.course_name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/courses/',d);showMsg(ok?'Tao khoa hoc: '+data.course_name:(data.message||'Loi'),ok);if(ok)loadCourses()}
 async function delCourse(id){if(!confirm('Xoa khoa hoc #'+id+'?'))return;const{ok}=await apiCall('DELETE','/courses/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadCourses()}
+
+// TODOS
+async function loadTodos(){const{data}=await apiCall('GET','/todos/');const tb=document.getElementById('todol');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(t=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+t.id+'</td><td>'+t.title+'</td><td>'+(t.description||'')+'</td><td>'+t.status+'</td><td><button class="btn btn-red" onclick="delTodo('+t.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#666">Khong co todo</td></tr>'}
+async function createTodo(){const d={title:document.getElementById('todo-title').value,description:document.getElementById('todo-desc').value,status:document.getElementById('todo-status').value};if(!d.title){showMsg('Nhap tieu de!',false);return}const{ok,data}=await apiCall('POST','/todos/',d);showMsg(ok?'Tao todo: '+data.title:(data.message||'Loi'),ok);if(ok)loadTodos()}
+async function delTodo(id){if(!confirm('Xoa todo #'+id+'?'))return;const{ok}=await apiCall('DELETE','/todos/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadTodos()}
 
 // CHATBOT
 function escapeHtml(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML}
