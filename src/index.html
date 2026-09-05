@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý & Đặt Lịch</title>
+    <!-- Tailwind CSS qua CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Header & Navigation -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-layer-group"></i> Management Dashboard
+            </h1>
+            <div id="userInfo" class="flex items-center gap-4 text-sm">
+                <span id="userStatus" class="bg-indigo-700 px-3 py-1 rounded-full">Chưa đăng nhập</span>
+                <button onclick="logout()" id="btnLogout" class="hidden bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-white font-medium">Đăng xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex max-w-7xl mx-auto mt-6 px-4 gap-6">
+        
+        <!-- Sidebar Menu 10 Chức năng -->
+        <aside class="w-1/4 bg-white p-4 rounded-lg shadow-sm h-fit">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Danh mục chức năng</h2>
+            <nav class="space-y-1 text-sm font-medium">
+                <button onclick="showTab('auth')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">1. Đăng ký / Đăng nhập</button>
+                <button onclick="showTab('rooms')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">2. Rooms</button>
+                <button onclick="showTab('spaces')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">3. Spaces</button>
+                <button onclick="showTab('equipment')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">4. Equipment</button>
+                <button onclick="showTab('reservations')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">5. Reservations (JWT)</button>
+                <button onclick="showTab('billing')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">6. Billing (JWT)</button>
+                <button onclick="showTab('packages')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">7. Package Bookings</button>
+                <button onclick="showTab('courses')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">8. Courses</button>
+                <button onclick="showTab('chatbot')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">9. Chatbot AI</button>
+                <button onclick="showTab('recommendations')" class="tab-btn w-full text-left px-3 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">10. Recommendations</button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="w-3/4 bg-white p-6 rounded-lg shadow-sm">
+
+            <!-- 1. AUTH -->
+            <section id="auth" class="tab-content">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">1. Đăng ký / Đăng nhập</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Đăng ký -->
+                    <div class="border p-4 rounded-lg bg-gray-50">
+                        <h3 class="font-bold text-lg mb-3">Đăng ký</h3>
+                        <form onsubmit="handleRegister(event)" class="space-y-3">
+                            <input type="text" id="regUser" placeholder="Username" required class="w-full border p-2 rounded">
+                            <input type="email" id="regEmail" placeholder="Email" required class="w-full border p-2 rounded">
+                            <input type="password" id="regPass" placeholder="Password" required class="w-full border p-2 rounded">
+                            <input type="password" id="regConfirmPass" placeholder="Xác nhận password" required class="w-full border p-2 rounded">
+                            <button class="bg-indigo-600 text-white w-full py-2 rounded hover:bg-indigo-700">Đăng ký</button>
+                        </form>
+                    </div>
+                    <!-- Đăng nhập -->
+                    <div class="border p-4 rounded-lg bg-gray-50">
+                        <h3 class="font-bold text-lg mb-3">Đăng nhập</h3>
+                        <form onsubmit="handleLogin(event)" class="space-y-3">
+                            <input type="text" id="loginUser" placeholder="Username" required class="w-full border p-2 rounded">
+                            <input type="password" id="loginPass" placeholder="Password" required class="w-full border p-2 rounded">
+                            <button class="bg-green-600 text-white w-full py-2 rounded hover:bg-green-700">Đăng nhập</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. ROOMS -->
+            <section id="rooms" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">2. Quản lý Rooms</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="roomName" placeholder="Tên room" class="border p-2 rounded flex-1">
+                    <button onclick="createRoom()" class="bg-blue-600 text-white px-4 py-2 rounded">Tạo</button>
+                    <button onclick="loadRooms()" class="bg-gray-600 text-white px-4 py-2 rounded">Load</button>
+                </div>
+                <table class="w-full border-collapse border text-left text-sm">
+                    <thead><tr class="bg-gray-100"><th class="border p-2">ID</th><th class="border p-2">Tên</th><th class="border p-2">Loại</th><th class="border p-2">Chứa</th><th class="border p-2">Giá/giờ</th><th class="border p-2">TT</th></tr></thead>
+                    <tbody id="roomTable"></tbody>
+                </table>
+            </section>
+
+            <!-- 3. SPACES -->
+            <section id="spaces" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">3. Quản lý Spaces</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="spaceName" placeholder="Tên space" class="border p-2 rounded flex-1">
+                    <button onclick="createSpace()" class="bg-blue-600 text-white px-4 py-2 rounded">Tạo</button>
+                    <button onclick="loadSpaces()" class="bg-gray-600 text-white px-4 py-2 rounded">Load</button>
+                    <button onclick="searchSpaces()" class="bg-amber-600 text-white px-4 py-2 rounded">Search</button>
+                </div>
+                <table class="w-full border-collapse border text-left text-sm">
+                    <thead><tr class="bg-gray-100"><th class="border p-2">ID</th><th class="border p-2">Tên</th><th class="border p-2">Loại</th><th class="border p-2">Giá/giờ</th><th class="border p-2">Chứa</th><th class="border p-2">TT</th></tr></thead>
+                    <tbody id="spaceTable"></tbody>
+                </table>
+            </section>
+
+            <!-- 4. EQUIPMENT -->
+            <section id="equipment" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">4. Thiết bị (Equipment)</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="eqName" placeholder="Tên thiết bị" class="border p-2 rounded flex-1">
+                    <button onclick="createEquipment()" class="bg-blue-600 text-white px-4 py-2 rounded">Tạo</button>
+                    <button onclick="loadEquipment()" class="bg-gray-600 text-white px-4 py-2 rounded">Load</button>
+                </div>
+                <table class="w-full border-collapse border text-left text-sm">
+                    <thead><tr class="bg-gray-100"><th class="border p-2">ID</th><th class="border p-2">Tên</th><th class="border p-2">Loại</th><th class="border p-2">Giá/giờ</th><th class="border p-2">TT</th></tr></thead>
+                    <tbody id="equipmentTable"></tbody>
+                </table>
+            </section>
+
+            <!-- 5. RESERVATIONS -->
+            <section id="reservations" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">5. Reservations <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">Cần JWT</span></h2>
+                <div class="flex gap-2 mb-4">
+                    <button onclick="createReservation()" class="bg-blue-600 text-white px-4 py-2 rounded">Tạo</button>
+                    <button onclick="loadReservations()" class="bg-gray-600 text-white px-4 py-2 rounded">Load</button>
+                </div>
+                <table class="w-full border-collapse border text-left text-sm">
+                    <thead><tr class="bg-gray-100"><th class="border p-2">ID</th><th class="border p-2">User</th><th class="border p-2">Space</th><th class="border p-2">Start</th><th class="border p-2">End</th><th class="border p-2">Giá</th><th class="border p-2">Status</th><th class="border p-2">Thao tác</th></tr></thead>
+                    <tbody id="reservationTable"></tbody>
+                </table>
+            </section>
+
+            <!-- 6. BILLING -->
+            <section id="billing" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">6. Billing (Hóa đơn & Khách hàng) <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">Cần JWT</span></h2>
+                
+                <!-- Khách hàng -->
+                <div class="mb-6 p-4 border rounded">
+                    <h3 class="font-bold mb-2">Khách hàng</h3>
+                    <div class="grid grid-cols-3 gap-2 mb-2">
+                        <input type="text" id="custName" placeholder="Tên KH" class="border p-2 rounded">
+                        <input type="email" id="custEmail" placeholder="Email" class="border p-2 rounded">
+                        <input type="text" id="custPhone" placeholder="Phone" class="border p-2 rounded">
+                    </div>
+                    <button onclick="createCustomer()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Tạo KH</button>
+                </div>
+
+                <!-- Sản phẩm & Hóa đơn -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 border rounded">
+                        <h3 class="font-bold mb-2">Sản phẩm</h3>
+                        <input type="text" id="prodName" placeholder="Tên SP" class="border p-2 rounded w-full mb-2">
+                        <input type="text" id="prodCode" placeholder="Mã SP" class="border p-2 rounded w-full mb-2">
+                        <button onclick="createProduct()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Tạo SP</button>
+                    </div>
+                    <div class="p-4 border rounded">
+                        <h3 class="font-bold mb-2">Hóa đơn</h3>
+                        <button onclick="loadInvoices()" class="bg-green-600 text-white px-4 py-2 rounded">Load Hóa đơn</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. PACKAGE BOOKINGS -->
+            <section id="packages" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">7. Package Bookings</h2>
+                <div class="flex gap-2 mb-4">
+                    <button onclick="createPackageBooking()" class="bg-blue-600 text-white px-4 py-2 rounded">Tạo Booking</button>
+                    <button onclick="loadPackageBookings()" class="bg-gray-600 text-white px-4 py-2 rounded">Load</button>
+                </div>
+                <table class="w-full border-collapse border text-left text-sm">
+                    <thead><tr class="bg-gray-100"><th class="border p-2">ID</th><th class="border p-2">Package</th><th class="border p-2">Space</th><th class="border p-2">Customer</th><th class="border p-2">Start</th><th class="border p-2">End</th><th class="border p-2">Giá</th><th class="border p-2">Status</th></tr></thead>
+                    <tbody id="packageTable"></tbody>
+                </table>
+            </section>
+
+            <!-- 8. COURSES -->
+            <section id="courses" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">8. Khóa học (Courses)</h2>
+                <div class="space-y-2 mb-4">
+                    <input type="text" id="courseName" placeholder="Tên khóa học" class="border p-2 rounded w-full">
+                    <textarea id="courseDesc" placeholder="Mô tả" class="border p-2 rounded w-full"></textarea>
+                    <div class="flex gap-2">
+                        <button onclick="createCourse()" class="bg-blue-600 text-white px-4 py-2 rounded">Tạo</button>
+                        <button onclick="loadCourses()" class="bg-gray-600 text-white px-4 py-2 rounded">Load</button>
+                    </div>
+                </div>
+                <table class="w-full border-collapse border text-left text-sm">
+                    <thead><tr class="bg-gray-100"><th class="border p-2">ID</th><th class="border p-2">Tên</th><th class="border p-2">Mô tả</th><th class="border p-2">Status</th></tr></thead>
+                    <tbody id="courseTable"></tbody>
+                </table>
+            </section>
+
+            <!-- 9. CHATBOT AI -->
+            <section id="chatbot" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">9. Chatbot AI</h2>
+                <div class="border rounded-lg h-80 p-4 flex flex-col justify-between bg-gray-50">
+                    <div id="chatMessages" class="overflow-y-auto space-y-2 text-sm">
+                        <div class="bg-indigo-100 p-2 rounded max-w-xs">Xin chào! Tôi có thể giúp gì cho bạn?</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." class="border p-2 rounded flex-1">
+                        <button onclick="sendChatMessage()" class="bg-indigo-600 text-white px-4 py-2 rounded"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. RECOMMENDATIONS -->
+            <section id="recommendations" class="tab-content hidden">
+                <h2 class="text-xl font-bold mb-4">10. Gợi ý dành cho bạn (Recommendations)</h2>
+                <button onclick="loadRecommendations()" class="bg-purple-600 text-white px-4 py-2 rounded mb-4">Lấy gợi ý AI</button>
+                <div id="recommendList" class="grid grid-cols-2 gap-4"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Địa chỉ API chính (Đã bao gồm tiền tố /api)
+        const API_BASE_URL = "http://127.0.0.1:9999/api";
+        let jwtToken = localStorage.getItem('token') || "";
+
+        // Tự động kiểm tra đăng nhập khi mở lại trang
+        if (jwtToken) {
+            const savedUser = localStorage.getItem('username') || 'User';
+            document.getElementById('userStatus').innerText = `Xin chào, ${savedUser}`;
+            document.getElementById('btnLogout').classList.remove('hidden');
+        }
+
+        // Chuyển Tab
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        // Helper cho API Call (tự động gắn JWT Token)
+        async function apiCall(endpoint, method = 'GET', body = null, requireAuth = false) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (requireAuth && jwtToken) {
+                headers['Authorization'] = `Bearer ${jwtToken}`;
+            }
+
+            const config = { method, headers };
+            if (body) config.body = JSON.stringify(body);
+
+            try {
+                const res = await fetch(`${API_BASE_URL}${endpoint}`, config);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Lỗi kết nối API');
+                return data;
+            } catch (err) {
+                alert(err.message);
+                return null;
+            }
+        }
+
+        // 1. Authenticaton
+        async function handleRegister(e) {
+            e.preventDefault();
+            if (regPass.value !== regConfirmPass.value) return alert("Mật khẩu xác nhận không khớp!");
+            const res = await apiCall('/auth/register', 'POST', {
+                username: regUser.value, email: regEmail.value, password: regPass.value
+            });
+            if (res) alert(res.message || "Đăng ký thành công!");
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const res = await apiCall('/auth/login', 'POST', {
+                username: loginUser.value, password: loginPass.value
+            });
+            if (res && res.access_token) {
+                jwtToken = res.access_token;
+                localStorage.setItem('token', jwtToken);
+                localStorage.setItem('username', res.username);
+                userStatus.innerText = `Xin chào, ${res.username}`;
+                btnLogout.classList.remove('hidden');
+                alert("Đăng nhập thành công!");
+            }
+        }
+
+        function logout() {
+            jwtToken = "";
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            userStatus.innerText = "Chưa đăng nhập";
+            btnLogout.classList.add('hidden');
+        }
+
+        // 2. Rooms
+        async function createRoom() {
+            await apiCall('/rooms', 'POST', { name: roomName.value });
+            loadRooms();
+        }
+        async function loadRooms() {
+            const data = await apiCall('/rooms');
+            if (data) {
+                roomTable.innerHTML = data.map(r => `
+                    <tr><td class="border p-2">${r.id}</td><td class="border p-2">${r.name}</td><td class="border p-2">${r.type || '-'}</td><td class="border p-2">${r.capacity || 0}</td><td class="border p-2">${r.price_per_hour || 0}</td><td class="border p-2">${r.status || 'Active'}</td></tr>
+                `).join('');
+            }
+        }
+
+        // 3. Spaces
+        async function createSpace() {
+            await apiCall('/spaces', 'POST', { name: spaceName.value });
+            loadSpaces();
+        }
+        async function loadSpaces() {
+            const data = await apiCall('/spaces');
+            if (data) {
+                spaceTable.innerHTML = data.map(s => `
+                    <tr><td class="border p-2">${s.id}</td><td class="border p-2">${s.name}</td><td class="border p-2">${s.type || '-'}</td><td class="border p-2">${s.price_per_hour || 0}</td><td class="border p-2">${s.capacity || 0}</td><td class="border p-2">${s.status || 'Active'}</td></tr>
+                `).join('');
+            }
+        }
+        async function searchSpaces() {
+            const data = await apiCall(`/spaces/search?q=${spaceName.value}`);
+            alert(`Tìm thấy ${data ? data.length : 0} kết quả`);
+        }
+
+        // 4. Equipment
+        async function createEquipment() {
+            await apiCall('/equipment', 'POST', { name: eqName.value });
+            loadEquipment();
+        }
+        async function loadEquipment() {
+            const data = await apiCall('/equipment');
+            if (data) {
+                equipmentTable.innerHTML = data.map(e => `
+                    <tr><td class="border p-2">${e.id}</td><td class="border p-2">${e.name}</td><td class="border p-2">${e.type || '-'}</td><td class="border p-2">${e.price_per_hour || 0}</td><td class="border p-2">${e.status || 'Active'}</td></tr>
+                `).join('');
+            }
+        }
+
+        // 5. Reservations
+        async function createReservation() {
+            await apiCall('/reservations', 'POST', {}, true);
+            loadReservations();
+        }
+        async function loadReservations() {
+            const data = await apiCall('/reservations', 'GET', null, true);
+            if (data) {
+                reservationTable.innerHTML = data.map(r => `
+                    <tr><td class="border p-2">${r.id}</td><td class="border p-2">${r.user}</td><td class="border p-2">${r.space}</td><td class="border p-2">${r.start}</td><td class="border p-2">${r.end}</td><td class="border p-2">${r.price}</td><td class="border p-2">${r.status}</td><td class="border p-2"><button class="text-red-600">Hủy</button></td></tr>
+                `).join('');
+            }
+        }
+
+        // 6. Billing
+        async function createCustomer() {
+            await apiCall('/customers', 'POST', { name: custName.value, email: custEmail.value, phone: custPhone.value }, true);
+        }
+        async function createProduct() {
+            await apiCall('/products', 'POST', { name: prodName.value, code: prodCode.value }, true);
+        }
+        async function loadInvoices() {
+            const data = await apiCall('/invoices', 'GET', null, true);
+            alert("Đã tải danh sách hóa đơn");
+        }
+
+        // 7. Package Bookings
+        async function createPackageBooking() {
+            await apiCall('/package-bookings', 'POST');
+            loadPackageBookings();
+        }
+        async function loadPackageBookings() {
+            const data = await apiCall('/package-bookings');
+            if (data) {
+                packageTable.innerHTML = data.map(p => `
+                    <tr><td class="border p-2">${p.id}</td><td class="border p-2">${p.package}</td><td class="border p-2">${p.space}</td><td class="border p-2">${p.customer}</td><td class="border p-2">${p.start}</td><td class="border p-2">${p.end}</td><td class="border p-2">${p.price}</td><td class="border p-2">${p.status}</td></tr>
+                `).join('');
+            }
+        }
+
+        // 8. Courses
+        async function createCourse() {
+            await apiCall('/courses', 'POST', { name: courseName.value, description: courseDesc.value });
+            loadCourses();
+        }
+        async function loadCourses() {
+            const data = await apiCall('/courses');
+            if (data) {
+                courseTable.innerHTML = data.map(c => `
+                    <tr><td class="border p-2">${c.id}</td><td class="border p-2">${c.name}</td><td class="border p-2">${c.description}</td><td class="border p-2">${c.status || 'Active'}</td></tr>
+                `).join('');
+            }
+        }
+
+        // 9. Chatbot AI
+        async function sendChatMessage() {
+            const msg = chatInput.value;
+            if(!msg) return;
+            chatMessages.innerHTML += `<div class="bg-gray-200 p-2 rounded text-right ml-auto max-w-xs">${msg}</div>`;
+            chatInput.value = '';
+            
+            const res = await apiCall('/chatbot', 'POST', { message: msg });
+            const reply = res ? res.reply : "Không nhận được phản hồi từ AI";
+            chatMessages.innerHTML += `<div class="bg-indigo-100 p-2 rounded max-w-xs">${reply}</div>`;
+        }
+
+        // 10. Recommendations
+        async function loadRecommendations() {
+            const data = await apiCall('/recommendations');
+            if (data) {
+                recommendList.innerHTML = data.map(item => `
+                    <div class="border p-4 rounded shadow-sm bg-purple-50">
+                        <h4 class="font-bold text-purple-900">${item.title || 'Gợi ý không tên'}</h4>
+                        <p class="text-sm text-gray-600">${item.reason || 'Mô tả gợi ý...'}</p>
+                    </div>
+                `).join('');
+            }
+        }
+    </script>
+</body>
+</html>

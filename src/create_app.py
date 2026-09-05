@@ -1,17 +1,22 @@
-from flask import Flask
-from .config import Config
-from .api.middleware import setup_middleware
-from .api.routes import register_routes
-from .infrastructure.databases import init_db
-from .app_logging import setup_logging
+import os
+from flask import Flask, send_from_directory
+from flask_cors import CORS
+from src.api.routes import api_bp
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config['SECRET_KEY'] = 'super-secret-key'
 
-    setup_logging(app)
-    init_db(app)
-    setup_middleware(app)
-    register_routes(app)
+    # Cho phép Kết nối Cross-Origin từ Next.js Frontend
+    CORS(app, resources={r"/*": {"origins": "*"}})
+
+    # Route trả về file index.html nằm trong thư mục src
+    @app.route('/')
+    def serve_index():
+        src_dir = os.path.dirname(os.path.abspath(__file__))
+        return send_from_directory(src_dir, 'index.html')
+
+    # Đăng ký Blueprint Router
+    app.register_blueprint(api_bp)
 
     return app
