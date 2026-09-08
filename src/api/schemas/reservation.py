@@ -2,15 +2,19 @@ from marshmallow import Schema, fields
 
 
 class ReservationRequestSchema(Schema):
-    user_id = fields.Int(required=True)
+    user_id = fields.Int(required=False, allow_none=True)
     provider_id = fields.Int(required=True)
-    space_id = fields.Int(required=False, allow_none=True)
+    space_id = fields.Int(required=True)
     package_id = fields.Int(required=False, allow_none=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
     total_price = fields.Float(required=False, load_default=0)
     status = fields.Str(required=False, load_default='pending')
     qr_code = fields.Str(required=False, allow_none=True)
+    customer_name = fields.Str(required=False, allow_none=True)
+    customer_email = fields.Str(required=False, allow_none=True)
+    customer_phone = fields.Str(required=False, allow_none=True)
+    equipment_ids = fields.List(fields.Int(), required=False, load_default=[])
 
 
 class ReservationResponseSchema(Schema):

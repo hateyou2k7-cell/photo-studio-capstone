@@ -11,7 +11,7 @@
 
 CREATE TYPE user_role AS ENUM ('photographer', 'provider', 'expert', 'admin', 'user');
 CREATE TYPE provider_status AS ENUM ('pending', 'approved', 'rejected');
-CREATE TYPE space_type AS ENUM ('darkroom', 'studio');
+CREATE TYPE space_type AS ENUM ('darkroom', 'studio', 'standard', 'vip', 'conference');
 CREATE TYPE equipment_type AS ENUM ('enlarger', 'camera', 'scanner', 'lighting', 'tripod', 'tank', 'other');
 CREATE TYPE equipment_condition AS ENUM ('excellent', 'good', 'fair', 'poor', 'broken');
 CREATE TYPE resource_category AS ENUM ('camera', 'lens', 'enlarger', 'scanner', 'lighting', 'tripod', 'background', 'darkroom_equipment');
@@ -41,6 +41,7 @@ CREATE TABLE public.auth_users (
 
 CREATE TABLE public.users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    username VARCHAR(50) UNIQUE,
     email VARCHAR NOT NULL UNIQUE,
     password_hash VARCHAR NOT NULL,
     full_name VARCHAR NOT NULL,
@@ -95,7 +96,7 @@ CREATE TABLE public.provider_profiles (
 
 CREATE TABLE public.spaces (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    provider_id BIGINT NOT NULL REFERENCES public.provider_profiles(id),
+    provider_id BIGINT REFERENCES public.provider_profiles(id),
     name VARCHAR NOT NULL,
     type space_type NOT NULL,
     description TEXT,

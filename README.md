@@ -33,15 +33,15 @@ Tài khoản admin: `admin` / `admin123`
 
 | Luồng nghiệp vụ | Hoàn thành | Mô tả |
 |:---|:---:|:---|
-| Đăng ký / Đăng nhập | 80% | JWT auth, signup đồng bộ auth_users + users,role-based |
-| Quản lý Không gian | 80% | CRUD, search, images, schedules |
-| Quản lý Thiết bị | 50% | Equipment CRUD, thiếu consumables/resources |
-| Đặt chỗ & Phân bổ | 70% | Reservation + conflict detection + payments |
+| Đăng ký / Đăng nhập | 90% | JWT auth, single user model (users), role-based |
+| Quản lý Không gian | 90% | CRUD + search + admin/manager permission, 5 space types |
+| Quản lý Thiết bị | 70% | Equipment CRUD + linked to reservations |
+| Đặt chỗ & Hóa đơn | 85% | Reservation + auto invoice + equipment selection |
 | Phiên Sử dụng | 60% | Check-in/out, chưa QR code generation |
 | Gói Dịch vụ | 50% | Package booking, thiếu Package CRUD API |
 | Cộng đồng | 5% | Chỉ có DB model, chưa có API |
 | AI Features | 25% | Chatbot + recommendation |
-| Hóa đơn / Thanh toán | 60% | Billing CRUD, invoices, customers, products |
+| Hóa đơn / Thanh toán | 70% | Billing auto-created from reservation, payment placeholder |
 
 ---
 
@@ -225,16 +225,15 @@ Xem chi tiết tại [Architecture Documentation](docs/architecture.md).
 
 ## API Endpoints
 
-Tổng: **75 endpoints** | JWT Protected: **22** | Public: **53**
+Tổng: **65 endpoints** | JWT Protected: **25** | Public: **40**
 
 | Module | Prefix | Endpoints | JWT |
 |:---|:---|:---:|:---:|
 | Auth | `/auth` | 3 | 0 |
-| Rooms | `/rooms` | 5 | 0 |
-| Spaces | `/spaces` | 6 | 0 |
+| Spaces | `/spaces` | 6 | 3 (admin/manager) |
 | Space Images | `/spaces/{id}/images` | 4 | 0 |
 | Space Schedules | `/spaces/{id}/schedule` | 4 | 0 |
-| Reservations | `/v1/reservations` | 17 | 11 |
+| Reservations + Invoice | `/v1/reservations` | 17 | 11 |
 | Equipment | `/api/v1/equipment` | 5 | 0 |
 | Package Bookings | `/api/v1/package-bookings` | 4 | 0 |
 | Billing | `/v1/billing` | 19 | 11 |

@@ -60,13 +60,12 @@ HTTP Request
 - Response formatting
 - JWT authentication
 
-**Controllers hiện có** (13 files):
+**Controllers hiện có** (12 files):
 
 | Controller | File | Blueprint prefix |
 |---|---|---|
 | todo | `todo_controller.py` | `/todos` |
 | auth | `auth_controller.py` | `/auth` |
-| room | `room_controller.py` | `/rooms` |
 | space | `space_controller.py` | `/spaces` |
 | space_image | `space_image_controller.py` | `/spaces/{id}/images` |
 | space_schedule | `space_schedule_controller.py` | `/spaces/{id}/schedule` |
@@ -77,6 +76,8 @@ HTTP Request
 | chatbot | `chatbot_controller.py` | `/api/v1/chatbot` |
 | recommendation | `recommendation_controller.py` | `/api/v1/recommendations` |
 | course | `course_controller.py` | `/courses` |
+
+> **Lưu ý**: `room_controller.py` đã bị deprecated. Dùng `space_controller.py` thay thế.
 
 **Middleware**:
 - `middleware.py`: Request logging, error handling, CORS headers
@@ -90,11 +91,10 @@ HTTP Request
 |---|---|---|
 | TodoRequest/Response | `schemas/todo.py` | Todo CRUD |
 | Auth (Login/Register) | `schemas/auth.py` | Username, password, email |
-| RoomRequest/Response | `schemas/room.py` | Room CRUD |
 | SpaceRequest/Response | `schemas/space.py` | Space CRUD |
 | SpaceImageResponse | `schemas/space_image.py` | Image metadata |
 | SpaceScheduleRequest/Response | `schemas/space_schedule.py` | Schedule slots |
-| ReservationRequest/Response | `schemas/reservation.py` | Reservation, items, payments, reviews |
+| ReservationRequest/Response | `schemas/reservation.py` | Reservation + customer info + equipment_ids, items, payments, reviews |
 | EquipmentRequest/Response | `schemas/equipment.py` | Equipment, PackageBooking |
 | Billing (Invoice/Customer/Product) | `schemas/billing.py` | Billing CRUD |
 | User | `schemas/user.py` | **EMPTY** |
@@ -109,8 +109,7 @@ HTTP Request
 |---|---|---|
 | TodoService | `todo_service.py` | CRUD todos (legacy) |
 | AuthService | `auth_service.py` | Login, register, JWT generation |
-| RoomService | `room_service.py` | CRUD rooms, name uniqueness |
-| SpaceService | `space_service.py` | CRUD spaces, search, validate space_type |
+| SpaceService | `space_service.py` | CRUD spaces, search, validate space_type (5 types) |
 | SpaceImageService | `space_image_service.py` | File upload, UUID naming, primary image logic |
 | SpaceScheduleService | `space_schedule_service.py` | Schedule CRUD, time validation |
 | ReservationService | `reservation_service.py` | State machine, overlap check, payments, reviews |
@@ -120,6 +119,8 @@ HTTP Request
 | CourseService | `course_service.py` | CRUD courses |
 | chatbot_service | `chatbot_service.py` | OpenAI integration, function calling, FAQ fallback |
 | recommendation_service | `recommendation_service.py` | Content-based filtering, user profiling |
+
+> **Lưu ý**: `RoomService` đã bị deprecated. Dùng `SpaceService` thay thế.
 
 **Reservation State Machine**:
 ```
@@ -147,8 +148,7 @@ business/
     ├── todo.py            # TodoDomain
     ├── auth.py            # AuthDomain
     ├── user.py            # UserDomain
-    ├── room.py            # RoomDomain
-    ├── space.py           # SpaceDomain
+    ├── space.py           # SpaceDomain (5 types: darkroom, studio, standard, vip, conference)
     ├── space_image.py     # SpaceImageDomain
     ├── space_schedule.py  # SpaceScheduleDomain
     ├── reservation.py     # ReservationDomain, ReservationItemDomain, PaymentDomain, ServiceSessionDomain, ReviewDomain
@@ -158,7 +158,6 @@ business/
     ├── course.py          # CourseDomain
     ├── itodo_repository.py
     ├── iauth_repository.py
-    ├── iroom_repository.py
     ├── ispace_repository.py
     ├── ispace_image_repository.py
     ├── ispace_schedule_repository.py
@@ -169,13 +168,14 @@ business/
     └── icourse_repository.py
 ```
 
+> **Lưu ý**: `room.py`, `iroom_repository.py` đã bị deprecated.
+
 **Repository Interfaces** (ABC):
 
 | Interface | Methods |
 |---|---|
 | ITodoRepository | add, get_by_id, list, update, delete |
 | IAuthRepository | login, register, check_exist |
-| IRoomRepository | add, get_by_id, find_by_name, list, update, delete |
 | ISpaceRepository | add, get_by_id, list, search, update, delete |
 | ISpaceImageRepository | add, get_by_id, list, update, delete, clear_primary |
 | ISpaceScheduleRepository | add, get_by_id, list, update, delete |
@@ -184,6 +184,8 @@ business/
 | IEquipmentRepository | add, get_by_id, list, update, delete |
 | IPackageBookingRepository | add, get_by_id, list, update, find_conflicts, find_equipment_conflicts |
 | ICourseRepository | add, get_by_id, list, update, delete |
+
+> **Lưu ý**: `IRoomRepository` đã bị deprecated.
 
 ---
 
@@ -222,7 +224,6 @@ class FactoryDatabase:
 database/repositories/
 ├── todo_repository.py
 ├── auth_repository.py
-├── room_repository.py
 ├── space_repository.py
 ├── space_image_repository.py
 ├── space_schedule_repository.py
@@ -233,6 +234,8 @@ database/repositories/
 ├── course_repository.py      # In-memory (chưa dùng DB)
 └── user_repository.py        # Skeleton
 ```
+
+> **Lưu ý**: `room_repository.py` đã bị deprecated.
 
 #### ORM Models
 
@@ -247,10 +250,8 @@ database/models/
 ├── space_management_model.py # SpaceImage, SpaceSchedule
 ├── equipment_model.py        # Equipment, package_equipments
 ├── package_booking_model.py  # PackageBooking
-├── room_model.py             # RoomModel (legacy)
 ├── todo_model.py             # TodoModel (legacy)
 ├── auth/
-│   ├── auth_user_model.py    # AuthUserModel
 │   ├── auth_role_model.py    # AuthRoleModel
 │   └── auth_funtion_model.py # AuthFuntionModel
 ├── sell/
@@ -261,36 +262,47 @@ database/models/
     └── pay_tran_model.py
 ```
 
+> **Lưu ý**: `room_model.py`, `auth_user_model.py` đã bị deprecated. User giờ dùng `film_user_model.py`.
+
 ---
 
 ## Data Flow Example
 
-### Tạo Reservation
+### Tạo Reservation + Invoice
 
 ```
 1. POST /v1/reservations/
+   { customer_name, customer_email, customer_phone,
+     space_id, equipment_ids: [1,2,3],
+     start_time, end_time }
    │
    ▼
 2. reservation_controller.py:create_reservation()
    │  - Parse request JSON
    │  - Validate with ReservationRequestSchema
    │  - Check @jwt_required
+   │  - Get space info for pricing
    │
    ▼
-3. reservation_service.py:create()
-   │  - Check overlap: reservation_repo.check_overlap(space_id, start_time, end_time)
-   │  - Create ReservationDomain object
+3. Tính giá
+   │  - space_cost = space.base_price_per_hour × hours
+   │  - equipment_cost = sum(eq.price_per_hour × hours)
+   │  - total = space_cost + equipment_cost
    │
    ▼
-4. reservation_repository.py:add()
-   │  - Convert to Reservation ORM model
-   │  - db_session.add(), db_session.commit()
+4. Tạo Reservation (status=pending)
+   │  - reservation_service.create()
+   │  - reservation_service.add_item() cho space + equipment
    │
    ▼
-5. PostgreSQL reservations table
+5. Tạo Invoice trong Billing
+   │  - billing_service.create_customer()
+   │  - billing_service.create_invoice()
+   │  - billing_service.add_item() cho space rental
+   │  - billing_service.add_item() cho equipment rental
    │
    ▼
-6. Return JSON response
+6. Return response với breakdown chi tiết
 ```
 
 ---
@@ -302,12 +314,12 @@ database/models/
    │
    ▼
 2. auth_service.py:login()
-   │  - Query auth_users table
+   │  - Query users table (by username)
    │  - Verify password (bcrypt)
    │  - Generate JWT (HS256, SECRET_KEY)
    │
    ▼
-3. Return { token, username }
+3. Return { token, user_id }
    │
    ▼
 4. Client adds header: Authorization: Bearer <token>
@@ -316,7 +328,7 @@ database/models/
 5. @jwt_required decorator
    │  - Extract token from header
    │  - jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-   │  - Set request.current_user_id
+   │  - Set request.current_user_id, request.current_user_role
    │  - Return 401 if invalid/expired
    │
    ▼
@@ -324,17 +336,18 @@ database/models/
 ```
 
 **Lưu ý**: JWT chứa `user_id` và `role` trong payload. Admin role bypass tất cả JWT validation.
+Bảng `auth_users` đã bị deprecated, mọi logic dùng `users` table.
 
 ---
 
-## Known Issues
+## Known Issues (Đã sửa)
 
-| Issue | Mô tả |
-|---|---|
-| Duplicate user systems | `auth_users` (login) và `users` (reservations) không liên kết |
-| Duplicate space systems | `rooms` (RoomController) và `spaces` (SpaceController) riêng biệt |
-| Admin bypass | Admin role có unconditional access, bypass JWT validation |
-| Empty files | `schemas/user.py`, `dependency_container.py`, `api/requests.py` |
-| Legacy code | `todo_*`, `course_repository.py` (in-memory) |
-| Swagger title | Vẫn ghi "Todo API" thay vì "Photo Studio API" |
-| Unused models | `survey_model.py`, `consultant_model.py`, `program_model.py`, `appointment_model.py` |
+| Issue | Mô tả | Trạng thái |
+|---|---|---|
+| ~~Duplicate user systems~~ | `auth_users` + `users` không liên kết | ✅ Đã gộp vào `users` |
+| ~~Duplicate space systems~~ | `rooms` + `spaces` riêng biệt | ✅ Đã gộp vào `spaces` |
+| ~~Swagger title~~ | Ghi "Todo API" | ✅ Đã sửa "Photo Studio API" |
+| Admin bypass | Admin role có unconditional access | ⚠️ Còn tồn tại |
+| Empty files | `schemas/user.py`, `dependency_container.py` | ⚠️ Còn tồn tại |
+| Legacy code | `todo_*`, `course_repository.py` (in-memory) | ⚠️ Còn tồn tại |
+| Unused models | `survey_model.py`, `consultant_model.py`... | ⚠️ Còn tồn tại |

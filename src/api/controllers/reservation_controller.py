@@ -3,7 +3,13 @@ from datetime import datetime
 from api.auth_middleware import jwt_required
 from api.pagination import paginate_list
 from services.reservation_service import ReservationService
+from services.billing_service import BillingService
+from services.equipment_service import EquipmentService
+from services.space_service import SpaceService
 from database.repositories.reservation_repository import ReservationRepository
+from database.repositories.billing_repository import InvoiceRepository
+from database.repositories.equipment_repository import EquipmentRepository
+from database.repositories.space_repository import SpaceRepository
 from api.schemas.reservation import (
     ReservationRequestSchema, ReservationResponseSchema,
     ReservationItemRequestSchema, ReservationItemResponseSchema,
@@ -23,6 +29,9 @@ def _parse_datetime(value):
 bp = Blueprint('reservation', __name__, url_prefix='/v1/reservations')
 
 reservation_service = ReservationService(ReservationRepository())
+billing_service = BillingService(InvoiceRepository())
+equipment_service = EquipmentService(EquipmentRepository())
+space_service = SpaceService(SpaceRepository())
 request_schema = ReservationRequestSchema()
 response_schema = ReservationResponseSchema()
 item_request_schema = ReservationItemRequestSchema()
@@ -102,10 +111,10 @@ def get_reservation(reservation_id):
 @jwt_required
 def create_reservation():
     """
-    Create a new reservation
+    Create a new reservation with auto-invoice
     ---
     post:
-      summary: Create a new reservation
+      summary: Create reservation + auto-create invoice
       requestBody:
         required: true
         content:
@@ -116,7 +125,7 @@ def create_reservation():
         - Reservations
       responses:
         201:
-          description: Created
+          description: Created with invoice
         400:
           description: Invalid input
     """
@@ -127,20 +136,120 @@ def create_reservation():
     try:
         start_time = _parse_datetime(data['start_time'])
         end_time = _parse_datetime(data['end_time'])
+        
+        # Get space info for pricing
+        space = space_service.get(data['space_id'])
+        if not space:
+            return jsonify({'message': 'Space not found'}), 404
+        
+        # Calculate hours
+        duration_hours = (end_time - start_time).total_seconds() / 3600
+        if duration_hours <= 0:
+            return jsonify({'message': 'Invalid time range'}), 400
+        
+        # Calculate space cost
+        space_price = float(space.base_price_per_hour or 0)
+        space_cost = space_price * duration_hours
+        
+        # Get equipment info and calculate cost
+        equipment_ids = data.get('equipment_ids', [])
+        equipment_cost = 0
+        equipment_items = []
+        for eq_id in equipment_ids:
+            eq = equipment_service.get(eq_id)
+            if eq:
+                eq_price = float(eq.price_per_hour or 0)
+                eq_cost = eq_price * duration_hours
+                equipment_cost += eq_cost
+                equipment_items.append({
+                    'id': eq.id,
+                    'name': eq.name,
+                    'price_per_hour': eq_price,
+                    'total': eq_cost
+                })
+        
+        total_price = space_cost + equipment_cost
+        
+        # Create reservation
+        user_id = data.get('user_id') or request.current_user_id
         reservation = reservation_service.create(
-            user_id=data['user_id'],
+            user_id=user_id,
             provider_id=data['provider_id'],
             start_time=start_time,
             end_time=end_time,
-            space_id=data.get('space_id'),
+            space_id=data['space_id'],
             package_id=data.get('package_id'),
-            total_price=data.get('total_price', 0),
-            status=data.get('status', 'pending'),
+            total_price=total_price,
+            status='pending',
             qr_code=data.get('qr_code'),
         )
+        
+        # Add reservation items (space + equipment)
+        reservation_service.add_item(
+            reservation_id=reservation.id,
+            item_type='space',
+            item_id=data['space_id'],
+            quantity=1,
+            price_at_booking=space_cost,
+        )
+        for eq_id in equipment_ids:
+            reservation_service.add_item(
+                reservation_id=reservation.id,
+                item_type='resource',
+                item_id=eq_id,
+                quantity=1,
+                price_at_booking=0,  # Will be calculated from equipment
+            )
+        
+        # Create customer in billing
+        customer = billing_service.create_customer(
+            customer_name=data.get('customer_name', ''),
+            email=data.get('customer_email'),
+            phone=data.get('customer_phone'),
+        )
+        
+        # Create invoice
+        invoice = billing_service.create_invoice(
+            customer_id=customer.id,
+            total_amount=total_price,
+            status='pending',
+        )
+        
+        # Add invoice items: space rental
+        billing_service.add_item(
+            invoice_id=invoice.id,
+            product_id=0,  # Special: space rental (no product)
+            quantity=1,
+            unit_price=space_cost,
+        )
+        
+        # Add invoice items: equipment rental
+        for item in equipment_items:
+            billing_service.add_item(
+                invoice_id=invoice.id,
+                product_id=item['id'],
+                quantity=1,
+                unit_price=item['total'],
+            )
+        
+        # Return response with reservation + invoice info
+        result = response_schema.dump(reservation)
+        result['invoice_id'] = invoice.id
+        result['invoice_total'] = float(invoice.total_amount)
+        result['breakdown'] = {
+            'space': {
+                'name': space.name,
+                'price_per_hour': space_price,
+                'hours': round(duration_hours, 2),
+                'total': space_cost,
+            },
+            'equipment': equipment_items,
+            'total': total_price,
+        }
+        
     except ValueError as e:
         return jsonify({'message': str(e)}), 400
-    return jsonify(response_schema.dump(reservation)), 201
+    return jsonify(result), 201
 
 
 @bp.route('/<int:reservation_id>', methods=['PUT'])

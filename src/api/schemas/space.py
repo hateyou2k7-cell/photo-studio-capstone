@@ -1,7 +1,9 @@
 from marshmallow import Schema, fields
 
+SPACE_TYPES = ['darkroom', 'studio', 'standard', 'vip', 'conference']
+
 class SpaceRequestSchema(Schema):
-    provider_id = fields.Int(required=True)
+    provider_id = fields.Int(required=False, allow_none=True)
     name = fields.Str(required=True)
     space_type = fields.Str(required=True)
     description = fields.Str(required=False, allow_none=True)
@@ -12,7 +14,7 @@ class SpaceRequestSchema(Schema):
 
 class SpaceResponseSchema(Schema):
     id = fields.Int(required=True)
-    provider_id = fields.Int(required=True)
+    provider_id = fields.Int(required=False, allow_none=True)
     name = fields.Str(required=True)
     type = fields.Method('get_type')
     description = fields.Str(required=False, allow_none=True)

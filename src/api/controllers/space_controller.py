@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from api.auth_middleware import jwt_required
 from api.pagination import paginate_list
 from services.space_service import SpaceService
 from database.repositories.space_repository import SpaceRepository
@@ -9,6 +10,15 @@ bp = Blueprint('space', __name__, url_prefix='/spaces')
 space_service = SpaceService(SpaceRepository())
 request_schema = SpaceRequestSchema()
 response_schema = SpaceResponseSchema()
+
+ADMIN_ROLES = {'admin', 'manager'}
+
+
+def _require_admin():
+    role = getattr(request, 'current_user_role', None)
+    if role not in ADMIN_ROLES:
+        return jsonify({'message': 'Only admin/manager can modify spaces'}), 403
+    return None
 
 
 @bp.route('/', methods=['GET'])
@@ -123,9 +133,10 @@ def get_space(space_id):
 
 
 @bp.route('/', methods=['POST'])
+@jwt_required
 def create_space():
     """
-    Create a new space (room)
+    Create a new space (room) - admin/manager only
     ---
     post:
       summary: Create a new space (room) for a provider
@@ -142,14 +153,19 @@ def create_space():
           description: Space created successfully
         400:
           description: Invalid input
+        403:
+          description: Only admin/manager
     """
+    err = _require_admin()
+    if err:
+        return err
     data = request.get_json()
     errors = request_schema.validate(data)
     if errors:
         return jsonify(errors), 400
     try:
         space = space_service.create(
-            provider_id=data['provider_id'],
+            provider_id=data.get('provider_id'),
             name=data['name'],
             space_type=data['space_type'],
             description=data.get('description'),
@@ -164,9 +180,10 @@ def create_space():
 
 
 @bp.route('/<int:space_id>', methods=['PUT'])
+@jwt_required
 def update_space(space_id):
     """
-    Update a space by id
+    Update a space by id - admin/manager only
     ---
     put:
       summary: Update a space (room) by id
@@ -189,9 +206,14 @@ def update_space(space_id):
           description: Space updated successfully
         400:
           description: Invalid input
+        403:
+          description: Only admin/manager
         404:
           description: Space not found
     """
+    err = _require_admin()
+    if err:
+        return err
     existing = space_service.get(space_id)
     if not existing:
         return jsonify({'message': 'Space not found'}), 404
@@ -202,7 +224,7 @@ def update_space(space_id):
     try:
         space = space_service.update(
             space_id=space_id,
-            provider_id=data['provider_id'],
+            provider_id=data.get('provider_id'),
             name=data['name'],
             space_type=data['space_type'],
             description=data.get('description'),
@@ -217,9 +239,10 @@ def update_space(space_id):
 
 
 @bp.route('/<int:space_id>', methods=['DELETE'])
+@jwt_required
 def delete_space(space_id):
     """
-    Delete a space by id
+    Delete a space by id - admin/manager only
     ---
     delete:
       summary: Delete a space (room) by id
@@ -234,9 +257,14 @@ def delete_space(space_id):
       responses:
         204:
           description: Space deleted successfully
+        403:
+          description: Only admin/manager
         404:
           description: Space not found
     """
+    err = _require_admin()
+    if err:
+        return err
     existing = space_service.get(space_id)
     if not existing:
         return jsonify({'message': 'Space not found'}), 404

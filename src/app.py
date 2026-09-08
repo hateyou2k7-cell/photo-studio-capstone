@@ -3,7 +3,6 @@ import os
 # from api.routes import register_routes
 from api.swagger import spec
 from api.controllers.auth_controller import auth_bp as auth_bp
-from api.controllers.room_controller import bp as room_bp
 from api.controllers.space_image_controller import bp as space_image_bp
 from api.controllers.space_schedule_controller import bp as space_schedule_bp
 from api.controllers.space_controller import bp as space_bp
@@ -31,7 +30,6 @@ def create_app():
     Swagger(app)
     # Đăng ký blueprint trước
     app.register_blueprint(auth_bp)
-    app.register_blueprint(room_bp)
     app.register_blueprint(space_image_bp)
     app.register_blueprint(space_schedule_bp)
     app.register_blueprint(space_bp)
@@ -51,7 +49,7 @@ def create_app():
     swaggerui_blueprint = get_swaggerui_blueprint(
         SWAGGER_URL,
         API_URL,
-        config={'app_name': "Todo API"}
+        config={'app_name': "Photo Studio API"}
     )
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
@@ -67,7 +65,7 @@ def create_app():
     with app.test_request_context():
         for rule in app.url_map.iter_rules():
             # Thêm các endpoint khác nếu cần
-            if rule.endpoint.startswith(('course.', 'user.', 'auth.', 'room.', 'space.', 'space_image.', 'space_schedule.', 'reservation.', 'billing.', 'equipment.', 'package_booking.', 'chatbot.', 'recommendation.', 'todo.')):
+            if rule.endpoint.startswith(('course.', 'user.', 'auth.', 'space.', 'space_image.', 'space_schedule.', 'reservation.', 'billing.', 'equipment.', 'package_booking.', 'chatbot.', 'recommendation.', 'todo.')):
                 view_func = app.view_functions[rule.endpoint]
                 print(f"Adding path: {rule.rule} -> {view_func}")
                 spec.path(view=view_func)
@@ -157,26 +155,12 @@ input,select,textarea{font-size:12px !important}
 </div>
 </div>
 
-<!-- ROOMS -->
-<div class="section">
-<h2>2. Rooms</h2>
-<div class="form-row">
-<input id="r-name" placeholder="Ten room">
-<select id="r-type"><option value="standard">Standard</option><option value="vip">VIP</option><option value="studio">Studio</option><option value="conference">Conference</option></select>
-<input id="r-cap" type="number" value="10" min="1">
-<input id="r-price" type="number" value="150000" min="0">
-<button class="btn btn-green" onclick="createRoom()">Tao</button>
-<button class="btn btn-blue" onclick="loadRooms()">Load</button>
-</div>
-<table><thead><tr><th>ID</th><th>Ten</th><th>Loai</th><th>Chua</th><th>Gia/gio</th><th>TT</th><th></th></tr></thead><tbody id="rl"></tbody></table>
-</div>
-
 <!-- SPACES -->
 <div class="section">
-<h2>3. Spaces</h2>
+<h2>2. Spaces (gộp rooms + spaces)</h2>
 <div class="form-row">
-<input id="sp-name" placeholder="Ten space">
-<select id="sp-type"><option value="studio">Studio</option><option value="darkroom">Darkroom</option><option value="outdoor">Outdoor</option></select>
+<input id="sp-name" placeholder="Ten space/phong">
+<select id="sp-type"><option value="studio">Studio</option><option value="darkroom">Darkroom</option><option value="standard">Standard</option><option value="vip">VIP</option><option value="conference">Conference</option></select>
 <input id="sp-price" type="number" value="150000" min="0">
 <input id="sp-cap" type="number" value="5" min="1">
 <button class="btn btn-green" onclick="createSpace()">Tao</button>
@@ -188,7 +172,7 @@ input,select,textarea{font-size:12px !important}
 
 <!-- EQUIPMENT -->
 <div class="section">
-<h2>4. Equipment</h2>
+<h2>3. Equipment</h2>
 <div class="form-row">
 <input id="eq-name" placeholder="Ten thiet bi">
 <select id="eq-type"><option value="camera">Camera</option><option value="lighting">Lighting</option><option value="tripod">Tripod</option><option value="enlarger">Enlarger</option><option value="scanner">Scanner</option><option value="tank">Tank</option><option value="other">Other</option></select>
@@ -201,20 +185,24 @@ input,select,textarea{font-size:12px !important}
 
 <!-- RESERVATIONS -->
 <div class="section">
-<h2>5. Reservations (can JWT token)</h2>
+<h2>4. Reservations + Invoice (can JWT token)</h2>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
 <div class="card">
 <h2>Tao reservation moi</h2>
 <div class="form-row"><label style="width:100%;font-size:11px;color:#888">User (dang nhap)</label><input id="res-uid" type="number" placeholder="User ID" readonly style="background:#222"></div>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">Ten KH</label><input id="res-cname" placeholder="Ten khach hang"></div>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">Email KH</label><input id="res-cemail" placeholder="Email" type="email"></div>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">Phone KH</label><input id="res-cphone" placeholder="So dien thoai"></div>
 <div class="form-row"><label style="width:100%;font-size:11px;color:#888">Phong (Space)</label><select id="res-sid" onchange="calcResPrice()"><option value="">-- Chon phong --</option></select></div>
+<div class="form-row"><label style="width:100%;font-size:11px;color:#888">Thiet bi (chon nhieu)</label><select id="res-eq" multiple style="height:80px"><option value="">-- Chon thiet bi --</option></select></div>
 <div class="form-row"><label style="width:100%;font-size:11px;color:#888">Ngay bat dau</label><input id="res-start" type="datetime-local" onchange="calcResPrice()" oninput="calcResPrice()"></div>
 <div class="form-row"><label style="width:100%;font-size:11px;color:#888">Ngay ket thuc</label><input id="res-end" type="datetime-local" onchange="calcResPrice()" oninput="calcResPrice()"></div>
 <div style="background:#0d1117;border:1px solid #0f3460;border-radius:6px;padding:10px;margin:8px 0">
-<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px"><span>Don gia:</span><span id="res-unit">—</span></div>
-<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px"><span>Thoi luong:</span><span id="res-hours">—</span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px"><span>Tien phong:</span><span id="res-space-cost">—</span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px"><span>Tien thiet bi:</span><span id="res-eq-cost">—</span></div>
 <div style="display:flex;justify-content:space-between;font-size:14px;color:#4caf50;font-weight:bold;border-top:1px solid #0f3460;padding-top:6px;margin-top:4px"><span>Tong cong:</span><span id="res-total">—</span></div>
 </div>
-<button class="btn btn-green" onclick="createReservation()">Tao reservation</button>
+<button class="btn btn-green" onclick="createReservation()">Tao reservation + Hoa don</button>
 </div>
 <div class="card">
 <h2>Danh sach reservation</h2>
@@ -226,7 +214,7 @@ input,select,textarea{font-size:12px !important}
 
 <!-- BILLING -->
 <div class="section">
-<h2>6. Billing (can JWT token)</h2>
+<h2>5. Billing (tu dong tao tu reservation)</h2>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
 <div class="card">
 <h2>Khach hang</h2>
@@ -255,7 +243,7 @@ input,select,textarea{font-size:12px !important}
 
 <!-- PACKAGE BOOKINGS -->
 <div class="section">
-<h2>7. Package Bookings</h2>
+<h2>6. Package Bookings</h2>
 <div class="form-row">
 <input id="bk-pkg" type="number" placeholder="Package ID" value="1">
 <input id="bk-sp" type="number" placeholder="Space ID" value="1">
@@ -270,7 +258,7 @@ input,select,textarea{font-size:12px !important}
 
 <!-- COURSES -->
 <div class="section">
-<h2>8. Courses</h2>
+<h2>7. Courses</h2>
 <div class="form-row">
 <input id="co-name" placeholder="Ten khoa hoc">
 <input id="co-desc" placeholder="Mo ta">
@@ -280,7 +268,7 @@ input,select,textarea{font-size:12px !important}
 
 <!-- TODOS -->
 <div class="section">
-<h2>9. Todos</h2>
+<h2>8. Todos</h2>
 <div class="form-row">
 <input id="todo-title" placeholder="Tieu de">
 <input id="todo-desc" placeholder="Mo ta" style="flex:2">
@@ -338,7 +326,7 @@ input,select,textarea{font-size:12px !important}
 <h2>11. Custom API Test</h2>
 <div class="form-row">
 <select id="method"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option></select>
-<input id="api-path" placeholder="/rooms/" value="/rooms/">
+<input id="api-path" placeholder="/spaces/" value="/spaces/">
 <button class="btn btn-blue" onclick="runApi()">Go</button>
 <button class="btn btn-red" onclick="document.getElementById('output').style.display='none'">Clear</button>
 </div>
@@ -396,14 +384,9 @@ async function apiCall(method,path,body,auth){
   return{status:r.status,data:d,ok:r.ok};
 }
 
-// ROOMS
-async function loadRooms(){const{data}=await apiCall('GET','/rooms/');const tb=document.getElementById('rl');tb.innerHTML='';(Array.isArray(data)?data:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+r.room_type+'</td><td>'+r.capacity+'</td><td>'+Number(r.price_per_hour).toLocaleString()+'</td><td>'+r.status+'</td><td><button class="btn btn-red" onclick="delRoom('+r.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(data)||!data.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong co room</td></tr>'}
-async function createRoom(){const d={name:document.getElementById('r-name').value,room_type:document.getElementById('r-type').value,capacity:parseInt(document.getElementById('r-cap').value),price_per_hour:parseFloat(document.getElementById('r-price').value),status:'available'};if(!d.name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/rooms/',d);showMsg(ok?'Tao thanh cong: '+data.name:(data.message||'Loi'),ok);if(ok)loadRooms()}
-async function delRoom(id){if(!confirm('Xoa room #'+id+'?'))return;const{ok}=await apiCall('DELETE','/rooms/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadRooms()}
-
 // SPACES
 async function loadSpaces(){const{data}=await apiCall('GET','/spaces/');const items=data.items||data;const tb=document.getElementById('spl');tb.innerHTML='';(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.space_type||r.type||'-')+'</td><td>'+Number(r.base_price_per_hour||0).toLocaleString()+'</td><td>'+r.max_capacity+'</td><td>'+(r.status?'Active':'Inactive')+'</td><td><button class="btn btn-red" onclick="delSpace('+r.id+')">Xoa</button></td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong co space</td></tr>'}
-async function createSpace(){if(!PROVIDER_ID){toast('Ban can dang nhap voi tai khoan provider de tao space!','err');return}const d={provider_id:PROVIDER_ID,name:document.getElementById('sp-name').value,space_type:document.getElementById('sp-type').value,base_price_per_hour:parseFloat(document.getElementById('sp-price').value),max_capacity:parseInt(document.getElementById('sp-cap').value),status:true};if(!d.name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/spaces/',d);showMsg(ok?'Tao thanh cong: '+data.name:(data.message||'Loi'),ok);if(ok)loadSpaces()}
+async function createSpace(){const d={provider_id:PROVIDER_ID,name:document.getElementById('sp-name').value,space_type:document.getElementById('sp-type').value,base_price_per_hour:parseFloat(document.getElementById('sp-price').value),max_capacity:parseInt(document.getElementById('sp-cap').value),status:true};if(!d.name){showMsg('Nhap ten!',false);return}const{ok,data}=await apiCall('POST','/spaces/',d);showMsg(ok?'Tao thanh cong: '+data.name:(data.message||'Loi'),ok);if(ok)loadSpaces()}
 async function delSpace(id){if(!confirm('Xoa space #'+id+'?'))return;const{ok}=await apiCall('DELETE','/spaces/'+id);showMsg(ok?'Da xoa':'Khong xoa duoc',ok);if(ok)loadSpaces()}
 async function searchSpaces(){const q=document.getElementById('sp-name').value||'studio';const{data}=await apiCall('GET','/spaces/search?q='+encodeURIComponent(q));const items=data.items||data;const tb=document.getElementById('spl');tb.innerHTML='';(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.name+'</td><td>'+(r.space_type||r.type||'-')+'</td><td>'+Number(r.base_price_per_hour||0).toLocaleString()+'</td><td>'+r.max_capacity+'</td><td>'+(r.status?'Active':'Inactive')+'</td><td>-</td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#666">Khong tim thay</td></tr>'}
 
@@ -414,6 +397,7 @@ async function delEquipment(id){if(!confirm('Xoa thiet bi #'+id+'?'))return;cons
 
 // RESERVATIONS
 let RES_SPACES=[];
+let RES_EQUIPMENT=[];
 async function loadResSpaces(){
   const{data}=await apiCall('GET','/spaces/');
   const items=data.items||data;
@@ -422,24 +406,39 @@ async function loadResSpaces(){
   sel.innerHTML='<option value="">-- Chon phong --</option>';
   RES_SPACES.forEach(s=>{sel.innerHTML+='<option value="'+s.id+'">'+s.name+' ('+s.type+') - '+Number(s.base_price_per_hour||0).toLocaleString()+'d/gio</option>'});
 }
+async function loadResEquipment(){
+  const{data}=await apiCall('GET','/api/v1/equipment');
+  const items=data.items||data;
+  RES_EQUIPMENT=Array.isArray(items)?items:[];
+  const sel=document.getElementById('res-eq');
+  sel.innerHTML='';
+  RES_EQUIPMENT.forEach(e=>{sel.innerHTML+='<option value="'+e.id+'">'+e.name+' - '+Number(e.price_per_hour||0).toLocaleString()+'d/gio</option>'});
+}
 function calcResPrice(){
   const sid=document.getElementById('res-sid').value;
   const s=document.getElementById('res-start').value;
   const e=document.getElementById('res-end').value;
-  const unitEl=document.getElementById('res-unit');
-  const hoursEl=document.getElementById('res-hours');
+  const eqSel=document.getElementById('res-eq');
+  const spaceCostEl=document.getElementById('res-space-cost');
+  const eqCostEl=document.getElementById('res-eq-cost');
   const totalEl=document.getElementById('res-total');
-  if(!sid){unitEl.textContent='—';hoursEl.textContent='—';totalEl.textContent='—';return}
+  if(!sid||!s||!e){spaceCostEl.textContent='—';eqCostEl.textContent='—';totalEl.textContent='—';return}
   const space=RES_SPACES.find(x=>x.id==sid);
   if(!space)return;
-  const price=space.base_price_per_hour||0;
-  unitEl.textContent=Number(price).toLocaleString()+'d/gio';
-  if(!s||!e){hoursEl.textContent='—';totalEl.textContent='—';return}
+  const spacePrice=space.base_price_per_hour||0;
   const ms=new Date(e)-new Date(s);
   const hours=ms/3600000;
-  if(hours<=0){hoursEl.textContent='Khong hop le';totalEl.textContent='—';return}
-  hoursEl.textContent=(hours%1===0?hours:hours.toFixed(1))+' gio';
-  totalEl.textContent=Number(Math.round(hours*price)).toLocaleString()+'d';
+  if(hours<=0){spaceCostEl.textContent='Khong hop le';eqCostEl.textContent='—';totalEl.textContent='—';return}
+  const spaceCost=Math.round(spacePrice*hours);
+  spaceCostEl.textContent=Number(spaceCost).toLocaleString()+'d ('+hours.toFixed(1)+'h x '+Number(spacePrice).toLocaleString()+'d)';
+  let eqCost=0;
+  const selectedEq=Array.from(eqSel.selectedOptions).map(o=>parseInt(o.value)).filter(v=>v);
+  selectedEq.forEach(eqId=>{
+    const eq=RES_EQUIPMENT.find(x=>x.id==eqId);
+    if(eq)eqCost+=Math.round((eq.price_per_hour||0)*hours);
+  });
+  eqCostEl.textContent=Number(eqCost).toLocaleString()+'d ('+selectedEq.length+' thiet bi)';
+  totalEl.textContent=Number(spaceCost+eqCost).toLocaleString()+'d';
 }
 async function loadReservations(){const uid=localStorage.getItem('user_id');const{ok,data}=await apiCall('GET','/v1/reservations/');const tb=document.getElementById('resl');if(!ok){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#666">'+(data.error||data.message||'Loi load')+'</td></tr>';return}const items=data.items||data;tb.innerHTML='';const loggedIn=!!TOKEN;(Array.isArray(items)?items:[]).forEach(r=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+r.id+'</td><td>'+r.user_id+'</td><td>'+(r.space_id||'-')+'</td><td>'+(r.start_time||'').slice(0,16)+'</td><td>'+(r.end_time||'').slice(0,16)+'</td><td>'+Number(r.total_price||0).toLocaleString()+'</td><td>'+r.status+'</td><td>'+(loggedIn?'<button class=\"btn btn-orange\" onclick=\"confirmRes('+r.id+')\">Confirm</button> <button class=\"btn btn-blue\" onclick=\"approveRes('+r.id+')\">Approve</button>':'-')+'</td>';tb.appendChild(tr)});if(!Array.isArray(items)||!items.length)tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#666">Khong co reservation</td></tr>'}
 async function createReservation(){
@@ -447,6 +446,11 @@ async function createReservation(){
   const sid=parseInt(document.getElementById('res-sid').value);
   const s=document.getElementById('res-start').value;
   const e=document.getElementById('res-end').value;
+  const cname=document.getElementById('res-cname').value;
+  const cemail=document.getElementById('res-cemail').value;
+  const cphone=document.getElementById('res-cphone').value;
+  const eqSel=document.getElementById('res-eq');
+  const equipmentIds=Array.from(eqSel.selectedOptions).map(o=>parseInt(o.value)).filter(v=>v);
   if(!uid){toast('Ban can dang nhap!','err');return}
   if(!sid){toast('Chon phong!','err');return}
   if(!s||!e){toast('Chon ngay bat dau va ket thuc!','err');return}
@@ -455,12 +459,14 @@ async function createReservation(){
   if(hours<=0){toast('Gio ket thuc phai sau gio bat dau!','err');return}
   const space=RES_SPACES.find(x=>x.id==sid);
   if(!space){toast('Phong khong ton tai!','err');return}
-  const total=Math.round(hours*(space.base_price_per_hour||0));
   const pid=space.provider_id;
-  const d={user_id:parseInt(uid),provider_id:pid,space_id:sid,start_time:s+':00',end_time:e+':00',total_price:total};
+  const d={user_id:parseInt(uid),provider_id:pid,space_id:sid,start_time:s+':00',end_time:e+':00',equipment_ids:equipmentIds,customer_name:cname,customer_email:cemail,customer_phone:cphone};
   const{ok,data}=await apiCall('POST','/v1/reservations/',d,true);
-  showMsg(ok?'Tao reservation #'+data.id+' thanh cong! Tong: '+Number(total).toLocaleString()+'d':(data.message||'Loi'),ok);
-  if(ok)loadReservations()}
+  if(ok){
+    const msg='Tao reservation #'+data.id+' + Invoice #'+data.invoice_id+' thanh cong! Tong: '+Number(data.invoice_total||0).toLocaleString()+'d';
+    toast(msg,true);
+    loadReservations();loadInvoices();
+  }else toast(data.message||'Loi',false)}
 async function confirmRes(id){const{ok,data}=await apiCall('POST','/v1/reservations/'+id+'/confirm',null,true);showMsg(ok?'Confirmed #'+id:(data.message||'Loi'),ok);loadReservations()}
 async function approveRes(id){const{ok,data}=await apiCall('POST','/v1/reservations/'+id+'/approve',null,true);showMsg(ok?'Approved #'+id:(data.message||'Loi'),ok);loadReservations()}
 
@@ -528,9 +534,10 @@ async function getRecommendations(){const uid=document.getElementById('rec-uid')
 async function runApi(){const m=document.getElementById('method').value;const p=document.getElementById('api-path').value;const bodyStr=document.getElementById('api-body').value;let body=null;if(bodyStr)try{body=JSON.parse(bodyStr)}catch(e){showMsg('JSON body khong hop le!',false);return}const out=document.getElementById('output');out.style.display='block';out.textContent='Loading '+m+' '+p+'...';const{status,data}=await apiCall(m,p,body,true);out.textContent=m+' '+p+'\nStatus: '+status+'\n\n'+JSON.stringify(data,null,2)}
 
 // Auto load
-loadRooms();
+loadSpaces();
 loadEquipment();
 loadResSpaces();
+loadResEquipment();
 loadReservations();
 if(TOKEN){loadBookings();loadCustomers();loadProducts();loadInvoices()}
 (function(){const uid=localStorage.getItem('user_id');if(uid){document.getElementById('res-uid').value=uid}})();
@@ -560,4 +567,4 @@ if(TOKEN){loadBookings();loadCustomers();loadProducts();loadInvoices()}
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='0.0.0.0', port=9999, debug=True)
+    app.run(host='localhost', port=9999, debug=True)

@@ -5,7 +5,7 @@ Photo Studio Capstone Backend REST API.
 **Base URL**: `http://localhost:9999`
 **Swagger UI**: http://localhost:9999/docs
 
-Tổng: **75 endpoints**, trong đó **22 endpoints yêu cầu JWT**.
+Tổng: **65 endpoints**, trong đó **25 endpoints yêu cầu JWT**.
 
 ---
 
@@ -29,7 +29,7 @@ POST /auth/login
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
-  "username": "user1"
+  "user_id": 1
 }
 ```
 
@@ -61,9 +61,9 @@ POST /auth/signup
 ```
 
 Đăng ký tự động tạo records:
-- `auth_users`: username, email, password_hash (dùng cho login)
-- `users`: email, password_hash, full_name, role (dùng cho reservation, billing...)
-- Nếu `role=provider`: tự tạo `provider_profiles` record (status=pending)
+- `users`: username, email, password_hash, full_name, role (dùng cho tất cả)
+
+Nếu `role=provider`: tự tạo `provider_profiles` record (status=pending).
 
 ### Health check
 
@@ -85,41 +85,29 @@ JWT payload chứa: `user_id`, `role`, `exp`.
 
 ---
 
-## Rooms (Legacy)
+## Spaces (gộp rooms + spaces)
 
-Bảng `rooms` riêng biệt với `spaces`. CRUD đầy đủ, **không yêu cầu JWT**.
+Quản lý không gian (darkroom, studio, standard, vip, conference).
 
-```
-GET    /rooms/              Danh sách
-GET    /rooms/{id}          Chi tiết
-POST   /rooms/              Tạo          @jwt_required: NO
-PUT    /rooms/{id}          Sửa          @jwt_required: NO
-DELETE /rooms/{id}          Xóa          @jwt_required: NO
-```
-
-**Room Types**: `standard`, `vip`, `studio`, `conference`
-**Status**: `available`, `booked`, `maintenance`
-
----
-
-## Spaces
-
-Quản lý không gian nhiếp ảnh (darkroom, studio). **Không yêu cầu JWT**.
-
-### CRUD
+### Public (ai cũng xem được)
 
 ```
 GET    /spaces/                    Danh sách (paginated)
 GET    /spaces/search              Tìm kiếm với filters
 GET    /spaces/{id}                Chi tiết
-POST   /spaces/                    Tạo
-PUT    /spaces/{id}                Sửa
-DELETE /spaces/{id}                Xóa
+```
+
+### CRUD (chỉ admin/manager)
+
+```
+POST   /spaces/                    Tạo          @jwt_required: YES (admin/manager)
+PUT    /spaces/{id}                Sửa          @jwt_required: YES (admin/manager)
+DELETE /spaces/{id}                Xóa          @jwt_required: YES (admin/manager)
 ```
 
 **Search filters** (`/spaces/search`):
 - `q` (string): Từ khóa
-- `space_type` (string): `darkroom` | `studio`
+- `space_type` (string): `darkroom` | `studio` | `standard` | `vip` | `conference`
 - `min_price` (number): Giá tối thiểu
 - `max_price` (number): Giá tối đa
 - `min_capacity` (int): Sức chứa tối thiểu
@@ -139,7 +127,9 @@ DELETE /spaces/{id}                Xóa
 }
 ```
 
-**Lưu ý**: Domain model có nhiều fields hơn (art_style, lighting, ventilation, acoustics, amenities, operating_hours, latitude, longitude) nhưng schema hiện tại chỉ validate các field trên.
+`provider_id` là optional (rooms không cần provider).
+
+**Space Types**: `darkroom`, `studio`, `standard`, `vip`, `conference`
 
 ---
 
@@ -183,9 +173,9 @@ DELETE /spaces/{id}/schedule/{schedule_id}      Xóa
 
 ---
 
-## Reservations
+## Reservations + Invoice (liên kết)
 
-Đặt chỗ với state machine và conflict detection. **11/17 endpoints yêu cầu JWT**.
+Đặt chỗ + tự tạo hóa đơn. **25 endpoints yêu cầu JWT**.
 
 ### Danh sách & Chi tiết (public)
 
@@ -196,26 +186,61 @@ GET    /v1/reservations/{id}                Chi tiết
 
 **Filters**: `user_id`, `provider_id`, `status`
 
-### CRUD (JWT required)
+### Tạo Reservation + Invoice (JWT required)
 
 ```
-POST   /v1/reservations/                    Tạo đặt chỗ
-PUT    /v1/reservations/{id}                Sửa
-DELETE /v1/reservations/{id}                Xóa
+POST   /v1/reservations/                    Tạo đặt chỗ + tự tạo invoice
 ```
 
 **Request**:
 ```json
 {
-  "user_id": 1,
-  "provider_id": 2,
-  "space_id": 4,
-  "package_id": null,
-  "start_time": "2026-11-01T09:00:00",
-  "end_time": "2026-11-01T11:00:00",
-  "total_price": 400000,
-  "qr_code": "RES-001"
+  "customer_name": "Nguyen Van A",
+  "customer_email": "a@test.com",
+  "customer_phone": "0909123456",
+  "space_id": 1,
+  "equipment_ids": [1, 2, 3],
+  "start_time": "2026-09-10T09:00",
+  "end_time": "2026-09-10T12:00",
+  "provider_id": 1
 }
+```
+
+**Response** (201):
+```json
+{
+  "id": 1,
+  "invoice_id": 1,
+  "invoice_total": 450000,
+  "breakdown": {
+    "space": {
+      "name": "Studio A",
+      "price_per_hour": 150000,
+      "hours": 2,
+      "total": 300000
+    },
+    "equipment": [
+      {"id": 1, "name": "Camera Canon", "price_per_hour": 50000, "total": 100000}
+    ],
+    "total": 450000
+  }
+}
+```
+
+**Flow**:
+1. Kiểm tra space tồn tại + trống lịch
+2. Tính giá: space_price × hours + sum(equipment_price × hours)
+3. Tạo Reservation (status=pending)
+4. Tạo Customer trong Billing
+5. Tạo Invoice (status=pending) với items:
+   - Item 1: Space rental
+   - Item 2..N: Equipment rental
+
+### Cập nhật & Xóa (JWT required)
+
+```
+PUT    /v1/reservations/{id}                Sửa
+DELETE /v1/reservations/{id}                Xóa
 ```
 
 ### State transitions (JWT required)
@@ -239,7 +264,7 @@ POST   /v1/reservations/{id}/items          Thêm item (public)
 
 ```json
 {
-  "item_type": "equipment",
+  "item_type": "resource",
   "item_id": 1,
   "quantity": 1,
   "price_at_booking": 100000
@@ -255,6 +280,8 @@ POST   /v1/reservations/{id}/payment/confirm  Xác nhận (JWT required)
 ```
 
 **Payment methods**: `vnpay`, `momo`, `cash`
+
+> **Note**: Payment là placeholder. QR code sẽ được thêm sau.
 
 ### Reviews
 

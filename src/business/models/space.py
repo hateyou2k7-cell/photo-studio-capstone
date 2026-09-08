@@ -1,5 +1,5 @@
 class Space:
-    def __init__(self, id, provider_id, name, space_type, description=None, address=None,
+    def __init__(self, id, provider_id=None, name=None, space_type=None, description=None, address=None,
                  max_capacity=None, dimensions=None, art_style=None, lighting=None,
                  ventilation=None, acoustics=None, amenities=None, operating_hours=None,
                  base_price_per_hour=0, status=True, created_at=None, updated_at=None):

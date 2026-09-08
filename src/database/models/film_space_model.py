@@ -8,6 +8,9 @@ from database.databases.base import Base
 class SpaceType(enum.Enum):
     darkroom = 'darkroom'
     studio = 'studio'
+    standard = 'standard'
+    vip = 'vip'
+    conference = 'conference'
 
 
 class ResourceCategory(enum.Enum):
@@ -25,7 +28,7 @@ class Space(Base):
     __tablename__ = 'spaces'
 
     id = Column(BigInteger, primary_key=True)
-    provider_id = Column(BigInteger, ForeignKey('provider_profiles.id'), nullable=False)
+    provider_id = Column(BigInteger, ForeignKey('provider_profiles.id'), nullable=True)
     name = Column(String(255), nullable=False)
     type = Column(String(50), nullable=False)
     description = Column(Text)

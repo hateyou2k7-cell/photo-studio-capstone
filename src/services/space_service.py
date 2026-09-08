@@ -2,18 +2,18 @@ from typing import List, Optional
 from business.models.space import Space
 from business.models.ispace_repository import ISpaceRepository
 
-SPACE_TYPES = {'darkroom', 'studio'}
+SPACE_TYPES = {'darkroom', 'studio', 'standard', 'vip', 'conference'}
 
 
 class SpaceService:
     def __init__(self, repository: ISpaceRepository):
         self.repository = repository
 
-    def create(self, provider_id: int, name: str, space_type: str, description=None,
+    def create(self, provider_id=None, name=None, space_type=None, description=None,
                address=None, max_capacity=None, base_price_per_hour=0, status=True,
                **optional) -> Space:
         if space_type not in SPACE_TYPES:
-            raise ValueError("space_type must be 'darkroom' or 'studio'")
+            raise ValueError("space_type must be one of: darkroom, studio, standard, vip, conference")
         space = Space(id=None, provider_id=provider_id, name=name, space_type=space_type,
                       description=description, address=address, max_capacity=max_capacity,
                       base_price_per_hour=base_price_per_hour, status=status)
@@ -35,11 +35,11 @@ class SpaceService:
             raise ValueError('min_price cannot be greater than max_price')
         return self.repository.search(filters)
 
-    def update(self, space_id: int, provider_id: int, name: str, space_type: str,
+    def update(self, space_id: int, provider_id=None, name=None, space_type=None,
                description=None, address=None, max_capacity=None,
                base_price_per_hour=0, status=True, **optional) -> Space:
         if space_type not in SPACE_TYPES:
-            raise ValueError("space_type must be 'darkroom' or 'studio'")
+            raise ValueError("space_type must be one of: darkroom, studio, standard, vip, conference")
         existing = self.repository.get_by_id(space_id)
         if not existing:
             raise ValueError('Space not found')

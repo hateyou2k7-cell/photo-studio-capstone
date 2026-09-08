@@ -107,10 +107,10 @@ users ──(1:N)──> posts ──(1:N)──> comments
 users ──(1:N)──> workshops ──(1:N)──> workshop_registrations
 users ──(1:N)──> conversations ──(1:N)──> messages
 ```
-
 ### Auth
+
 ```
-auth_users ──(M:N)──> auth_roles ──(M:N)──> auth_functions
+users (gộp auth_users + users) ──(M:N)──> auth_roles ──(M:N)──> auth_functions
 ```
 
 ### Billing
@@ -133,17 +133,18 @@ flask_user ──(1:N)──> feedbacks ──(N:1)──> courses
 
 ### 1. users
 
-Bảng người dùng chính.
+Bảng người dùng chính (gộp auth_users + users).
 
 ```sql
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     avatar_url VARCHAR(500),
-    role VARCHAR(50) NOT NULL DEFAULT 'photographer',
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
@@ -152,7 +153,7 @@ CREATE TABLE users (
 
 **Enums**: `role` = `user` | `photographer` | `provider` | `expert` | `admin`
 
-> **Lưu ý**: Khi đăng ký qua API, user có thể chọn role (`user`, `photographer`, `provider`, `expert`). Role `admin` bị từ chối khi signup. Nếu role=provider, tự tạo `provider_profiles` record (status=pending).
+> **Lưu ý**: Bảng `auth_users` đã được gộp vào `users`. Bảng `auth_users` vẫn tồn tại trong DB để backward compatibility nhưng mọi logic đã chuyển sang dùng `users`.
 
 ---
 
@@ -178,12 +179,12 @@ CREATE TABLE provider_profiles (
 
 ### 3. spaces
 
-Không gian nhiếp ảnh.
+Không gian nhiếp ảnh (hỗ trợ cả darkroom, studio, standard, vip, conference).
 
 ```sql
 CREATE TABLE spaces (
     id BIGSERIAL PRIMARY KEY,
-    provider_id BIGINT REFERENCES provider_profiles(id) NOT NULL,
+    provider_id BIGINT REFERENCES provider_profiles(id),
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL,
     description TEXT,
@@ -205,10 +206,10 @@ CREATE TABLE spaces (
 );
 ```
 
-**Enums**: `type` = `darkroom` | `studio`
+**Enums**: `type` = `darkroom` | `studio` | `standard` | `vip` | `conference`
 
 **Relationships**:
-- `provider_id` → provider_profiles.id
+- `provider_id` → provider_profiles.id (optional - rooms không cần provider)
 - 1:N → space_images, space_schedules, equipments
 - M:N → resources (qua space_resources)
 
@@ -576,7 +577,7 @@ CREATE TABLE messages (
 
 ---
 
-### 25. rooms (Legacy)
+### 25. rooms (DEPRECATED - đã chuyển sang spaces)
 
 ```sql
 CREATE TABLE rooms (
@@ -594,9 +595,11 @@ CREATE TABLE rooms (
 
 **Enums**: `room_type` = `standard` | `vip` | `studio` | `conference`
 
+> **DEPRECATED**: Bảng `rooms` đã được thay thế bằng `spaces` với các type: `standard`, `vip`, `conference`. API `/rooms` vẫn hoạt động nhưng nên chuyển sang `/spaces`.
+
 ---
 
-### 26. auth_users
+### 26. auth_users (DEPRECATED - đã gộp vào users)
 
 ```sql
 CREATE TABLE auth_users (
@@ -607,6 +610,8 @@ CREATE TABLE auth_users (
     created_at TIMESTAMP DEFAULT NOW()
 );
 ```
+
+> **DEPRECATED**: Bảng `auth_users` đã được gộp vào `users`. Mọi logic hiện dùng `users` table.
 
 ---
 
