@@ -51,15 +51,14 @@ function renderResults(items) {
 
   resultsArea.innerHTML = `<div class="grid">${items
     .map(
-      (eq) => `
+      (eq) => {
+        const imageUrl = `https://picsum.photos/seed/equipment_${eq.id}/400/300`;
+        const isAvailable = eq.is_available;
+        return `
     <div class="card" style="cursor:default;">
       <div class="card-thumb">
         <span class="type-tag">${TYPE_LABELS[eq.type] || eq.type}</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
-          <rect x="3" y="7" width="18" height="12" rx="2"/>
-          <circle cx="12" cy="13" r="3.4"/>
-          <path d="M8 7l1.2-2h5.6L16 7"/>
-        </svg>
+        <img src="${imageUrl}" alt="${escapeHtml(eq.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />
       </div>
       <div class="card-body">
         <h3>${escapeHtml(eq.name)}</h3>
@@ -70,13 +69,15 @@ function renderResults(items) {
         </div>
         ${eq.description ? `<div class="card-meta">${escapeHtml(eq.description)}</div>` : ""}
         <div class="card-price">${formatPrice(eq.price_per_hour)}đ <small>/ giờ</small></div>
-        <div style="margin-top:8px;">
-          <span class="status-pill ${eq.is_available ? "open" : "closed"}">
-            ${eq.is_available ? "Còn trống" : "Đang được thuê"}
+        <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+          <span class="status-pill ${isAvailable ? "open" : "closed"}">
+            ${isAvailable ? "Còn trống" : "Đang được thuê"}
           </span>
+          ${isAvailable ? `<a href="confirm.html?equipment_id=${eq.id}" class="btn btn-primary" style="width:auto;padding:6px 14px;font-size:0.8rem;">Thuê</a>` : ""}
         </div>
       </div>
-    </div>`
+    </div>`;
+      }
     )
     .join("")}</div>`;
 }

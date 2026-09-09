@@ -36,13 +36,23 @@ async function loadFeaturedSpaces() {
       area.innerHTML = `<div class="empty-state">Chưa có không gian nào khả dụng lúc này.</div>`;
       return;
     }
-    area.innerHTML = `<div class="grid">${items
+    // Fetch images for each space
+    const itemsWithImages = await Promise.all(items.map(async (space) => {
+      try {
+        const images = await SpaceApi.getImages(space.id);
+        const primary = images.find(img => img.is_primary) || images[0];
+        return { ...space, imageUrl: primary ? primary.url : null };
+      } catch {
+        return { ...space, imageUrl: null };
+      }
+    }));
+    area.innerHTML = `<div class="grid">${itemsWithImages
       .map(
         (space) => `
       <a class="card" href="detail.html?id=${space.id}">
         <div class="card-thumb">
           <span class="type-tag">${TYPE_LABELS[space.type] || space.type}</span>
-          ${iconForType(space.type)}
+          ${space.imageUrl ? `<img src="${space.imageUrl}" alt="${escapeHtml(space.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />` : iconForType(space.type)}
         </div>
         <div class="card-body">
           <h3>${escapeHtml(space.name)}</h3>

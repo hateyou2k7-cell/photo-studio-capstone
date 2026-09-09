@@ -9,6 +9,25 @@ function formatPrice(v) {
   return new Intl.NumberFormat("vi-VN").format(Math.round(v || 0));
 }
 
+async function uploadSpaceImages(spaceId, files) {
+  if (!files || files.length === 0) return;
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('images', file);
+  }
+  const token = AuthStore.getToken();
+  const res = await fetch(`${API_BASE}/spaces/${spaceId}/images`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Upload ảnh thất bại');
+  }
+  return res.json();
+}
+
 const tbody = document.getElementById("table-body");
 const countEl = document.getElementById("results-count");
 const modal = document.getElementById("form-modal");
@@ -36,6 +55,28 @@ async function openForm(space) {
 }
 
 document.getElementById("add-btn").addEventListener("click", () => openForm(null));
+
+document.getElementById("f-images").addEventListener("change", function(e) {
+  const preview = document.getElementById("image-preview");
+  preview.innerHTML = "";
+  const files = this.files;
+  if (!files.length) return;
+  for (const file of files) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = document.createElement("img");
+      img.src = ev.target.result;
+      img.style.width = "80px";
+      img.style.height = "80px";
+      img.style.objectFit = "cover";
+      img.style.borderRadius = "4px";
+      img.style.border = "1px solid var(--hairline)";
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
 document.getElementById("form-cancel").addEventListener("click", () => (modal.style.display = "none"));
 
 form.addEventListener("submit", async (e) => {
@@ -56,8 +97,14 @@ form.addEventListener("submit", async (e) => {
   const submitBtn = document.getElementById("form-submit");
   submitBtn.disabled = true;
   try {
-    if (id) await SpaceApi.update(id, payload);
-    else await SpaceApi.create(payload);
+    let result;
+    if (id) result = await SpaceApi.update(id, payload);
+    else result = await SpaceApi.create(payload);
+    const spaceId = result.id;
+    const files = document.getElementById("f-images").files;
+    if (files && files.length > 0) {
+      await uploadSpaceImages(spaceId, files);
+    }
     modal.style.display = "none";
     load();
   } catch (err) {
@@ -83,20 +130,29 @@ async function fetchProviderId() {
 }
 
 async function load() {
-  tbody.innerHTML = `<tr><td colspan="7">Đang tải...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="8">Đang tải...</td></tr>`;
   try {
     const data = await SpaceApi.list();
     const items = data.items || data || [];
     countEl.textContent = `${data.total ?? items.length} không gian`;
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="7">Chưa có không gian nào.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8">Chưa có không gian nào.</td></tr>`;
       return;
     }
-    tbody.innerHTML = items
+    // Fetch primary image for each space
+    const imagePromises = items.map(s => SpaceApi.getImages(s.id).catch(() => []));
+    const imageResults = await Promise.all(imagePromises);
+    const itemsWithImages = items.map((s, idx) => {
+      const images = imageResults[idx] || [];
+      const primary = images.find(img => img.is_primary) || images[0];
+      return { ...s, imageUrl: primary ? primary.url : null };
+    });
+    tbody.innerHTML = itemsWithImages
       .map(
         (s) => `
       <tr>
         <td>#${s.id}</td>
+        <td>${s.imageUrl ? `<img src="${s.imageUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;" />` : "—"}</td>
         <td>${escapeHtml(s.name)}</td>
         <td>${TYPE_LABELS[s.type] || s.type}</td>
         <td>${formatPrice(s.base_price_per_hour)}đ</td>
@@ -128,7 +184,7 @@ async function load() {
       })
     );
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="7">Không tải được dữ liệu: ${escapeHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">Không tải được dữ liệu: ${escapeHtml(err.message)}</td></tr>`;
   }
 }
 

@@ -89,6 +89,12 @@ const AuthStore = {
 // ------------------------------------------------------------
 function requireAdmin() {
   if (!AuthStore.isAdmin()) {
+    // If already on login page, don't redirect (prevent infinite loop)
+    if (window.location.pathname.includes('/login.html')) {
+      return false;
+    }
+    // Clear any stale token to prevent redirect loops
+    AuthStore.logout();
     const next = encodeURIComponent(window.location.pathname.replace(/^.*\/web\//, ""));
     window.location.href = `../login.html?next=${next}`;
     return false;

@@ -57,7 +57,7 @@ function renderResults(spaces) {
     <a class="card" href="detail.html?id=${space.id}">
       <div class="card-thumb">
         <span class="type-tag">${TYPE_LABELS[space.type] || space.type}</span>
-        ${iconForType(space.type)}
+        ${space.imageUrl ? `<img src="${space.imageUrl}" alt="${escapeHtml(space.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" />` : iconForType(space.type)}
       </div>
       <div class="card-body">
         <h3>${escapeHtml(space.name)}</h3>
@@ -83,8 +83,18 @@ async function runSearch() {
   try {
     const data = await SpaceApi.search(currentFilters());
     const items = data.items || [];
+    // Fetch images for all spaces
+    const itemsWithImages = await Promise.all(items.map(async (space) => {
+      try {
+        const images = await SpaceApi.getImages(space.id);
+        const primary = images.find(img => img.is_primary) || images[0];
+        return { ...space, imageUrl: primary ? primary.url : null };
+      } catch {
+        return { ...space, imageUrl: null };
+      }
+    }));
     resultsCount.textContent = `${data.total ?? items.length} kết quả`;
-    renderResults(items);
+    renderResults(itemsWithImages);
   } catch (err) {
     resultsArea.innerHTML = `<div class="error-state">Không tải được danh sách phòng: ${escapeHtml(
       err.message

@@ -137,19 +137,20 @@ def create_reservation():
         start_time = _parse_datetime(data['start_time'])
         end_time = _parse_datetime(data['end_time'])
         
-        # Get space info for pricing
-        space = space_service.get(data['space_id'])
-        if not space:
-            return jsonify({'message': 'Space not found'}), 404
-        
         # Calculate hours
         duration_hours = (end_time - start_time).total_seconds() / 3600
         if duration_hours <= 0:
             return jsonify({'message': 'Invalid time range'}), 400
         
-        # Calculate space cost
-        space_price = float(space.base_price_per_hour or 0)
-        space_cost = space_price * duration_hours
+        # Calculate space cost if space_id provided
+        space_cost = 0
+        space = None
+        if data.get('space_id'):
+            space = space_service.get(data['space_id'])
+            if not space:
+                return jsonify({'message': 'Space not found'}), 404
+            space_price = float(space.base_price_per_hour or 0)
+            space_cost = space_price * duration_hours
         
         # Get equipment info and calculate cost
         equipment_ids = data.get('equipment_ids', [])
@@ -184,22 +185,27 @@ def create_reservation():
             qr_code=data.get('qr_code'),
         )
         
-        # Add reservation items (space + equipment)
-        reservation_service.add_item(
-            reservation_id=reservation.id,
-            item_type='space',
-            item_id=data['space_id'],
-            quantity=1,
-            price_at_booking=space_cost,
-        )
-        for eq_id in equipment_ids:
+        # Add reservation items (space if provided + equipment)
+        if space:
             reservation_service.add_item(
                 reservation_id=reservation.id,
-                item_type='resource',
-                item_id=eq_id,
+                item_type='space',
+                item_id=space.id,
                 quantity=1,
-                price_at_booking=0,  # Will be calculated from equipment
+                price_at_booking=space_cost,
             )
+        for eq_id in equipment_ids:
+            eq = equipment_service.get(eq_id)
+            if eq:
+                eq_price = float(eq.price_per_hour or 0)
+                eq_cost = eq_price * duration_hours
+                reservation_service.add_item(
+                    reservation_id=reservation.id,
+                    item_type='resource',
+                    item_id=eq_id,
+                    quantity=1,
+                    price_at_booking=eq_cost,
+                )
         
         # Create customer in billing
         customer = billing_service.create_customer(
@@ -215,8 +221,8 @@ def create_reservation():
             status='pending',
         )
         
-        # Add invoice items: space rental
-        if space_cost > 0:
+        # Add invoice items: space rental (if any)
+        if space and space_cost > 0:
             billing_service.add_item(
                 invoice_id=invoice.id,
                 product_id=None,

@@ -4,7 +4,7 @@ from marshmallow import Schema, fields
 class ReservationRequestSchema(Schema):
     user_id = fields.Int(required=False, allow_none=True)
     provider_id = fields.Int(required=True)
-    space_id = fields.Int(required=True)
+    space_id = fields.Int(required=False, allow_none=True)
     package_id = fields.Int(required=False, allow_none=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)

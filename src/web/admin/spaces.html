@@ -35,10 +35,10 @@
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
-            <tr><th>ID</th><th>Tên</th><th>Loại</th><th>Giá/giờ</th><th>Sức chứa</th><th>Trạng thái</th><th>Hành động</th></tr>
+            <tr><th>ID</th><th>Ảnh</th><th>Tên</th><th>Loại</th><th>Giá/giờ</th><th>Sức chứa</th><th>Trạng thái</th><th>Hành động</th></tr>
           </thead>
           <tbody id="table-body">
-            <tr><td colspan="7">Đang tải...</td></tr>
+            <tr><td colspan="8">Đang tải...</td></tr>
           </tbody>
         </table>
       </div>
@@ -82,6 +82,12 @@
           <input type="checkbox" id="f-status" checked />
           <label for="f-status" style="margin:0;">Đang mở nhận đặt lịch</label>
         </div>
+        <div class="field">
+          <label>Ảnh không gian</label>
+          <input type="file" id="f-images" accept="image/*" multiple />
+          <small style="color:var(--muted);display:block;margin-top:4px;">Có thể chọn nhiều ảnh. Ảnh đầu tiên sẽ là ảnh đại diện.</small>
+        </div>
+        <div id="image-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
         <div class="inline-error" id="form-error" style="display:none;"></div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" id="form-cancel">Huỷ</button>
