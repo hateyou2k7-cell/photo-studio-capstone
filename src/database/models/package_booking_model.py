@@ -17,7 +17,7 @@ class PackageBooking(Base):
     id = Column(BigInteger, primary_key=True)
     package_id = Column(BigInteger, ForeignKey('service_packages.id'), nullable=False)
     space_id = Column(BigInteger, ForeignKey('spaces.id'), nullable=False)
-    customer_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    customer_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
     status = Column(String(50))

@@ -37,7 +37,7 @@ class Reservation(Base):
     __tablename__ = 'reservations'
 
     id = Column(BigInteger, primary_key=True)
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     provider_id = Column(BigInteger, ForeignKey('provider_profiles.id'), nullable=False)
     space_id = Column(BigInteger, ForeignKey('spaces.id'))
     package_id = Column(BigInteger, ForeignKey('service_packages.id'))
@@ -73,7 +73,7 @@ class Payment(Base):
 
     id = Column(BigInteger, primary_key=True)
     reservation_id = Column(BigInteger, ForeignKey('reservations.id'), nullable=False)
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     amount = Column(Numeric(12, 2), nullable=False)
     method = Column(String(50), nullable=False)
     status = Column(String(50), default='pending')
@@ -101,7 +101,7 @@ class Review(Base):
 
     id = Column(BigInteger, primary_key=True)
     reservation_id = Column(BigInteger, ForeignKey('reservations.id'))
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     space_id = Column(BigInteger, ForeignKey('spaces.id'))
     rating = Column(Integer, nullable=False)
     comment = Column(Text)

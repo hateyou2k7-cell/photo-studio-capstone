@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — Thiết bị</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a href="../index.html" class="brand display">Studio<span>Phim</span></a>
+      <nav>
+        <a href="index.html" data-admin-nav="dashboard">Tổng quan</a>
+        <a href="spaces.html" data-admin-nav="spaces">Không gian</a>
+        <a href="equipment.html" data-admin-nav="equipment">Thiết bị</a>
+        <a href="reservations.html" data-admin-nav="reservations">Đặt phòng</a>
+        <a href="billing.html" data-admin-nav="billing">Hoá đơn</a>
+        <a href="courses.html" data-admin-nav="courses">Khoá học</a>
+      </nav>
+      <a href="../index.html" class="admin-back">&larr; Về trang khách hàng</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topline">
+        <h1 class="display">Thiết bị</h1>
+        <div><span class="nav-user" id="admin-user"></span> · <a href="#" id="admin-logout">Đăng xuất</a></div>
+      </div>
+
+      <div class="toolbar">
+        <span class="results-count" id="results-count"></span>
+        <button class="btn btn-primary" id="add-btn">+ Thêm thiết bị</button>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>ID</th><th>Tên</th><th>Loại</th><th>Tình trạng</th><th>Giá/giờ</th><th>Trạng thái</th><th>Hành động</th></tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="7">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="form-modal" style="display:none;">
+    <div class="modal-box">
+      <h2 id="form-title">Thêm thiết bị</h2>
+      <form id="equip-form">
+        <input type="hidden" id="f-id" />
+        <div class="field">
+          <label>Provider ID</label>
+          <input type="number" id="f-provider" required />
+        </div>
+        <div class="field">
+          <label>Space ID (không bắt buộc)</label>
+          <input type="number" id="f-space" />
+        </div>
+        <div class="field">
+          <label>Tên thiết bị</label>
+          <input type="text" id="f-name" required />
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <input type="text" id="f-model" />
+        </div>
+        <div class="field">
+          <label>Loại</label>
+          <select id="f-type" required>
+            <option value="enlarger">Máy phóng ảnh</option>
+            <option value="camera">Máy ảnh</option>
+            <option value="scanner">Máy quét film</option>
+            <option value="lighting">Đèn / chiếu sáng</option>
+            <option value="tripod">Chân máy</option>
+            <option value="tank">Tank tráng film</option>
+            <option value="other">Khác</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tình trạng</label>
+          <select id="f-condition">
+            <option value="excellent">Rất tốt</option>
+            <option value="good" selected>Tốt</option>
+            <option value="fair">Tạm ổn</option>
+            <option value="poor">Kém</option>
+            <option value="broken">Hỏng</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Mô tả</label>
+          <input type="text" id="f-description" />
+        </div>
+        <div class="field">
+          <label>Giá / giờ (VNĐ)</label>
+          <input type="number" id="f-price" min="0" />
+        </div>
+        <div class="field checkbox-row">
+          <input type="checkbox" id="f-available" checked />
+          <label for="f-available" style="margin:0;">Còn trống cho thuê</label>
+        </div>
+        <div class="inline-error" id="form-error" style="display:none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="form-cancel">Huỷ</button>
+          <button type="submit" class="btn btn-primary" id="form-submit">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="js/equipment-admin.js"></script>
+</body>
+</html>

@@ -85,7 +85,7 @@ JWT payload chứa: `user_id`, `role`, `exp`.
 
 ---
 
-## Spaces (gộp rooms + spaces)
+## Spaces (gộp rooms + spaces) – rooms đã deprecated, dùng spaces thay thế
 
 Quản lý không gian (darkroom, studio, standard, vip, conference).
 

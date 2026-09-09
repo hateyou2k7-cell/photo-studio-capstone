@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Khoá học — Studio Phim</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-nav="courses">
+  <header class="site-header">
+    <a href="index.html" class="brand display">Studio<span>Phim</span></a>
+    <nav>
+      <a href="index.html" data-nav="home">Trang chủ</a>
+      <a href="search.html" data-nav="search">Tìm phòng</a>
+      <a href="equipment.html" data-nav="equipment">Thiết bị</a>
+      <a href="courses.html" data-nav="courses">Khoá học</a>
+      <a href="account.html" data-nav="account">Đơn của tôi</a>
+      <span id="nav-auth"></span>
+    </nav>
+  </header>
+  <div class="sprocket-rule"></div>
+
+  <main class="container">
+    <div class="results-header">
+      <h1 class="display">Khoá học nhiếp ảnh</h1>
+      <span class="results-count" id="results-count"></span>
+    </div>
+    <div id="results-area">
+      <div class="loading-state">Đang tải danh sách khoá học...</div>
+    </div>
+    <p style="margin-top:24px; font-size:0.82rem; color:var(--muted);">
+      Quan tâm khoá học nào? Liên hệ trực tiếp studio hoặc nhắn trợ lý AI ở góc màn hình để được tư vấn lịch khai giảng.
+    </p>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/courses.js"></script>
+  <script src="js/chatbot-widget.js"></script>
+</body>
+</html>

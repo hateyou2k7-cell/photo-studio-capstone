@@ -86,8 +86,8 @@ function renderSuccess({ reservationId, amount, spaceName }) {
       <p>${escapeHtml(spaceName || "Phòng")} đã được giữ chỗ cho bạn. Chủ phòng sẽ liên hệ xác nhận sớm.</p>
       <div class="booking-code">Mã đơn #${escapeHtml(reservationId)}</div>
       <br/>
-      <a href="search.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 26px;">
-        Về trang tìm phòng
+      <a href="account.html" class="btn btn-primary" style="display:inline-block;text-decoration:none;padding:12px 26px;">
+        Xem đơn của tôi
       </a>
     </div>
   `;

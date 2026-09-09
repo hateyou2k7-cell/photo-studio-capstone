@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — Hoá đơn</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a href="../index.html" class="brand display">Studio<span>Phim</span></a>
+      <nav>
+        <a href="index.html" data-admin-nav="dashboard">Tổng quan</a>
+        <a href="spaces.html" data-admin-nav="spaces">Không gian</a>
+        <a href="equipment.html" data-admin-nav="equipment">Thiết bị</a>
+        <a href="reservations.html" data-admin-nav="reservations">Đặt phòng</a>
+        <a href="billing.html" data-admin-nav="billing">Hoá đơn</a>
+        <a href="courses.html" data-admin-nav="courses">Khoá học</a>
+      </nav>
+      <a href="../index.html" class="admin-back">&larr; Về trang khách hàng</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topline">
+        <h1 class="display">Hoá đơn &amp; Khách hàng</h1>
+        <div><span class="nav-user" id="admin-user"></span> · <a href="#" id="admin-logout">Đăng xuất</a></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="invoices">Hoá đơn</button>
+        <button class="tab-btn" data-tab="customers">Khách hàng</button>
+        <button class="tab-btn" data-tab="products">Sản phẩm / Dịch vụ</button>
+      </div>
+
+      <!-- Invoices tab -->
+      <div class="tab-panel" id="panel-invoices">
+        <div class="toolbar">
+          <span class="results-count" id="invoices-count"></span>
+          <button class="btn btn-primary" id="add-invoice-btn">+ Tạo hoá đơn</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Khách hàng</th><th>Tổng tiền</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+            <tbody id="invoices-body"><tr><td colspan="5">Đang tải...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Customers tab -->
+      <div class="tab-panel" id="panel-customers" style="display:none;">
+        <div class="toolbar">
+          <span class="results-count" id="customers-count"></span>
+          <button class="btn btn-primary" id="add-customer-btn">+ Thêm khách hàng</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Tên</th><th>Email</th><th>Điện thoại</th><th>Hành động</th></tr></thead>
+            <tbody id="customers-body"><tr><td colspan="5">Đang tải...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Products tab -->
+      <div class="tab-panel" id="panel-products" style="display:none;">
+        <div class="toolbar">
+          <span class="results-count" id="products-count"></span>
+          <button class="btn btn-primary" id="add-product-btn">+ Thêm sản phẩm</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Tên sản phẩm</th><th>Mã</th><th>Mô tả</th><th>Hành động</th></tr></thead>
+            <tbody id="products-body"><tr><td colspan="5">Đang tải...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Invoice modal -->
+  <div class="modal-overlay" id="invoice-modal" style="display:none;">
+    <div class="modal-box">
+      <h2 id="invoice-form-title">Tạo hoá đơn</h2>
+      <form id="invoice-form">
+        <input type="hidden" id="inv-id" />
+        <div class="field"><label>Customer ID</label><input type="number" id="inv-customer" required /></div>
+        <div class="field"><label>Tổng tiền</label><input type="number" id="inv-total" min="0" /></div>
+        <div class="field">
+          <label>Trạng thái</label>
+          <select id="inv-status">
+            <option value="pending">Chờ thanh toán</option>
+            <option value="paid">Đã thanh toán</option>
+            <option value="cancelled">Đã huỷ</option>
+          </select>
+        </div>
+        <div class="inline-error" id="invoice-form-error" style="display:none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="invoice-form-cancel">Huỷ</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customer modal -->
+  <div class="modal-overlay" id="customer-modal" style="display:none;">
+    <div class="modal-box">
+      <h2 id="customer-form-title">Thêm khách hàng</h2>
+      <form id="customer-form">
+        <input type="hidden" id="cus-id" />
+        <div class="field"><label>Tên khách hàng</label><input type="text" id="cus-name" required /></div>
+        <div class="field"><label>Email</label><input type="email" id="cus-email" /></div>
+        <div class="field"><label>Điện thoại</label><input type="text" id="cus-phone" /></div>
+        <div class="field"><label>Địa chỉ</label><input type="text" id="cus-address" /></div>
+        <div class="inline-error" id="customer-form-error" style="display:none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="customer-form-cancel">Huỷ</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Product modal -->
+  <div class="modal-overlay" id="product-modal" style="display:none;">
+    <div class="modal-box">
+      <h2 id="product-form-title">Thêm sản phẩm</h2>
+      <form id="product-form">
+        <input type="hidden" id="prod-id" />
+        <div class="field"><label>Tên sản phẩm</label><input type="text" id="prod-name" required /></div>
+        <div class="field"><label>Mã sản phẩm</label><input type="text" id="prod-code" /></div>
+        <div class="field"><label>Mô tả</label><input type="text" id="prod-description" /></div>
+        <div class="inline-error" id="product-form-error" style="display:none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="product-form-cancel">Huỷ</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="js/billing-admin.js"></script>
+</body>
+</html>

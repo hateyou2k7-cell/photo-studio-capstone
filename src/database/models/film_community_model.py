@@ -22,7 +22,7 @@ class Post(Base):
     __tablename__ = 'posts'
 
     id = Column(BigInteger, primary_key=True)
-    author_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    author_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
     category = Column(String(50), nullable=False, default='article')
@@ -40,7 +40,7 @@ class Comment(Base):
 
     id = Column(BigInteger, primary_key=True)
     post_id = Column(BigInteger, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False)
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, server_default=func.now())
 
@@ -52,7 +52,7 @@ class Workshop(Base):
     __tablename__ = 'workshops'
 
     id = Column(BigInteger, primary_key=True)
-    expert_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    expert_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     title = Column(String(255), nullable=False)
     description = Column(Text)
     scheduled_at = Column(DateTime, nullable=False)
@@ -70,7 +70,7 @@ class WorkshopRegistration(Base):
 
     id = Column(BigInteger, primary_key=True)
     workshop_id = Column(BigInteger, ForeignKey('workshops.id', ondelete='CASCADE'), nullable=False)
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     status = Column(String(20), default='registered')
     registered_at = Column(DateTime, server_default=func.now())
 

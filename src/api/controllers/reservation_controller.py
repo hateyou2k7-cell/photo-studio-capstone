@@ -216,12 +216,13 @@ def create_reservation():
         )
         
         # Add invoice items: space rental
-        billing_service.add_item(
-            invoice_id=invoice.id,
-            product_id=0,  # Special: space rental (no product)
-            quantity=1,
-            unit_price=space_cost,
-        )
+        if space_cost > 0:
+            billing_service.add_item(
+                invoice_id=invoice.id,
+                product_id=None,
+                quantity=1,
+                unit_price=space_cost,
+            )
         
         # Add invoice items: equipment rental
         for item in equipment_items:

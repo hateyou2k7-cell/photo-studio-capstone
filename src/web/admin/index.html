@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — Tổng quan</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a href="../index.html" class="brand display">Studio<span>Phim</span></a>
+      <nav>
+        <a href="index.html" data-admin-nav="dashboard">Tổng quan</a>
+        <a href="spaces.html" data-admin-nav="spaces">Không gian</a>
+        <a href="equipment.html" data-admin-nav="equipment">Thiết bị</a>
+        <a href="reservations.html" data-admin-nav="reservations">Đặt phòng</a>
+        <a href="billing.html" data-admin-nav="billing">Hoá đơn</a>
+        <a href="courses.html" data-admin-nav="courses">Khoá học</a>
+      </nav>
+      <a href="../index.html" class="admin-back">&larr; Về trang khách hàng</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topline">
+        <h1 class="display">Tổng quan</h1>
+        <div><span class="nav-user" id="admin-user"></span> · <a href="#" id="admin-logout">Đăng xuất</a></div>
+      </div>
+
+      <div class="stat-row" id="stat-row">
+        <div class="stat-card"><span class="num">—</span><span class="lbl">Không gian</span></div>
+        <div class="stat-card"><span class="num">—</span><span class="lbl">Thiết bị</span></div>
+        <div class="stat-card"><span class="num">—</span><span class="lbl">Đơn đặt phòng</span></div>
+        <div class="stat-card"><span class="num">—</span><span class="lbl">Khoá học</span></div>
+        <div class="stat-card"><span class="num">—</span><span class="lbl">Hoá đơn</span></div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="recent-table">
+          <thead>
+            <tr><th>Mã đơn</th><th>Khách hàng</th><th>Không gian</th><th>Bắt đầu</th><th>Trạng thái</th><th>Tổng tiền</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

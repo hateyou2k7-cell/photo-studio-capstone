@@ -51,7 +51,13 @@ from database.databases.base import Base
 
 # Database configuration
 DATABASE_URI = DevelopmentConfig.DATABASE_URI
-engine = create_engine(DATABASE_URI)
+engine = create_engine(
+    DATABASE_URI,
+    pool_size=5,
+    max_overflow=10,
+    pool_pre_ping=True,
+    pool_recycle=300,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 session = SessionLocal()
 def init_postgres(app):

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — Khoá học</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a href="../index.html" class="brand display">Studio<span>Phim</span></a>
+      <nav>
+        <a href="index.html" data-admin-nav="dashboard">Tổng quan</a>
+        <a href="spaces.html" data-admin-nav="spaces">Không gian</a>
+        <a href="equipment.html" data-admin-nav="equipment">Thiết bị</a>
+        <a href="reservations.html" data-admin-nav="reservations">Đặt phòng</a>
+        <a href="billing.html" data-admin-nav="billing">Hoá đơn</a>
+        <a href="courses.html" data-admin-nav="courses">Khoá học</a>
+      </nav>
+      <a href="../index.html" class="admin-back">&larr; Về trang khách hàng</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topline">
+        <h1 class="display">Khoá học</h1>
+        <div><span class="nav-user" id="admin-user"></span> · <a href="#" id="admin-logout">Đăng xuất</a></div>
+      </div>
+
+      <div class="toolbar">
+        <span class="results-count" id="results-count"></span>
+        <button class="btn btn-primary" id="add-btn">+ Thêm khoá học</button>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>ID</th><th>Tên khoá học</th><th>Bắt đầu</th><th>Kết thúc</th><th>Trạng thái</th><th>Hành động</th></tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="6">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="form-modal" style="display:none;">
+    <div class="modal-box">
+      <h2 id="form-title">Thêm khoá học</h2>
+      <form id="course-form">
+        <input type="hidden" id="f-id" />
+        <div class="field">
+          <label>Tên khoá học</label>
+          <input type="text" id="f-name" required />
+        </div>
+        <div class="field">
+          <label>Mô tả</label>
+          <textarea id="f-description" rows="3" required style="width:100%;background:var(--base);border:1px solid var(--hairline);border-radius:var(--radius);color:var(--paper);padding:10px;"></textarea>
+        </div>
+        <div class="field">
+          <label>Trạng thái</label>
+          <select id="f-status" required>
+            <option value="open">Đang mở</option>
+            <option value="closed">Đã đóng</option>
+            <option value="upcoming">Sắp khai giảng</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ngày bắt đầu</label>
+          <input type="date" id="f-start" />
+        </div>
+        <div class="field">
+          <label>Ngày kết thúc</label>
+          <input type="date" id="f-end" />
+        </div>
+        <div class="inline-error" id="form-error" style="display:none;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="form-cancel">Huỷ</button>
+          <button type="submit" class="btn btn-primary" id="form-submit">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="js/courses-admin.js"></script>
+</body>
+</html>

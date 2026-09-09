@@ -115,6 +115,8 @@ button {
 }
 
 .field input[type="text"],
+.field input[type="password"],
+.field input[type="email"],
 .field input[type="number"],
 .field select {
   width: 100%;
@@ -739,4 +741,499 @@ button {
   color: var(--safelight);
   font-size: 0.82rem;
   margin-top: 10px;
+}
+
+/* ============================================================
+   Admin panel
+   ============================================================ */
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--hairline);
+  padding: 26px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar .brand {
+  font-size: 1.3rem;
+  text-decoration: none;
+  margin-bottom: 30px;
+  display: inline-block;
+}
+
+.admin-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.admin-sidebar nav a {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+}
+
+.admin-sidebar nav a:hover { color: var(--paper); background: var(--panel-2); }
+.admin-sidebar nav a.active { color: var(--paper); background: var(--panel-2); border-left: 2px solid var(--safelight); }
+
+.admin-back {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline);
+}
+
+.admin-back:hover { color: var(--paper); }
+
+.admin-main {
+  padding: 32px 40px 60px;
+  max-width: 1180px;
+}
+
+.admin-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 26px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.admin-topline a { color: var(--muted); text-decoration: none; }
+.admin-topline a:hover { color: var(--paper); }
+
+/* --- stat cards on dashboard --- */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-card .num {
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+}
+
+.stat-card .lbl {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* --- toolbar (above tables) --- */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-filters {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.toolbar-filters .field { margin-bottom: 0; min-width: 180px; }
+
+.toolbar .btn-primary { width: auto; padding: 10px 18px; }
+
+/* --- admin tables --- */
+.admin-table-wrap {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.admin-table th, .admin-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hairline);
+  white-space: nowrap;
+}
+
+.admin-table th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-table tbody tr:last-child td { border-bottom: none; }
+.admin-table tbody tr:hover { background: var(--panel-2); }
+
+.admin-table td.actions { display: flex; gap: 8px; white-space: nowrap; }
+.admin-table .btn-sm { width: auto; padding: 6px 12px; font-size: 0.78rem; margin-top: 0; }
+
+/* --- status badges --- */
+.badge {
+  display: inline-block;
+  font-size: 0.74rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badge.pending { background: rgba(214, 173, 82, 0.15); color: #d6ad52; }
+.badge.approved,
+.badge.confirmed { background: rgba(97, 168, 110, 0.15); color: #7fbf8c; }
+.badge.checked_in { background: rgba(88, 150, 214, 0.15); color: #7fb2e0; }
+.badge.checked_out,
+.badge.completed { background: rgba(166, 152, 127, 0.15); color: var(--muted); }
+.badge.cancelled { background: rgba(193, 68, 45, 0.15); color: var(--safelight); }
+
+/* --- modal (add/edit forms) --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 19, 15, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal-box {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 26px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-box h2 {
+  font-size: 1.2rem;
+  margin-bottom: 18px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-actions .btn { width: auto; padding: 10px 18px; margin-top: 0; }
+
+/* --- tabs (billing page) --- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab-btn:hover { color: var(--paper); }
+.tab-btn.active { color: var(--paper); border-bottom-color: var(--safelight); }
+
+@media (max-width: 900px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-sidebar { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 16px 20px; }
+  .admin-sidebar nav { flex-direction: row; flex-wrap: wrap; }
+  .admin-back { border-top: none; padding-top: 0; margin-left: auto; }
+  .admin-main { padding: 24px 20px 50px; }
+}
+
+/* ============================================================
+   Site nav (khách hàng) — mở rộng cho nhiều mục + trạng thái đăng nhập
+   ============================================================ */
+.site-header nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.site-header nav a.active { color: var(--paper); }
+
+.nav-sep { color: var(--hairline); margin: 0 2px; }
+
+/* ============================================================
+   Trang chủ — hero + khối dịch vụ
+   ============================================================ */
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+  padding: 30px 0 60px;
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  line-height: 1.15;
+  margin-bottom: 18px;
+}
+
+.hero h1 span { color: var(--safelight); }
+
+.hero p {
+  color: var(--paper-dim);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 26px;
+  max-width: 46ch;
+}
+
+.hero-actions { display: flex; gap: 12px; }
+.hero-actions .btn { width: auto; padding: 12px 22px; }
+.hero-actions .btn-primary { display: inline-block; text-decoration: none; text-align: center; }
+.hero-actions .btn-ghost { display: inline-block; text-decoration: none; text-align: center; }
+
+.hero-visual {
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(160deg, var(--panel-2), var(--base));
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-visual svg { width: 90px; height: 90px; opacity: 0.3; }
+
+.section-block { padding: 10px 0 50px; }
+
+.section-block .section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 22px;
+}
+
+.section-block .section-head h2 { font-size: 1.6rem; }
+.section-block .section-head a { font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+.section-block .section-head a:hover { color: var(--paper); }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 24px 22px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.feature-card:hover { border-color: var(--safelight-dim); transform: translateY(-2px); }
+
+.feature-card .icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--base);
+  border: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--safelight);
+  font-size: 1rem;
+}
+
+.feature-card h3 { font-size: 1.05rem; margin-bottom: 6px; }
+.feature-card p { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin: 0; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   Khoá học — card mô tả (không có ảnh)
+   ============================================================ */
+.course-card {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.course-card .status-pill { margin-bottom: 0; }
+.course-card h3 { font-size: 1.1rem; }
+.course-card .course-dates { font-size: 0.8rem; color: var(--muted); }
+.course-card p { color: var(--paper-dim); font-size: 0.88rem; line-height: 1.55; margin: 0; flex: 1; }
+
+/* ============================================================
+   Tài khoản (account.html)
+   ============================================================ */
+.account-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.account-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  color: var(--safelight);
+  flex-shrink: 0;
+}
+
+.account-header h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.account-header .role-tag { color: var(--muted); font-size: 0.85rem; }
+
+/* ============================================================
+   Chatbot widget — nổi ở góc phải màn hình, dùng ở mọi trang khách hàng
+   ============================================================ */
+.chat-toggle {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--safelight);
+  color: var(--paper);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  z-index: 60;
+}
+
+.chat-toggle:hover { background: #d94f34; }
+
+.chat-panel {
+  position: fixed;
+  right: 22px;
+  bottom: 86px;
+  width: 320px;
+  max-height: 440px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 60;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+
+.chat-panel.open { display: flex; }
+
+.chat-panel-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--hairline);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.chat-panel-head button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.chat-msg { max-width: 88%; padding: 8px 12px; border-radius: var(--radius); line-height: 1.45; }
+.chat-msg.bot { background: var(--panel-2); align-self: flex-start; color: var(--paper-dim); }
+.chat-msg.user { background: var(--safelight); color: var(--paper); align-self: flex-end; }
+
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.chat-input-row input {
+  flex: 1;
+  background: var(--base);
+  border: 1px solid var(--hairline);
+  color: var(--paper);
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.chat-input-row input:focus { outline: none; border-color: var(--safelight); }
+
+.chat-input-row button {
+  background: var(--safelight);
+  color: var(--paper);
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
 }

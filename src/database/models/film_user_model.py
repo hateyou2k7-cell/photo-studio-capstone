@@ -20,17 +20,13 @@ class ProviderStatus(enum.Enum):
 
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'auth_users'
 
     id = Column(BigInteger, primary_key=True)
     username = Column(String(50), unique=True, nullable=True)
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(255), nullable=False)
-    phone = Column(String(20))
-    avatar_url = Column(String(500))
     role = Column(String(50), nullable=False, default='user')
-    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now())
 
@@ -41,7 +37,7 @@ class ProviderProfile(Base):
     __tablename__ = 'provider_profiles'
 
     id = Column(BigInteger, primary_key=True)
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     business_name = Column(String(255), nullable=False)
     description = Column(Text)
     address = Column(String(255))

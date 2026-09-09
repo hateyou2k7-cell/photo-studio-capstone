@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thiết bị — Studio Phim</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-nav="equipment">
+  <header class="site-header">
+    <a href="index.html" class="brand display">Studio<span>Phim</span></a>
+    <nav>
+      <a href="index.html" data-nav="home">Trang chủ</a>
+      <a href="search.html" data-nav="search">Tìm phòng</a>
+      <a href="equipment.html" data-nav="equipment">Thiết bị</a>
+      <a href="courses.html" data-nav="courses">Khoá học</a>
+      <a href="account.html" data-nav="account">Đơn của tôi</a>
+      <span id="nav-auth"></span>
+    </nav>
+  </header>
+  <div class="sprocket-rule"></div>
+
+  <main class="container">
+    <div class="search-layout">
+      <aside class="filters">
+        <h2>Bộ lọc</h2>
+        <form id="filter-form">
+          <div class="field">
+            <label for="q">Tìm kiếm</label>
+            <input type="text" id="q" name="q" placeholder="Tên thiết bị, model..." />
+          </div>
+
+          <div class="field">
+            <label for="type">Loại thiết bị</label>
+            <select id="type" name="type">
+              <option value="">Tất cả</option>
+              <option value="camera">Máy ảnh</option>
+              <option value="lighting">Đèn chiếu sáng</option>
+              <option value="enlarger">Máy phóng ảnh (Enlarger)</option>
+              <option value="scanner">Máy quét phim</option>
+              <option value="tripod">Chân máy</option>
+              <option value="tank">Bình tráng phim</option>
+              <option value="other">Khác</option>
+            </select>
+          </div>
+
+          <div class="field checkbox-row">
+            <input type="checkbox" id="available" name="available" />
+            <label for="available" style="margin:0;">Chỉ hiện còn trống</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Áp dụng bộ lọc</button>
+          <button type="button" id="reset-filters" class="btn btn-ghost">Xoá bộ lọc</button>
+        </form>
+      </aside>
+
+      <section>
+        <div class="results-header">
+          <h1 class="display">Thiết bị cho thuê</h1>
+          <span class="results-count" id="results-count"></span>
+        </div>
+        <div id="results-area">
+          <div class="loading-state">Đang tải danh sách thiết bị...</div>
+        </div>
+        <p style="margin-top:20px; font-size:0.82rem; color:var(--muted);">
+          Muốn thuê kèm thiết bị? Chọn phòng ở trang <a href="search.html" style="color:var(--safelight);">Tìm phòng</a> rồi ghi chú thiết bị cần dùng trong bước xác nhận đặt phòng.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/equipment.js"></script>
+  <script src="js/chatbot-widget.js"></script>
+</body>
+</html>

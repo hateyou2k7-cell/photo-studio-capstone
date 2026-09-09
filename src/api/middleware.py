@@ -24,6 +24,12 @@ def middleware(app):
     @app.before_request
     def before_request():
         log_request_info(app)
+        from database.databases.postgres import session
+        try:
+            if session.is_active:
+                session.rollback()
+        except Exception:
+            pass
 
     @app.after_request
     def after_request(response):

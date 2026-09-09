@@ -74,7 +74,7 @@ def login():
 
     payload = {
         'user_id': user.id,
-        'role': user.role if hasattr(user, 'role') else 'user',
+        'role': getattr(user, 'role', 'user'),
         'exp': datetime.utcnow() + timedelta(hours=2)
     }
     token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')

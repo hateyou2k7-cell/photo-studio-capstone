@@ -270,8 +270,7 @@ Hệ thống là multi-sided platform kết nối:
 
 | Module | Endpoints | DB Tables | Status |
 |:---|:---:|:---:|:---|
-| Auth (Signup/Login) | 3 | auth_users, users | ✅ |
-| Rooms Management | 5 | rooms | ✅ |
+| Auth (Signup/Login) | 3 | users | ✅ |
 | Spaces Management | 6 | spaces | ✅ |
 | Space Images | 4 | space_images | ✅ |
 | Space Schedules | 4 | space_schedules | ✅ |
@@ -282,7 +281,7 @@ Hệ thống là multi-sided platform kết nối:
 | Courses | 5 | courses | ✅ |
 | Chatbot (AI) | 2 | conversations, messages | ✅ |
 | Recommendations (AI) | 1 | - | ✅ |
-| **Total** | **75** | **28 tables** | |
+| **Total** | **65** (active) | **28 tables** | Legacy rooms/auth_users removed |
 
 ### 5.2 Pending Features
 

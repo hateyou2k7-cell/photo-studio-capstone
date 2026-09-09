@@ -340,14 +340,14 @@ Bảng `auth_users` đã bị deprecated, mọi logic dùng `users` table.
 
 ---
 
-## Known Issues (Đã sửa)
+## Known Issues
 
 | Issue | Mô tả | Trạng thái |
 |---|---|---|
 | ~~Duplicate user systems~~ | `auth_users` + `users` không liên kết | ✅ Đã gộp vào `users` |
 | ~~Duplicate space systems~~ | `rooms` + `spaces` riêng biệt | ✅ Đã gộp vào `spaces` |
 | ~~Swagger title~~ | Ghi "Todo API" | ✅ Đã sửa "Photo Studio API" |
-| Admin bypass | Admin role có unconditional access | ⚠️ Còn tồn tại |
+| Admin bypass | Admin role có unconditional access – cần sửa RBAC | ⚠️ Còn tồn tại |
 | Empty files | `schemas/user.py`, `dependency_container.py` | ⚠️ Còn tồn tại |
 | Legacy code | `todo_*`, `course_repository.py` (in-memory) | ⚠️ Còn tồn tại |
 | Unused models | `survey_model.py`, `consultant_model.py`... | ⚠️ Còn tồn tại |

@@ -7,7 +7,7 @@ class Conversation(Base):
     __tablename__ = 'conversations'
 
     id = Column(BigInteger, primary_key=True)
-    user_id = Column(BigInteger, ForeignKey('users.id'), nullable=False)
+    user_id = Column(BigInteger, ForeignKey('auth_users.id'), nullable=False)
     started_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now())
 

@@ -8,6 +8,17 @@ bp = Blueprint('course', __name__, url_prefix='/courses')
 course_service = CourseService(CourseRepository())
 
 
+def _parse_date(val):
+    if not val:
+        return None
+    if isinstance(val, datetime):
+        return val
+    try:
+        return datetime.fromisoformat(val)
+    except (ValueError, TypeError):
+        return None
+
+
 @bp.route('/', methods=['GET'])
 def list_courses():
     """
@@ -110,12 +121,14 @@ def create_course():
     if not data.get('course_name') or not data.get('description') or not data.get('status'):
         return jsonify({'message': 'Missing required fields: course_name, description, status'}), 400
     now = datetime.utcnow()
+    start_date = _parse_date(data.get('start_date'))
+    end_date = _parse_date(data.get('end_date'))
     course = course_service.create_course(
         course_name=data['course_name'],
         description=data['description'],
         status=data['status'],
-        start_date=data.get('start_date'),
-        end_date=data.get('end_date'),
+        start_date=start_date,
+        end_date=end_date,
         created_at=now,
         updated_at=now,
     )
@@ -175,8 +188,8 @@ def update_course(course_id):
         course_name=data['course_name'],
         description=data['description'],
         status=data['status'],
-        start_date=data.get('start_date'),
-        end_date=data.get('end_date'),
+        start_date=_parse_date(data.get('start_date')),
+        end_date=_parse_date(data.get('end_date')),
         created_at=existing.created_at,
         updated_at=datetime.utcnow(),
     )

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio Phim — Không gian sáng tạo cho nhiếp ảnh</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-nav="home">
+  <header class="site-header">
+    <a href="index.html" class="brand display">Studio<span>Phim</span></a>
+    <nav>
+      <a href="index.html" data-nav="home">Trang chủ</a>
+      <a href="search.html" data-nav="search">Tìm phòng</a>
+      <a href="equipment.html" data-nav="equipment">Thiết bị</a>
+      <a href="courses.html" data-nav="courses">Khoá học</a>
+      <a href="account.html" data-nav="account">Đơn của tôi</a>
+      <span id="nav-auth"></span>
+    </nav>
+  </header>
+  <div class="sprocket-rule"></div>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1 class="display">Không gian cho <span>nghệ thuật ảnh</span> của bạn</h1>
+        <p>Đặt studio chụp, phòng tối rửa phim, thuê thiết bị và tham gia khoá học nhiếp ảnh — tất cả trong một nơi.</p>
+        <div class="hero-actions">
+          <a href="search.html" class="btn btn-primary">Tìm phòng ngay</a>
+          <a href="courses.html" class="btn btn-ghost">Xem khoá học</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <rect x="2" y="6" width="20" height="14" rx="2" />
+          <circle cx="12" cy="13" r="4" />
+          <path d="M8 6l1.5-2h5L16 6" />
+        </svg>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-head">
+        <h2 class="display">Dịch vụ</h2>
+      </div>
+      <div class="feature-grid">
+        <a href="search.html" class="feature-card">
+          <div class="icon">&#9679;</div>
+          <h3>Đặt phòng chụp</h3>
+          <p>Studio ánh sáng, phòng tối rửa phim — lọc theo loại, giá, sức chứa và tình trạng trống.</p>
+        </a>
+        <a href="equipment.html" class="feature-card">
+          <div class="icon">&#9636;</div>
+          <h3>Thuê thiết bị</h3>
+          <p>Máy ảnh, ống kính, đèn studio, chân máy... đầy đủ để phục vụ buổi chụp của bạn.</p>
+        </a>
+        <a href="courses.html" class="feature-card">
+          <div class="icon">&#9737;</div>
+          <h3>Khoá học nhiếp ảnh</h3>
+          <p>Từ cơ bản đến nâng cao, cả kỹ thuật số lẫn rửa phim thủ công.</p>
+        </a>
+        <a href="account.html" class="feature-card">
+          <div class="icon">&#9733;</div>
+          <h3>Quản lý đơn của bạn</h3>
+          <p>Theo dõi lịch sử đặt phòng, trạng thái thanh toán, mọi lúc mọi nơi.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section-block" id="featured-spaces">
+      <div class="section-head">
+        <h2 class="display">Không gian nổi bật</h2>
+        <a href="search.html">Xem tất cả &rarr;</a>
+      </div>
+      <div id="featured-area">
+        <div class="loading-state">Đang tải...</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/chatbot-widget.js"></script>
+</body>
+</html>

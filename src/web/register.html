@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng ký — Studio Phim</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .login-wrap {
+      max-width: 420px;
+      margin: 60px auto;
+      background: var(--panel);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+    .login-wrap h1 { font-size: 1.5rem; margin-bottom: 22px; }
+    .login-msg { font-size: 0.85rem; margin-bottom: 16px; display: none; }
+    .login-msg.show { display: block; }
+    .login-msg.err { color: var(--safelight); }
+    .login-msg.ok { color: #7fbf8c; }
+  </style>
+</head>
+<body data-nav="home">
+  <header class="site-header">
+    <a href="index.html" class="brand display">Studio<span>Phim</span></a>
+    <nav>
+      <a href="index.html" data-nav="home">Trang chủ</a>
+      <a href="search.html" data-nav="search">Tìm phòng</a>
+      <span id="nav-auth"></span>
+    </nav>
+  </header>
+  <div class="sprocket-rule"></div>
+
+  <main class="container">
+    <div class="login-wrap">
+      <h1 class="display">Tạo tài khoản</h1>
+      <div id="register-msg" class="login-msg"></div>
+      <form id="register-form">
+        <div class="field">
+          <label for="username">Tên đăng nhập</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="field">
+          <label for="role">Bạn là</label>
+          <select id="role" name="role">
+            <option value="user">Khách hàng</option>
+            <option value="photographer">Nhiếp ảnh gia</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="password">Mật khẩu</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div class="field">
+          <label for="passwordconfirm">Xác nhận mật khẩu</label>
+          <input type="password" id="passwordconfirm" name="passwordconfirm" required />
+        </div>
+        <button type="submit" class="btn btn-primary" id="register-btn">Đăng ký</button>
+      </form>
+      <p style="margin-top:16px; font-size:0.85rem; color:var(--muted);">
+        Đã có tài khoản? <a href="login.html" style="color:var(--safelight);">Đăng nhập</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/register.js"></script>
+</body>
+</html>

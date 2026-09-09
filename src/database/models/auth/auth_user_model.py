@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from database.databases.base import Base
 class AuthUserModel(Base):
     __tablename__ = 'auth_users'
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(50), unique=True, nullable=False)

@@ -36,6 +36,7 @@ class ReservationRepository(IReservationRepository):
             return model
         except Exception as e:
             self.session.rollback()
+            import traceback; traceback.print_exc()
             raise ValueError('Could not create reservation')
 
     def get_by_id(self, reservation_id: int) -> Optional[ReservationModel]:
@@ -139,8 +140,9 @@ class ReservationRepository(IReservationRepository):
             self.session.commit()
             self.session.refresh(model)
             return model
-        except Exception:
+        except Exception as e:
             self.session.rollback()
+            import traceback; traceback.print_exc()
             raise ValueError('Could not add payment')
 
     def get_payment(self, reservation_id: int) -> Optional[PaymentModel]:

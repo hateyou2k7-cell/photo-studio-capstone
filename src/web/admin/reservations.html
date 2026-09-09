@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản trị — Đặt phòng</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <a href="../index.html" class="brand display">Studio<span>Phim</span></a>
+      <nav>
+        <a href="index.html" data-admin-nav="dashboard">Tổng quan</a>
+        <a href="spaces.html" data-admin-nav="spaces">Không gian</a>
+        <a href="equipment.html" data-admin-nav="equipment">Thiết bị</a>
+        <a href="reservations.html" data-admin-nav="reservations">Đặt phòng</a>
+        <a href="billing.html" data-admin-nav="billing">Hoá đơn</a>
+        <a href="courses.html" data-admin-nav="courses">Khoá học</a>
+      </nav>
+      <a href="../index.html" class="admin-back">&larr; Về trang khách hàng</a>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topline">
+        <h1 class="display">Đặt phòng</h1>
+        <div><span class="nav-user" id="admin-user"></span> · <a href="#" id="admin-logout">Đăng xuất</a></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-filters">
+          <div class="field">
+            <label>Trạng thái</label>
+            <select id="f-status">
+              <option value="">Tất cả</option>
+              <option value="pending">Chờ duyệt</option>
+              <option value="approved">Đã duyệt</option>
+              <option value="confirmed">Đã xác nhận</option>
+              <option value="checked_in">Đang sử dụng</option>
+              <option value="checked_out">Đã trả phòng</option>
+              <option value="completed">Hoàn tất</option>
+              <option value="cancelled">Đã huỷ</option>
+            </select>
+          </div>
+        </div>
+        <span class="results-count" id="results-count"></span>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Mã</th><th>Khách</th><th>Không gian</th><th>Bắt đầu</th><th>Kết thúc</th><th>Tổng tiền</th><th>Trạng thái</th><th>Hành động</th></tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="8">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="js/reservations-admin.js"></script>
+</body>
+</html>

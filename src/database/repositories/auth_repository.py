@@ -12,13 +12,19 @@ class AuthRepository(IAuthRepository):
         self.session = session or db_factory.get_database('POSTGREE').session
     
     def login(self, auth: Auth) -> Auth:
-        user = self.session.query(User).filter_by(username=auth.username).first()
+        try:
+            self.session.rollback()
+        except Exception:
+            pass
+        user = self.session.query(User).filter(
+            (User.email == auth.username) | (User.username == auth.username)
+        ).first()
         if not user:
             return None
         if not check_password_hash(user.password_hash, auth.password):
             return None
         auth.id = user.id
-        auth.role = user.role
+        auth.role = getattr(user, 'role', 'user')
         return auth
    
     def register(self, auth: Auth, role: str = 'user') -> Optional[Auth]:
@@ -27,9 +33,7 @@ class AuthRepository(IAuthRepository):
                 username=auth.username,
                 email=auth.email,
                 password_hash=auth.password,
-                full_name=auth.username,
                 role=role,
-                is_active=True,
             )
             self.session.add(new_user)
             self.session.commit()
@@ -55,7 +59,13 @@ class AuthRepository(IAuthRepository):
             self.session.close()
 
     def check_exist(self, username: str) -> bool:
-        existing_user = self.session.query(User).filter_by(username=username).first()
+        try:
+            self.session.rollback()
+        except Exception:
+            pass
+        existing_user = self.session.query(User).filter(
+            (User.email == username) | (User.username == username)
+        ).first()
         if existing_user:
             return True
         return False
