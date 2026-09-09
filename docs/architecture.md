@@ -349,5 +349,5 @@ Bảng `auth_users` đã bị deprecated, mọi logic dùng `users` table.
 | ~~Swagger title~~ | Ghi "Todo API" | ✅ Đã sửa "Photo Studio API" |
 | Admin bypass | Admin role có unconditional access – cần sửa RBAC | ⚠️ Còn tồn tại |
 | Empty files | `schemas/user.py`, `dependency_container.py` | ⚠️ Còn tồn tại |
-| Legacy code | `todo_*`, `course_repository.py` (in-memory) | ⚠️ Còn tồn tại |
+| Legacy code | `todo_*` (có model nhưng chưa dùng), `course_repository.py` (in-memory) | ⚠️ Còn tồn tại |
 | Unused models | `survey_model.py`, `consultant_model.py`... | ⚠️ Còn tồn tại |

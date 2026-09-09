@@ -307,7 +307,7 @@ Hệ thống là multi-sided platform kết nối:
 **Total tables**: 44  
 **Tables with ORM model**: 36  
 **Tables with API**: 28  
-**Legacy tables (no ORM)**: 8 (appointments, consultants, course_register, feedbacks, flask_user, programs, surveys, todos)  
+**Legacy tables (no ORM)**: 7 (appointments, consultants, course_register, feedbacks, flask_user, programs, surveys)  
 **Total enums**: 11  
 **Total foreign keys**: 50
 
