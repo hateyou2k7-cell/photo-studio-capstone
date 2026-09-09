@@ -1,15 +1,15 @@
-# API Documentation
+# Tài liệu API
 
-Photo Studio Capstone Backend REST API.
+API REST cho backend Photo Studio Capstone.
 
-**Base URL**: `http://localhost:9999`
+**Base URL**: `http://localhost:9999`  
 **Swagger UI**: http://localhost:9999/docs
 
-Tổng: **65 endpoints**, trong đó **25 endpoints yêu cầu JWT**.
+Tổng số endpoint: **65**, trong đó **25 yêu cầu JWT**.
 
 ---
 
-## Authentication
+## Xác thực
 
 ### Đăng nhập
 
@@ -50,7 +50,7 @@ POST /auth/signup
 }
 ```
 
-`role` (optional): `user` | `photographer` | `provider` | `expert` (default: `user`). `admin` và `manager` bị từ chối.
+Trong đó `role` (không bắt buộc) có thể là: `user`, `photographer`, `provider`, `expert` (mặc định `user`). Các giá trị `admin` và `manager` không được chấp nhận.
 
 **Response** (201):
 ```json
@@ -60,12 +60,11 @@ POST /auth/signup
 }
 ```
 
-Đăng ký tự động tạo records:
-- `users`: username, email, password_hash, full_name, role (dùng cho tất cả)
+Sau khi đăng ký, hệ thống tự động tạo:
+- Bản ghi `users` với đầy đủ username, email, password_hash, full_name, role.
+- Nếu role là `provider`, tự động tạo bản ghi `provider_profiles` với trạng thái `pending`.
 
-Nếu `role=provider`: tự tạo `provider_profiles` record (status=pending).
-
-### Health check
+### Kiểm tra sức khỏe router
 
 ```
 GET /auth/check_router
@@ -73,47 +72,47 @@ GET /auth/check_router
 
 ### Sử dụng JWT
 
-Thêm header cho các endpoint có `@jwt_required`:
+Với các endpoint yêu cầu JWT, thêm header:
 
 ```
 Authorization: Bearer <token>
 ```
 
-JWT payload chứa: `user_id`, `role`, `exp`.
+Payload JWT chứa: `user_id`, `role`, `exp`.
 
-**Admin bypass**: Nếu `role=admin` trong JWT, bypass tất cả JWT validation (unconditional access).
+**Admin bypass**: Nếu JWT chứa role `admin`, nó sẽ vượt qua mọi kiểm tra JWT (unconditional access).
 
 ---
 
-## Spaces (gộp rooms + spaces) – rooms đã deprecated, dùng spaces thay thế
+## Quản lý không gian (Spaces)
 
-Quản lý không gian (darkroom, studio, standard, vip, conference).
+Không gian bao gồm: darkroom, studio, standard, vip, conference. Lưu ý: `rooms` đã deprecated, hãy dùng `spaces`.
 
-### Public (ai cũng xem được)
+### Công khai (không cần JWT)
 
 ```
-GET    /spaces/                    Danh sách (paginated)
-GET    /spaces/search              Tìm kiếm với filters
+GET    /spaces/                    Danh sách (có phân trang)
+GET    /spaces/search              Tìm kiếm với bộ lọc
 GET    /spaces/{id}                Chi tiết
 ```
 
 ### CRUD (chỉ admin/manager)
 
 ```
-POST   /spaces/                    Tạo          @jwt_required: YES (admin/manager)
-PUT    /spaces/{id}                Sửa          @jwt_required: YES (admin/manager)
-DELETE /spaces/{id}                Xóa          @jwt_required: YES (admin/manager)
+POST   /spaces/                    Tạo mới          @jwt_required: YES (admin/manager)
+PUT    /spaces/{id}                Cập nhật         @jwt_required: YES (admin/manager)
+DELETE /spaces/{id}                Xóa              @jwt_required: YES (admin/manager)
 ```
 
-**Search filters** (`/spaces/search`):
+**Bộ lọc tìm kiếm** (`/spaces/search`):
 - `q` (string): Từ khóa
-- `space_type` (string): `darkroom` | `studio` | `standard` | `vip` | `conference`
+- `space_type` (string): `darkroom`, `studio`, `standard`, `vip`, `conference`
 - `min_price` (number): Giá tối thiểu
 - `max_price` (number): Giá tối đa
 - `min_capacity` (int): Sức chứa tối thiểu
-- `available` (bool): Chỉ hiện trống
+- `available` (bool): Chỉ hiển thị không gian trống
 
-**Space fields** (request):
+**Dữ liệu của không gian**:
 ```json
 {
   "provider_id": 1,
@@ -127,39 +126,37 @@ DELETE /spaces/{id}                Xóa          @jwt_required: YES (admin/manag
 }
 ```
 
-`provider_id` là optional (rooms không cần provider).
-
-**Space Types**: `darkroom`, `studio`, `standard`, `vip`, `conference`
+`provider_id` là tùy chọn (phòng không nhất thiết phải có provider).
 
 ---
 
-## Space Images
+## Hình ảnh không gian
 
-Quản lý hình ảnh không gian. **Không yêu cầu JWT**.
+Quản lý hình ảnh cho không gian. **Không yêu cầu JWT**.
 
 ```
 POST   /spaces/{id}/images              Upload (multipart/form-data)
 GET    /spaces/{id}/images              Danh sách
-PUT    /spaces/{id}/images/{image_id}   Đặt làm primary
+PUT    /spaces/{id}/images/{image_id}   Đặt làm ảnh chính
 DELETE /spaces/{id}/images/{image_id}   Xóa
 ```
 
-Allowed extensions: jpg, png, webp. Max size: 5MB/file.
+Chỉ chấp nhận các định dạng: jpg, png, webp. Dung lượng tối đa: 5MB.
 
 ---
 
-## Space Schedules
+## Lịch hoạt động của không gian
 
-Lịch hoạt động theo ngày trong tuần. **Không yêu cầu JWT**.
+Quản lý lịch theo ngày trong tuần. **Không yêu cầu JWT**.
 
 ```
 GET    /spaces/{id}/schedule                    Danh sách
 POST   /spaces/{id}/schedule                    Thêm khung giờ
-PUT    /spaces/{id}/schedule/{schedule_id}      Sửa
+PUT    /spaces/{id}/schedule/{schedule_id}      Cập nhật
 DELETE /spaces/{id}/schedule/{schedule_id}      Xóa
 ```
 
-**Schedule fields**:
+**Dữ liệu lịch**:
 ```json
 {
   "day_of_week": 1,
@@ -169,27 +166,27 @@ DELETE /spaces/{id}/schedule/{schedule_id}      Xóa
 }
 ```
 
-`day_of_week`: 0=Chủ nhật, 1=Thứ 2, ..., 7=Thứ 7
+`day_of_week`: 0=Chủ nhật, 1=Thứ 2, …, 7=Thứ 7.
 
 ---
 
-## Reservations + Invoice (liên kết)
+## Đặt chỗ và hóa đơn
 
-Đặt chỗ + tự tạo hóa đơn. **25 endpoints yêu cầu JWT**.
+Đặt chỗ + tự động tạo hóa đơn. **25 endpoint yêu cầu JWT**.
 
-### Danh sách & Chi tiết (public)
+### Danh sách và chi tiết (công khai)
 
 ```
 GET    /v1/reservations/                    Danh sách
 GET    /v1/reservations/{id}                Chi tiết
 ```
 
-**Filters**: `user_id`, `provider_id`, `status`
+Bộ lọc: `user_id`, `provider_id`, `status`.
 
-### Tạo Reservation + Invoice (JWT required)
+### Tạo đặt chỗ và hóa đơn (cần JWT)
 
 ```
-POST   /v1/reservations/                    Tạo đặt chỗ + tự tạo invoice
+POST   /v1/reservations/                    Tạo đặt chỗ + hóa đơn
 ```
 
 **Request**:
@@ -227,23 +224,23 @@ POST   /v1/reservations/                    Tạo đặt chỗ + tự tạo invo
 }
 ```
 
-**Flow**:
-1. Kiểm tra space tồn tại + trống lịch
-2. Tính giá: space_price × hours + sum(equipment_price × hours)
-3. Tạo Reservation (status=pending)
-4. Tạo Customer trong Billing
-5. Tạo Invoice (status=pending) với items:
-   - Item 1: Space rental
-   - Item 2..N: Equipment rental
+**Luồng xử lý**:
+1. Kiểm tra không gian tồn tại và trống lịch.
+2. Tính giá: `space_price × hours + sum(equipment_price × hours)`.
+3. Tạo Reservation (status = `pending`).
+4. Tạo Customer trong Billing.
+5. Tạo Invoice (status = `pending`) với các mục:
+   - Mục 1: Thuê không gian
+   - Mục 2…N: Thuê thiết bị
 
-### Cập nhật & Xóa (JWT required)
+### Cập nhật và xóa (cần JWT)
 
 ```
-PUT    /v1/reservations/{id}                Sửa
+PUT    /v1/reservations/{id}                Cập nhật
 DELETE /v1/reservations/{id}                Xóa
 ```
 
-### State transitions (JWT required)
+### Chuyển trạng thái (cần JWT)
 
 ```
 POST   /v1/reservations/{id}/approve        pending → approved
@@ -253,14 +250,14 @@ POST   /v1/reservations/{id}/checkin        → checked_in
 POST   /v1/reservations/{id}/checkout       checked_in → checked_out
 ```
 
-### Reservation Items
+### Các mục trong đặt chỗ
 
 ```
 GET    /v1/reservations/{id}/items          Danh sách (public)
-POST   /v1/reservations/{id}/items          Thêm item (public)
+POST   /v1/reservations/{id}/items          Thêm mục (public)
 ```
 
-**Item types**: `space`, `resource`, `consumable`, `service`
+Loại mục: `space`, `resource`, `consumable`, `service`
 
 ```json
 {
@@ -271,26 +268,26 @@ POST   /v1/reservations/{id}/items          Thêm item (public)
 }
 ```
 
-### Payments
+### Thanh toán
 
 ```
 GET    /v1/reservations/{id}/payment        Xem (public)
-POST   /v1/reservations/{id}/payment        Tạo (JWT required)
-POST   /v1/reservations/{id}/payment/confirm  Xác nhận (JWT required)
+POST   /v1/reservations/{id}/payment        Tạo (cần JWT)
+POST   /v1/reservations/{id}/payment/confirm  Xác nhận (cần JWT)
 ```
 
-**Payment methods**: `vnpay`, `momo`, `cash`
+Phương thức thanh toán: `vnpay`, `momo`, `cash`.
 
-> **Note**: Payment là placeholder. QR code sẽ được thêm sau.
+> Ghi chú: Thanh toán hiện là placeholder, QR code sẽ được bổ sung sau.
 
-### Reviews
+### Đánh giá
 
 ```
 GET    /v1/reservations/{id}/reviews        Danh sách (public)
-POST   /v1/reservations/{id}/reviews        Thêm (JWT required)
+POST   /v1/reservations/{id}/reviews        Thêm (cần JWT)
 ```
 
-**Review request**:
+**Request đánh giá**:
 ```json
 {
   "user_id": 1,
@@ -302,23 +299,23 @@ POST   /v1/reservations/{id}/reviews        Thêm (JWT required)
 
 ---
 
-## Equipment
+## Thiết bị
 
-Thiết bị nhiếp ảnh. **Không yêu cầu JWT**.
+Quản lý thiết bị nhiếp ảnh. **Không yêu cầu JWT**.
 
 ```
 GET    /api/v1/equipment                    Danh sách
 GET    /api/v1/equipment/{id}               Chi tiết
 POST   /api/v1/equipment                    Tạo
-PUT    /api/v1/equipment/{id}               Sửa
+PUT    /api/v1/equipment/{id}               Cập nhật
 DELETE /api/v1/equipment/{id}               Xóa
 ```
 
-**Filters**: `q`, `type`, `space_id`, `available`
+Bộ lọc: `q`, `type`, `space_id`, `available`.
 
-**Equipment types**: `enlarger`, `camera`, `scanner`, `lighting`, `tripod`, `tank`, `other`
+**Loại thiết bị**: `enlarger`, `camera`, `scanner`, `lighting`, `tripod`, `tank`, `other`
 
-**Conditions**: `excellent`, `good`, `fair`, `poor`, `broken`
+**Tình trạng**: `excellent`, `good`, `fair`, `poor`, `broken`
 
 ```json
 {
@@ -336,9 +333,9 @@ DELETE /api/v1/equipment/{id}               Xóa
 
 ---
 
-## Package Bookings
+## Đặt gói dịch vụ
 
-Đặt gói dịch vụ với resource conflict detection. **Không yêu cầu JWT**.
+Đặt gói dịch vụ kèm kiểm tra xung đột tài nguyên. **Không yêu cầu JWT**.
 
 ```
 GET    /api/v1/package-bookings                    Danh sách
@@ -347,7 +344,7 @@ POST   /api/v1/package-bookings                    Tạo
 PATCH  /api/v1/package-bookings/{id}/cancel        Hủy
 ```
 
-**Filters**: `package_id`, `customer_id`, `status`
+Bộ lọc: `package_id`, `customer_id`, `status`.
 
 ```json
 {
@@ -361,59 +358,59 @@ PATCH  /api/v1/package-bookings/{id}/cancel        Hủy
 ```
 
 Hệ thống tự động kiểm tra:
-- Space conflict (`find_conflicts`)
-- Equipment conflict (`find_equipment_conflicts`)
-- PostgreSQL advisory locks để ngăn race condition
+- Xung đột không gian (`find_conflicts`)
+- Xung đột thiết bị (`find_equipment_conflicts`)
+- Sử dụng advisory locks của PostgreSQL để tránh race condition.
 
 ---
 
-## Billing
+## Hóa đơn và thanh toán (Billing)
 
-Hóa đơn, khách hàng, sản phẩm, thanh toán. **11/19 endpoints yêu cầu JWT**.
+Quản lý hóa đơn, khách hàng, sản phẩm, thanh toán. **11/19 endpoint yêu cầu JWT**.
 
-### Invoices
+### Hóa đơn
 
 ```
 GET    /v1/billing/invoices              Danh sách (public)
 GET    /v1/billing/invoices/{id}         Chi tiết (public)
 POST   /v1/billing/invoices              Tạo (JWT)
-PUT    /v1/billing/invoices/{id}         Sửa (JWT)
+PUT    /v1/billing/invoices/{id}         Cập nhật (JWT)
 DELETE /v1/billing/invoices/{id}         Xóa (JWT)
 ```
 
-**Filters**: `customer_id`, `status`
+Bộ lọc: `customer_id`, `status`.
 
-### Invoice Items
+### Mục hóa đơn
 
 ```
 GET    /v1/billing/invoices/{id}/items   Danh sách (public)
 POST   /v1/billing/invoices/{id}/items   Thêm (JWT)
 ```
 
-### Invoice Payments
+### Thanh toán hóa đơn
 
 ```
 GET    /v1/billing/invoices/{id}/payments  Danh sách (public)
 POST   /v1/billing/invoices/{id}/payments  Thêm (JWT)
 ```
 
-### Customers
+### Khách hàng
 
 ```
 GET    /v1/billing/customers             Danh sách (public)
 GET    /v1/billing/customers/{id}        Chi tiết (public)
 POST   /v1/billing/customers             Tạo (JWT)
-PUT    /v1/billing/customers/{id}        Sửa (JWT)
+PUT    /v1/billing/customers/{id}        Cập nhật (JWT)
 DELETE /v1/billing/customers/{id}        Xóa (JWT)
 ```
 
-### Products
+### Sản phẩm
 
 ```
 GET    /v1/billing/products              Danh sách (public)
 GET    /v1/billing/products/{id}         Chi tiết (public)
 POST   /v1/billing/products              Tạo (JWT)
-PUT    /v1/billing/products/{id}         Sửa (JWT)
+PUT    /v1/billing/products/{id}         Cập nhật (JWT)
 DELETE /v1/billing/products/{id}         Xóa (JWT)
 ```
 
@@ -435,35 +432,35 @@ GET    /api/v1/chatbot/health            Kiểm tra trạng thái OpenAI
 }
 ```
 
-Hệ thống sử dụng function calling với 4 tools:
-1. `search_faq` - Tìm kiếm trong FAQ
-2. `suggest_equipment` - Gợi ý thiết bị
-3. `suggest_room` - Gợi ý phòng
-4. `suggest_package` - Gợi ý gói dịch vụ
+Hệ thống sử dụng function calling với 4 công cụ:
+1. `search_faq` – tìm kiếm trong FAQ.
+2. `suggest_equipment` – gợi ý thiết bị.
+3. `suggest_room` – gợi ý phòng.
+4. `suggest_package` – gợi ý gói dịch vụ.
 
-Fallback: Khi OpenAI không khả dụng, trả lời từ local FAQ + database queries.
+Fallback: Khi OpenAI không khả dụng, hệ thống trả lời từ FAQ và truy vấn cơ sở dữ liệu.
 
 ---
 
-## Recommendations
+## Gợi ý thông minh
 
-Gợi ý không gian theo lịch sử đặt chỗ. **Không yêu cầu JWT**.
+Gợi ý không gian dựa trên lịch sử đặt chỗ. **Không yêu cầu JWT**.
 
 ```
 GET    /api/v1/recommendations/{user_id}
 ```
 
-Thuật toán content-based filtering:
-- Art style (35%)
-- Space type (25%)
-- Price range (20%)
-- Location distance (20%, haversine)
+Thuật toán lọc nội dung:
+- Phong cách nghệ thuật (35%)
+- Loại không gian (25%)
+- Khoảng giá (20%)
+- Khoảng cách địa lý (20%, tính theo haversine)
 
-Cold start: Trả về top spaces theo rating/views.
+Cold start: Trả về những không gian có rating/views cao nhất.
 
 ---
 
-## Courses
+## Khóa học
 
 Quản lý khóa học. **Không yêu cầu JWT**.
 
@@ -471,27 +468,27 @@ Quản lý khóa học. **Không yêu cầu JWT**.
 GET    /courses/                    Danh sách
 GET    /courses/{id}               Chi tiết
 POST   /courses/                   Tạo
-PUT    /courses/{id}               Sửa
+PUT    /courses/{id}               Cập nhật
 DELETE /courses/{id}               Xóa
 ```
 
-Repository dùng PostgreSQL database, persist data.
+Dữ liệu được lưu trong PostgreSQL.
 
 ---
 
-## Utility
+## Tiện ích
 
 ```
-GET    /                    Test GUI (HTML page)
+GET    /                    Test GUI
 GET    /swagger.json        OpenAPI spec
 GET    /docs                Swagger UI
-GET    /uploads/{filename}  Uploaded files
+GET    /uploads/{filename}  File đã upload
 OPTIONS /options            CORS preflight
 ```
 
 ---
 
-## Error Response
+## Phản hồi lỗi
 
 ```json
 {
@@ -499,10 +496,10 @@ OPTIONS /options            CORS preflight
 }
 ```
 
-| Status | Mô tả |
+| Mã trạng thái | Ý nghĩa |
 |---|---|
-| 400 | Bad Request |
-| 401 | Unauthorized (thiếu token / token hết hạn) |
-| 404 | Not Found |
-| 409 | Conflict (trùng lịch) |
-| 500 | Internal Server Error |
+| 400 | Yêu cầu không hợp lệ |
+| 401 | Không được phép (thiếu token / token hết hạn) |
+| 404 | Không tìm thấy |
+| 409 | Xung đột (trùng lịch) |
+| 500 | Lỗi máy chủ nội bộ |

@@ -58,7 +58,7 @@ Photo Studio Capstone sử dụng **PostgreSQL** (Supabase) với **SQLAlchemy O
 
 ---
 
-## Enums (11 types)
+## Enums (14 types)
 
 | Enum | Values |
 |---|---|
